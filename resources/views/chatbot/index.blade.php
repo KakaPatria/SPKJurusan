@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konsultasi BK Virtual - Sistem Pemilihan Jurusan</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-maroon {
+            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+        }
+        .text-maroon {
+            color: #6B2C2C;
+        }
+        .border-maroon {
+            border-color: #6B2C2C;
+        }
+        .bg-cream {
+            background-color: #FFF9F5;
+        }
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+        }
+        @media (min-width: 768px) {
+            .chat-container {
+                height: 500px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .chat-container {
+                height: 600px;
+            }
+        }
+        .message {
+            margin-bottom: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        .message.user {
+            margin-left: 30px;
+        }
+        .message.ai {
+            margin-right: 30px;
+        }
+        @media (min-width: 640px) {
+            .message.user {
+                margin-left: 50px;
+            }
+            .message.ai {
+                margin-right: 50px;
+            }
+        }
+        .user-msg {
+            background-color: #6B2C2C;
+            color: white;
+            padding: 10px 12px;
+            border-radius: 12px 12px 0 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        .ai-msg {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 10px 12px;
+            border-radius: 12px 12px 12px 0;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        @media (min-width: 640px) {
+            .user-msg,
+            .ai-msg {
+                padding: 12px 16px;
+                font-size: 15px;
+            }
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-cream">
+    <!-- Header -->
+    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Konsultasi BK Virtual</h1>
+                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Konseling Pemilihan Jurusan Kuliah</p>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">
+                    Kembali
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+            <!-- Info Panel -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 border-l-4 border-maroon">
+                    <h3 class="text-base sm:text-lg font-bold text-maroon mb-3 sm:mb-4">👨‍🏫 Konselor BK Virtual</h3>
+                    
+                    @if($recommendation && !empty($recommendation['jurusan']))
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <p class="text-xs text-green-600 font-semibold">Rekomendasi Terakhir</p>
+                                <p class="text-base sm:text-lg font-bold text-maroon">{{ $recommendation['jurusan'] }}</p>
+                                <p class="text-xs sm:text-sm text-gray-600">Skor: {{ isset($recommendation['skor']) ? number_format($recommendation['skor'] * 100, 1) : '-' }}%</p>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <p class="text-xs sm:text-sm text-yellow-800">💡 Belum ada rekomendasi. Tapi tenang, kamu tetap bisa konsultasi!</p>
+                        </div>
+                    @endif
+
+                    <hr class="my-3 sm:my-4">
+
+                    <div>
+                        <p class="text-xs text-gray-600 font-semibold mb-2 sm:mb-3">Contoh Pertanyaan:</p>
+                        <ul class="space-y-1 sm:space-y-2 text-xs">
+                            <li class="text-gray-700">• Jurusan apa yang cocok buat aku?</li>
+                            <li class="text-gray-700">• Prospek kerja jurusan TI?</li>
+                            <li class="text-gray-700">• Aku bingung pilih jurusan</li>
+                            <li class="text-gray-700">• Skill apa yang dibutuhkan?</li>
+                            <li class="text-gray-700">• Bedanya IPA dan IPS?</li>
+                            <li class="text-gray-700">• Tips sukses di kampus?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="lg:col-span-2 order-1 lg:order-2">
+                <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 border border-gray-200 flex flex-col" style="height: 550px;">
+                    <!-- Chat Messages -->
+                    <div class="chat-container flex-1 mb-3 sm:mb-4" id="chatContainer">
+                        <div class="message ai">
+                            <div class="ai-msg">
+                                <p>Halo! 👋 Saya konselor BK virtual SMA Bima Ambulu. Saya siap membantu kamu tentang pemilihan jurusan kuliah, prospek karir, atau apa pun yang kamu mau tanyakan. Yuk, mulai curhat! 😊</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="border-t border-gray-200 pt-3 sm:pt-4">
+                        <form id="chatForm" class="flex gap-2">
+                            @csrf
+                            <input 
+                                type="text" 
+                                id="messageInput" 
+                                name="message" 
+                                placeholder="Ketik pertanyaan..." 
+                                class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm"
+                                required
+                            >
+                            <button 
+                                type="submit" 
+                                class="gradient-maroon text-white font-bold py-2 px-4 sm:px-6 rounded-lg hover:opacity-90 transition text-sm sm:text-base whitespace-nowrap"
+                                id="sendBtn"
+                            >
+                                Kirim
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const chatContainer = document.getElementById('chatContainer');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Track conversation history for multi-turn context
+        let conversationHistory = [];
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to UI
+            addMessage(message, 'user');
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Mengirim...';
+
+            // Add to history
+            conversationHistory.push({ role: 'user', text: message });
+
+            try {
+                const response = await fetch('{{ route("chatbot.send") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        chatHistory: conversationHistory.slice(0, -1) // Send previous history (exclude current msg)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage(data.message, 'ai');
+                    // Add AI response to history
+                    conversationHistory.push({ role: 'ai', text: data.message });
+                } else {
+                    addMessage(data.message || 'Maaf, terjadi kesalahan.', 'ai');
+                }
+
+                // Keep history manageable (max 20 turns)
+                if (conversationHistory.length > 20) {
+                    conversationHistory = conversationHistory.slice(-16);
+                }
+            } catch (error) {
+                addMessage('Terjadi kesalahan koneksi. Silakan coba lagi.', 'ai');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Kirim';
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const msgContent = document.createElement('div');
+            msgContent.className = `${sender}-msg`;
+            msgContent.textContent = text;
+            
+            messageDiv.appendChild(msgContent);
+            chatContainer.appendChild(messageDiv);
+
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Focus on input
+        messageInput.focus();
+    </script>
+</body>
+</html>

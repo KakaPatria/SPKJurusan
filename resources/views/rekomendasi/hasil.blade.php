@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Rekomendasi - Sistem Pemilihan Jurusan</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-maroon {
+            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+        }
+        .text-maroon {
+            color: #6B2C2C;
+        }
+        .border-maroon {
+            border-color: #6B2C2C;
+        }
+        .bg-cream {
+            background-color: #FFF9F5;
+        }
+        .bg-maroon-light {
+            background-color: rgba(107, 44, 44, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-cream">
+    <!-- Header -->
+    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Hasil Rekomendasi</h1>
+                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Sistem Pemilihan Jurusan</p>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
+        <!-- Info Box -->
+        <div class="bg-white border-2 border-maroon rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-md">
+            <h2 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Hasil Analisis</h2>
+            <p class="text-xs sm:text-sm md:text-base text-gray-700">
+                Berikut adalah hasil analisis sistem terhadap profil Anda. Jurusan diurutkan berdasarkan skor kesesuaian dari yang tertinggi.
+            </p>
+        </div>
+
+        <!-- Ringkasan Input -->
+        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6 sm:mb-8 border-l-4 border-maroon">
+            <h3 class="text-base sm:text-lg font-bold text-maroon mb-3 sm:mb-4">Data Profil Anda</h3>
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Nilai Akademik</p>
+                    <p class="text-lg sm:text-xl font-bold text-maroon">{{ $katNilai }}</p>
+                </div>
+                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Minat</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $minatMapped }}</p>
+                </div>
+                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Preferensi Belajar</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $prefStudi }}</p>
+                </div>
+                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Prestasi</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">
+                        @if($prestasiScore >= 0.8)
+                            Tinggi
+                        @elseif($prestasiScore >= 0.6)
+                            Sedang
+                        @else
+                            Minimal
+                        @endif
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Peringkat Jurusan -->
+        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6 sm:mb-8">
+            <h3 class="text-base sm:text-lg font-bold text-maroon mb-3 sm:mb-4">Peringkat Jurusan</h3>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="gradient-maroon text-white">
+                        <tr>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-bold">#</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-bold">Jurusan</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs sm:text-sm font-bold">Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach($hasilAkhir as $index => $res)
+                            <tr class="hover:bg-gray-50 transition {{ $index == 0 ? 'bg-yellow-50' : '' }}">
+                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-bold {{ $index == 0 ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-700' }}">
+                                        {{ $index + 1 }}
+                                    </span>
+                                </td>
+                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm font-semibold text-gray-900">
+                                    {{ $res['jurusan'] }}
+                                    @if($index == 0)
+                                        <span class="ml-1 sm:ml-2 inline-block px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                            ⭐ Utama
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-right text-xs sm:text-sm font-bold text-maroon">
+                                    {{ number_format($res['skor'] * 100, 1) }}%
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Visualisasi Progress Bars -->
+            <div class="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
+                @foreach($hasilAkhir as $index => $res)
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs sm:text-sm font-semibold text-gray-700">{{ $res['jurusan'] }}</span>
+                            <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format($res['skor'] * 100, 1) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format($res['skor'] * 100, 1) }}%"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Detail Rekomendasi Utama -->
+        @if(count($hasilAkhir) > 0)
+            <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8 border-l-4 border-yellow-400">
+                @php
+                    $topRecommendation = $hasilAkhir[0];
+                    $criteria = config('polije.criteria.' . $topRecommendation['jurusan'], []);
+                @endphp
+                
+                <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-yellow-100 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">1</div>
+                    <div>
+                        <h3 class="text-lg sm:text-2xl font-bold text-maroon mb-1 sm:mb-2">{{ $topRecommendation['jurusan'] }}</h3>
+                        <p class="text-sm sm:text-lg text-gray-700">
+                            Skor Kesesuaian: <span class="font-bold text-maroon">{{ number_format($topRecommendation['skor'] * 100, 1) }}%</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Analysis Breakdown -->
+                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-bold text-maroon text-sm sm:text-base mb-3 sm:mb-4">Analisis per Kriteria:</h4>
+                    
+                    <div class="space-y-2 sm:space-y-3">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik (40%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $katNilai }}</span>
+                            </div>
+                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                <div class="gradient-maroon h-2 rounded-full" style="width: 80%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat (35%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $minatMapped }}</span>
+                            </div>
+                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Belajar (15%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $prefStudi }}</span>
+                            </div>
+                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                <div class="gradient-maroon h-2 rounded-full" style="width: 80%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita (5%)</p>
+                            </div>
+                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Prestasi (5%)</p>
+                            </div>
+                            <div class="w-full bg-gray-300 rounded-full h-2">
+                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ $prestasiScore * 100 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kesimpulan -->
+                <div class="p-3 sm:p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mb-3 sm:mb-4">
+                    <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">Penjelasan:</h4>
+                    <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
+                        Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }}</strong>, 
+                        <strong>minat di bidang {{ $minatMapped }}</strong>, dan 
+                        <strong>preferensi belajar {{ $prefStudi }}</strong>, 
+                        sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] }}</strong> 
+                        adalah pilihan yang paling sesuai dengan skor {{ number_format($topRecommendation['skor'] * 100, 1) }}%.
+                    </p>
+                </div>
+                
+                <!-- Skills Required -->
+                @if(isset($criteria['skills_required']))
+                    <div class="mb-3 sm:mb-4">
+                        <p class="text-xs sm:text-sm font-bold text-maroon mb-2">Skills yang Diperlukan:</p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($criteria['skills_required'] as $skill)
+                                <span class="inline-block px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-medium bg-maroon-light text-maroon border border-maroon">
+                                    {{ $skill }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        <!-- Chatbot Confirmation Card -->
+        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8 border-2 border-yellow-400">
+            <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-yellow-100 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">💬</div>
+                <div class="flex-1">
+                    <h3 class="text-base sm:text-xl font-bold text-maroon mb-1 sm:mb-2">Konsultasi Lebih Lanjut</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
+                        Masih ragu dengan hasil rekomendasi? Konsultasikan dengan AI untuk mendapatkan penjelasan lebih detail 
+                        tentang jurusan yang direkomendasikan atau tanyakan pertanyaan lainnya.
+                    </p>
+                    <a href="{{ route('chatbot.index') }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
+                        Konsultasi dengan AI
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between">
+            <a href="{{ route('rekomendasi.index') }}" class="block sm:inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition duration-200 text-sm sm:text-base text-center">
+                Kembali & Ubah Input
+            </a>
+            <a href="{{ url('/dashboard') }}" class="block sm:inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 gradient-maroon text-white font-semibold rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base text-center">
+                Ke Dashboard
+            </a>
+        </div>
+
+        <!-- Info Metode -->
+        <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <p class="text-xs sm:text-sm text-gray-600">
+                <strong>Metode:</strong> Sistem menggunakan Weighted Naive Bayes dengan 5 kriteria: Nilai (40%), Minat (35%), Preferensi (15%), Cita-cita (5%), Prestasi (5%).
+            </p>
+        </div>
+    </div>
+</body>
+</html>
