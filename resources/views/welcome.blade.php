@@ -63,7 +63,7 @@
                         Sistem ini menganalisis 5 aspek penting dalam diri kalian untuk memberikan rekomendasi yang akurat dan personal.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                        <a href="{{ route('register') }}" class="inline-block bg-yellow-400 text-maroon font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg hover:bg-yellow-300 transition text-sm sm:text-base text-center">Mulai Analisis</a>
+                        <a href="{{ route('login') }}" class="inline-block bg-yellow-400 text-maroon font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg hover:bg-yellow-300 transition text-sm sm:text-base text-center">Mulai Analisis</a>
                     </div>
                 </div>
                 <div class="flex justify-center">
