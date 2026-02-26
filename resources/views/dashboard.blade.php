@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .card-hover {
             transition: all 0.3s ease;
@@ -38,16 +38,25 @@
                 </div>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <span class="text-xs sm:text-sm md:text-base text-yellow-200">Selamat datang, <strong>{{ Auth::user()->name }}</strong>!</span>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <a href="{{ route('profile.edit') }}" class="flex-1 sm:flex-none block sm:inline-block text-center bg-white font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm" style="color: #6B2C2C;">
+                    <div class="relative">
+                        <button id="profileDropdownBtn" class="bg-gray-100 text-maroon font-bold py-2 px-4 rounded-lg hover:bg-gray-200 transition text-xs sm:text-sm flex items-center gap-2" style="color: #5B7B89;">
                             👤 Profil
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}" class="flex-1 sm:flex-none">
-                            @csrf
-                            <button type="submit" class="block sm:inline-block w-full sm:w-auto bg-yellow-400 text-maroon font-bold py-2 px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm text-center">
-                                Logout
-                            </button>
-                        </form>
+                            <svg id="dropdownArrow" class="w-4 h-4 transition-transform duration-300" style="transform: rotate(0deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                            </svg>
+                        </button>
+                        
+                        <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg hidden z-50">
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold border-b border-gray-100 rounded-t-lg">
+                                👤 Lihat Profil
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold text-red-600 rounded-b-lg">
+                                    🚪 Logout
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,13 +67,41 @@
     <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <!-- Info Box -->
         <div class="bg-white border-2 border-maroon rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-md">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-2 sm:mb-3">Selamat Datang</h2>
-            <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-2 sm:mb-3">
-                Sistem ini membantu Anda menemukan jurusan yang sesuai dengan profil akademik, minat, dan preferensi pembelajaran Anda.
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-2 sm:mb-3">Selamat Datang di Sistem Pemilihan Jurusan</h2>
+            <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
+                Memilih jurusan adalah keputusan penting yang akan mempengaruhi karir dan masa depan Anda. Sistem ini dirancang untuk membantu Anda menemukan jurusan kuliah yang paling sesuai dengan profil akademik, minat, gaya belajar, prestasi, dan cita-cita Anda.
             </p>
-            <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                Sistem menganalisis 5 faktor: nilai akademik, minat, preferensi pembelajaran, prestasi, dan cita-cita. 
-                Berdasarkan analisis tersebut, sistem memberikan rekomendasi dari 9 pilihan jurusan yang tersedia.
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 sm:p-4 mb-4 rounded">
+                <p class="text-xs sm:text-sm md:text-base text-gray-800">
+                    <strong>Bagaimana Sistem Ini Bekerja?</strong> Kami menganalisis 5 faktor utama dalam diri Anda: nilai akademik (40%), minat dan passion (35%), preferensi gaya belajar (15%), prestasi dan pencapaian (5%), serta cita-cita dan rencana karir (5%). Dari analisis mendalam tersebut, sistem memberikan ranking 9 jurusan yang tersedia berdasarkan kesesuaian dengan profil Anda.
+                </p>
+            </div>
+
+            <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
+                <strong>Fitur-Fitur yang Tersedia:</strong>
+            </p>
+            <ul class="text-xs sm:text-sm md:text-base text-gray-700 space-y-2 mb-4">
+                <li class="flex gap-2">
+                    <span class="text-maroon">✓</span>
+                    <span><strong>Analisis Rekomendasi:</strong> Isi kuesioner singkat dan dapatkan rekomendasi 9 jurusan yang disesuaikan dengan profil Anda</span>
+                </li>
+                <li class="flex gap-2">
+                    <span class="text-maroon">✓</span>
+                    <span><strong>Konsultasi dengan AI:</strong> Chat dengan konselor BK virtual yang siap menjawab pertanyaan tentang jurusan, prospek karir, dan tips sukses kuliah</span>
+                </li>
+                <li class="flex gap-2">
+                    <span class="text-maroon">✓</span>
+                    <span><strong>Riwayat Analisis:</strong> Lihat kembali semua analisis dan chat history Anda kapan saja untuk referensi</span>
+                </li>
+                <li class="flex gap-2">
+                    <span class="text-maroon">✓</span>
+                    <span><strong>Profil Pribadi:</strong> Kelola data diri, foto profil, dan informasi akademik Anda</span>
+                </li>
+            </ul>
+
+            <p class="text-xs sm:text-sm md:text-base text-gray-700 text-italic">
+                💡 <strong>Tips:</strong> Untuk hasil yang akurat, jawab semua pertanyaan dengan jujur dan detail. Semakin detail profil Anda, semakin akurat rekomendasi yang kami berikan.
             </p>
         </div>
 
@@ -260,5 +297,35 @@
             <p class="text-xs sm:text-sm text-yellow-200">Sistem Pemilihan Jurusan © 2026 | SMA Bima Ambulu</p>
         </div>
     </footer>
+
+    <script>
+        // Dropdown menu toggle with arrow animation
+        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const dropdownArrow = document.getElementById('dropdownArrow');
+
+        profileDropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isHidden = profileDropdown.classList.contains('hidden');
+            
+            if (isHidden) {
+                // Show dropdown and rotate arrow
+                profileDropdown.classList.remove('hidden');
+                dropdownArrow.style.transform = 'rotate(180deg)';
+            } else {
+                // Hide dropdown and reset arrow
+                profileDropdown.classList.add('hidden');
+                dropdownArrow.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!profileDropdownBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
+                dropdownArrow.style.transform = 'rotate(0deg)';
+            }
+        });
+    </script>
 </body>
 </html>

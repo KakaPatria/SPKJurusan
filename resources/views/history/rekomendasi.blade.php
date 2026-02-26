@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
     </style>
 </head>

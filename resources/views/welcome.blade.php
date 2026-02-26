@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .mobile-menu-toggle {
             display: none;
@@ -39,7 +39,7 @@
         <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
             <div>
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Sistem Pemilihan Jurusan</h1>
-                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Pilih Jurusan yang Tepat.</p>
+                <p class="text-xs sm:text-sm text-gray-200 font-semibold mt-1">Pilih Jurusan yang Tepat.</p>
             </div>
             <button class="mobile-menu-toggle text-white text-2xl" id="menuToggle">☰</button>
             <div class="mobile-menu hidden md:flex space-x-2 sm:space-x-4 absolute md:relative top-16 md:top-0 left-0 md:left-auto right-0 md:right-0 bg-gradient-maroon md:bg-transparent p-4 md:p-0 flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">

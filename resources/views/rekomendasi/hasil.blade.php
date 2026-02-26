@@ -7,19 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .bg-maroon-light {
-            background-color: rgba(107, 44, 44, 0.1);
+            background-color: rgba(91, 123, 137, 0.1);
         }
     </style>
 </head>
@@ -56,26 +56,29 @@
                 <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Nilai Akademik</p>
                     <p class="text-lg sm:text-xl font-bold text-maroon">{{ $katNilai }}</p>
+                    <p class="text-xs text-gray-500">Rata-rata: {{ number_format($average, 1) }}</p>
                 </div>
                 <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Minat</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $minatMapped }}</p>
-                </div>
-                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Preferensi Belajar</p>
+                    <p class="text-xs sm:text-sm text-gray-600">Preferensi Studi</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">{{ $prefStudi }}</p>
                 </div>
-                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Prestasi</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">
                         @if($prestasiScore >= 0.8)
                             Tinggi
                         @elseif($prestasiScore >= 0.6)
                             Sedang
+                        @elseif($prestasiScore > 0)
+                            Cukup
                         @else
-                            Minimal
+                            Belum Ada
                         @endif
                     </p>
+                </div>
+                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Skor Nilai</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ number_format($average / 100 * 100, 1) }}%</p>
                 </div>
             </div>
         </div>
@@ -139,7 +142,7 @@
             <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8 border-l-4 border-yellow-400">
                 @php
                     $topRecommendation = $hasilAkhir[0];
-                    $criteria = config('polije.criteria.' . $topRecommendation['jurusan'], []);
+                    $detail = $topRecommendation['detail'] ?? [];
                 @endphp
                 
                 <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -149,6 +152,9 @@
                         <p class="text-sm sm:text-lg text-gray-700">
                             Skor Kesesuaian: <span class="font-bold text-maroon">{{ number_format($topRecommendation['skor'] * 100, 1) }}%</span>
                         </p>
+                        @if($topJurusan && $topJurusan->deskripsi)
+                            <p class="text-xs sm:text-sm text-gray-600 mt-2">{{ $topJurusan->deskripsi }}</p>
+                        @endif
                     </div>
                 </div>
 
@@ -160,48 +166,50 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik (40%)</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $katNilai }}</span>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: 80%"></div>
+                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%"></div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat (35%)</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $minatMapped }}</span>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat (35%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 85%"></div>
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%"></div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Belajar (15%)</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ $prefStudi }}</span>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi (15%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: 80%"></div>
+                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%"></div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita (5%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="bg-yellow-400 h-2 rounded-full" style="width: 85%"></div>
+                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%"></div>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-xs sm:text-sm font-semibold text-gray-700">Prestasi (5%)</p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ $prestasiScore * 100 }}%"></div>
+                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -211,25 +219,18 @@
                 <div class="p-3 sm:p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mb-3 sm:mb-4">
                     <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">Penjelasan:</h4>
                     <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
-                        Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }}</strong>, 
-                        <strong>minat di bidang {{ $minatMapped }}</strong>, dan 
-                        <strong>preferensi belajar {{ $prefStudi }}</strong>, 
+                        Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }} (rata-rata {{ number_format($average, 1) }})</strong> 
+                        dan <strong>preferensi studi {{ $prefStudi }}</strong>, 
                         sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] }}</strong> 
                         adalah pilihan yang paling sesuai dengan skor {{ number_format($topRecommendation['skor'] * 100, 1) }}%.
                     </p>
                 </div>
-                
-                <!-- Skills Required -->
-                @if(isset($criteria['skills_required']))
+
+                <!-- Prospek Kerja -->
+                @if($topJurusan && $topJurusan->prospek_kerja)
                     <div class="mb-3 sm:mb-4">
-                        <p class="text-xs sm:text-sm font-bold text-maroon mb-2">Skills yang Diperlukan:</p>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($criteria['skills_required'] as $skill)
-                                <span class="inline-block px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-medium bg-maroon-light text-maroon border border-maroon">
-                                    {{ $skill }}
-                                </span>
-                            @endforeach
-                        </div>
+                        <p class="text-xs sm:text-sm font-bold text-maroon mb-2">Prospek Kerja:</p>
+                        <p class="text-xs sm:text-sm text-gray-700">{{ $topJurusan->prospek_kerja }}</p>
                     </div>
                 @endif
             </div>
@@ -265,7 +266,7 @@
         <!-- Info Metode -->
         <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan Weighted Naive Bayes dengan 5 kriteria: Nilai (40%), Minat (35%), Preferensi (15%), Cita-cita (5%), Prestasi (5%).
+                <strong>Metode:</strong> Sistem menggunakan Graduated Scoring dengan 5 kriteria: Nilai Akademik (40%), Minat & Bakat (35%), Preferensi Studi (15%), Cita-cita (5%), Prestasi (5%). Setiap kriteria dihitung secara proporsional (0-100%) berdasarkan kecocokan keyword.
             </p>
         </div>
     </div>

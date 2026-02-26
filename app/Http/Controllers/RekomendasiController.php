@@ -30,117 +30,123 @@ class RekomendasiController extends Controller
 
     public function proses(Request $request)
     {
-        // --- 1. PREPROCESSING NILAI (Kriteria 1: Akademik) ---
-        $scores = $request->only(['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah']);
-        $validScores = array_filter($scores);
-        $average = count($validScores) > 0 ? array_sum($validScores) / count($validScores) : 0;
+        // --- VALIDATION ---
+        // Tentukan kelompok asal siswa
+        $user = Auth::user();
+        $kelompok = $user->kelompok_asal ?? 'IPS';
 
-        // Kategorisasi Nilai berdasarkan config
-        $nilaiCategories = config('polije.nilai_category', []);
-        $katNilai = 'Rendah';
-        foreach ($nilaiCategories as $category => $range) {
-            if ($average >= $range['min'] && $average <= $range['max']) {
-                $katNilai = $category;
-                break;
-            }
-        }
+        // Validasi berbeda untuk IPA dan IPS
+        $baseRules = [
+            'minat' => 'required|string|max:255',
+            'cita_cita' => 'required|string|max:255',
+            'pref_studi' => 'required|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'prestasi' => 'nullable|string|max:255',
+        ];
 
-        // --- 2. ANALISIS MINAT (Kriteria 2) ---
-        $minatRaw = strtolower($request->minat ?? '');
-        $minatMapped = $this->mapMinat($minatRaw);
-
-        // --- 3. ANALISIS CITA-CITA (Kriteria 3) ---
-        $citaRaw = strtolower($request->cita_cita ?? '');
-        $citaMapped = $this->mapCitaCita($citaRaw);
-
-        // --- 4. PEMETAAN PREFERENSI STUDI (Kriteria 4) ---
-        $prefStudi = $request->pref_studi ?? 'Blended';
-        $prefMapping = config('polije.pref_mapping', []);
-
-        // --- 5. ANALISIS PRESTASI (Kriteria 5) ---
-        $prestasiRaw = strtolower($request->prestasi ?? '');
-        $prestasiScore = $this->scorePrestasiScore($prestasiRaw);
-
-        // --- 6. PERHITUNGAN NAIVE BAYES BERBOBOT ---
-        $cfg = config('polije.criteria', []);
-        $logPosteriors = [];
-        $epsilon = 1e-9;
-
-        foreach ($cfg as $jurusan => $c) {
-            // Prior: uniform
-            $prior = 1 / count($cfg);
-            $logPrior = log(max($prior, $epsilon));
-
-            // Weights dan match probabilities
-            $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
-            $matchProb = $c['match_prob'] ?? ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
-
-            // 1. Likelihood untuk Nilai
-            $p_nilai = ($katNilai == ($c['nilai'] ?? 'Sedang')) ? $matchProb['nilai'] : max(1 - $matchProb['nilai'], $epsilon);
-
-            // 2. Likelihood untuk Minat
-            $p_minat = ($minatMapped == ($c['minat'] ?? 'Umum')) ? $matchProb['minat'] : max(1 - $matchProb['minat'], $epsilon);
-
-            // 3. Likelihood untuk Preferensi Studi
-            $prefList = $c['pref'] ?? ['Praktik Langsung', 'DuDi', 'Project Based'];
-            if (!is_array($prefList)) {
-                $prefList = [$prefList];
-            }
-            $p_pref = in_array($prefStudi, $prefList) ? $matchProb['pref'] : max(1 - $matchProb['pref'], $epsilon);
-
-            // 4. Likelihood untuk Cita-cita
-            $citaCitaKeywords = $c['cita_cita_keywords'] ?? [];
-            $matchCitaCita = false;
-            if (!empty($citaCitaKeywords)) {
-                foreach ($citaCitaKeywords as $keyword) {
-                    if (stripos($citaMapped, $keyword) !== false) {
-                        $matchCitaCita = true;
-                        break;
-                    }
-                }
-            }
-            $p_cita_cita = $matchCitaCita ? $matchProb['cita_cita'] : max(1 - $matchProb['cita_cita'], $epsilon);
-
-            // 5. Likelihood untuk Prestasi (boost jika ada prestasi)
-            $p_prestasi = ($prestasiScore > 0.5) ? $matchProb['prestasi'] : max(1 - $matchProb['prestasi'], $epsilon);
-
-            // Hitung log-likelihood dengan bobot
-            $logLikelihood =
-                ($weights['nilai'] ?? 0) * log(max($p_nilai, $epsilon)) +
-                ($weights['minat'] ?? 0) * log(max($p_minat, $epsilon)) +
-                ($weights['pref'] ?? 0) * log(max($p_pref, $epsilon)) +
-                ($weights['cita_cita'] ?? 0) * log(max($p_cita_cita, $epsilon)) +
-                ($weights['prestasi'] ?? 0) * log(max($p_prestasi, $epsilon));
-
-            $logPosteriors[$jurusan] = $logPrior + $logLikelihood;
-        }
-
-        // Convert log-posteriors ke probabilitas (softmax)
-        $maxLog = max($logPosteriors);
-        $expVals = [];
-        $sumExp = 0.0;
-        foreach ($logPosteriors as $jurusan => $lv) {
-            $expVals[$jurusan] = exp($lv - $maxLog);
-            $sumExp += $expVals[$jurusan];
-        }
-
-        $hasilAkhir = [];
-        foreach ($expVals as $jurusan => $val) {
-            $prob = $val / max($sumExp, $epsilon);
-            $hasilAkhir[] = [
-                'jurusan' => $jurusan,
-                'skor' => round($prob, 4),
-                'kecocokan_nilai' => $katNilai,
-                'kecocokan_minat' => $minatMapped,
-                'kecocokan_pref' => $prefStudi,
+        if ($kelompok === 'IPA') {
+            $nilaiRules = [
+                'mtk' => 'required|numeric|between:0,100',
+                'fisika' => 'required|numeric|between:0,100',
+                'kimia' => 'required|numeric|between:0,100',
+                'biologi' => 'required|numeric|between:0,100',
+            ];
+        } else {
+            $nilaiRules = [
+                'ekonomi' => 'required|numeric|between:0,100',
+                'geografi' => 'required|numeric|between:0,100',
+                'sosiologi' => 'required|numeric|between:0,100',
+                'sejarah' => 'required|numeric|between:0,100',
             ];
         }
 
-        // Sort hasil berdasarkan skor (tertinggi dulu)
+        $request->validate(array_merge($baseRules, $nilaiRules));
+
+        // --- 1. SKOR NILAI AKADEMIK (40%) - dikumpulkan dulu, dihitung per jurusan ---
+        if ($kelompok === 'IPA') {
+            $scores = $request->only(['mtk', 'fisika', 'kimia', 'biologi']);
+        } else {
+            $scores = $request->only(['ekonomi', 'geografi', 'sosiologi', 'sejarah']);
+        }
+        $validScores = array_filter($scores, fn($v) => !is_null($v) && $v !== '');
+        $average = count($validScores) > 0 ? array_sum($validScores) / count($validScores) : 0;
+
+        // Label nilai untuk tampilan
+        if ($average >= 85) {
+            $katNilai = 'Tinggi';
+        } elseif ($average >= 70) {
+            $katNilai = 'Sedang';
+        } else {
+            $katNilai = 'Rendah';
+        }
+
+        // --- 2. INPUT SISWA ---
+        $minatRaw = strtolower(trim($request->minat ?? ''));
+        $citaRaw = strtolower(trim($request->cita_cita ?? ''));
+        $prefStudi = $request->pref_studi ?? 'Sains & Teknologi';
+        $prestasiRaw = strtolower(trim($request->prestasi ?? ''));
+        $prestasiScore = $this->scorePrestasiScore($prestasiRaw);
+
+        // --- 3. GRADUATED SCORING PER JURUSAN ---
+        $jurusanList = PolijeMajor::all();
+        $hasilAkhir = [];
+
+        // Bobot kriteria
+        $W_NILAI = 0.40;
+        $W_MINAT = 0.35;
+        $W_PREF = 0.15;
+        $W_CITA = 0.05;
+        $W_PRESTASI = 0.05;
+
+        foreach ($jurusanList as $jurusan) {
+            $keywords = $jurusan->keywords ?? [];
+            $prefList = $jurusan->preferensi_studi ?? [];
+            $bobotMapel = $jurusan->bobot_mapel ?? [];
+
+            // --- Skor Nilai: per-jurusan weighted ---
+            $skorNilai = $this->hitungSkorNilaiPerJurusan($scores, $bobotMapel, $average);
+
+            // --- Skor Minat: partial keyword matching ---
+            $skorMinat = $this->hitungKecocokanKeyword($minatRaw, $keywords);
+
+            // --- Skor Cita-cita: partial keyword matching ---
+            $skorCita = $this->hitungKecocokanKeyword($citaRaw, $keywords);
+
+            // --- Skor Preferensi Studi ---
+            if (in_array($prefStudi, $prefList)) {
+                $skorPref = 1.0;
+            } elseif (!empty($prefList)) {
+                $skorPref = 0.3; // Tidak cocok tapi jurusan punya preferensi
+            } else {
+                $skorPref = 0.5; // Jurusan tidak mendefinisikan preferensi
+            }
+
+            // --- Skor Prestasi (sama untuk semua jurusan) ---
+            $skorPrestasi = $prestasiScore;
+
+            // --- Hitung skor akhir ---
+            $skorAkhir = ($W_NILAI * $skorNilai) +
+                         ($W_MINAT * $skorMinat) +
+                         ($W_PREF  * $skorPref) +
+                         ($W_CITA  * $skorCita) +
+                         ($W_PRESTASI * $skorPrestasi);
+
+            $hasilAkhir[] = [
+                'jurusan' => $jurusan->nama_jurusan,
+                'skor' => round($skorAkhir, 4),
+                'detail' => [
+                    'nilai' => round($skorNilai, 4),
+                    'minat' => round($skorMinat, 4),
+                    'pref' => round($skorPref, 4),
+                    'cita' => round($skorCita, 4),
+                    'prestasi' => round($skorPrestasi, 4),
+                ],
+            ];
+        }
+
+        // Sort berdasarkan skor tertinggi
         usort($hasilAkhir, fn($a, $b) => $b['skor'] <=> $a['skor']);
 
-        // Simpan data rekomendasi ke database
-        $user = Auth::user();
+        // Simpan ke database
         if ($user) {
             Recommendation::create([
                 'user_id' => $user->id,
@@ -160,7 +166,7 @@ class RekomendasiController extends Controller
             ]);
         }
 
-        // Simpan data rekomendasi ke session untuk chatbot
+        // Simpan ke session untuk chatbot
         if (count($hasilAkhir) > 0) {
             $topResult = $hasilAkhir[0];
             session([
@@ -168,41 +174,91 @@ class RekomendasiController extends Controller
                     'jurusan' => $topResult['jurusan'],
                     'skor' => $topResult['skor'],
                     'nilai' => $katNilai,
-                    'minat' => $minatMapped,
+                    'minat' => $request->minat,
                     'pref_studi' => $prefStudi,
                 ]
             ]);
         }
 
-        return view('rekomendasi.hasil', compact('hasilAkhir', 'katNilai', 'minatMapped', 'citaMapped', 'prefStudi', 'prestasiScore'));
-    }
-
-    /**
-     * Pemetaan minat ke kategori yang dipahami sistem
-     */
-    private function mapMinat(string $minatRaw): string
-    {
-        if (preg_match('/(coding|komputer|laptop|web|aplikasi|logika|programming|software|development)/', $minatRaw)) {
-            return 'Logika & Komputer';
-        } elseif (preg_match('/(tanam|kebun|sawah|hewan|ternak|alam|pertanian|agri)/', $minatRaw)) {
-            return 'Alam & Tanaman';
-        } elseif (preg_match('/(obat|sakit|rawat|medis|gizi|sehat|kesehatan|perawat|dokter)/', $minatRaw)) {
-            return 'Pelayanan & Kesehatan';
-        } elseif (preg_match('/(bisnis|uang|jual|kantor|hitung|ekonomi|dagang|usaha|entrepreneur)/', $minatRaw)) {
-            return 'Manajemen & Bisnis';
-        } elseif (preg_match('/(mesin|bengkel|listrik|las|robot|motor|teknik|otomasi|elektronik)/', $minatRaw)) {
-            return 'Mesin & Listrik';
+        // Load top jurusan from DB for deskripsi & prospek_kerja
+        $topJurusan = null;
+        if (count($hasilAkhir) > 0) {
+            $topJurusan = PolijeMajor::where('nama_jurusan', $hasilAkhir[0]['jurusan'])->first();
         }
-        return 'Umum';
+
+        return view('rekomendasi.hasil', compact('hasilAkhir', 'katNilai', 'average', 'prefStudi', 'prestasiScore', 'topJurusan'));
     }
 
     /**
-     * Pemetaan cita-cita ke kategori jurusan
+     * Hitung skor nilai akademik per jurusan dengan bobot mapel
+     * Jika jurusan punya bobot_mapel, hitung weighted average
+     * Jika tidak, gunakan rata-rata biasa
      */
-    private function mapCitaCita(string $citaRaw): string
+    private function hitungSkorNilaiPerJurusan(array $scores, array $bobotMapel, float $averageFallback): float
     {
-        // Return raw mapped text untuk matching dengan keywords
-        return $citaRaw;
+        // Jika tidak ada bobot khusus, pakai rata-rata biasa
+        if (empty($bobotMapel)) {
+            return min($averageFallback / 100, 1.0);
+        }
+
+        $weightedSum = 0;
+        $totalWeight = 0;
+
+        foreach ($bobotMapel as $mapel => $bobot) {
+            $nilai = floatval($scores[$mapel] ?? 0);
+            $weightedSum += $nilai * $bobot;
+            $totalWeight += $bobot;
+        }
+
+        // Untuk mapel yang ada di scores tapi tidak di bobot, beri bobot kecil
+        foreach ($scores as $mapel => $nilai) {
+            if (!isset($bobotMapel[$mapel]) && !is_null($nilai) && $nilai !== '') {
+                $weightedSum += floatval($nilai) * 0.1;
+                $totalWeight += 0.1;
+            }
+        }
+
+        if ($totalWeight <= 0) {
+            return min($averageFallback / 100, 1.0);
+        }
+
+        $weightedAvg = $weightedSum / $totalWeight;
+        return min($weightedAvg / 100, 1.0);
+    }
+
+    /**
+     * Hitung kecocokan teks input dengan array keywords jurusan (graduated)
+     * Returns 0.0 - 1.0
+     */
+    private function hitungKecocokanKeyword(string $inputText, array $keywords): float
+    {
+        if (empty($keywords) || empty($inputText)) {
+            return 0.0;
+        }
+
+        $matchCount = 0;
+        $inputWords = preg_split('/[\s,;.\/\-]+/', $inputText);
+
+        foreach ($keywords as $keyword) {
+            $kw = strtolower(trim($keyword));
+            if (empty($kw)) continue;
+
+            // Check if keyword appears in any input word (partial match)
+            foreach ($inputWords as $word) {
+                if (empty($word)) continue;
+                // Match if input word contains keyword or keyword contains input word (min 3 chars)
+                if (stripos($inputText, $kw) !== false ||
+                    (strlen($word) >= 3 && stripos($kw, $word) !== false)) {
+                    $matchCount++;
+                    break;
+                }
+            }
+        }
+
+        // Graduated score: ratio of matched keywords
+        // Use sqrt to give more credit for partial matches
+        $ratio = $matchCount / count($keywords);
+        return min(sqrt($ratio) * 0.9 + ($matchCount > 0 ? 0.1 : 0), 1.0);
     }
 
     /**

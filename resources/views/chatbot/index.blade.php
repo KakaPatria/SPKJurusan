@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .chat-container {
             height: 400px;
@@ -51,7 +51,7 @@
             }
         }
         .user-msg {
-            background-color: #6B2C2C;
+            background-color: #5B7B89;
             color: white;
             padding: 10px 12px;
             border-radius: 12px 12px 0 12px;
@@ -146,7 +146,7 @@
                     <div class="chat-container flex-1 mb-3 sm:mb-4" id="chatContainer">
                         <div class="message ai">
                             <div class="ai-msg">
-                                <p>Halo! 👋 Saya konselor BK virtual SMA Bima Ambulu. Saya siap membantu kamu tentang pemilihan jurusan kuliah, prospek karir, atau apa pun yang kamu mau tanyakan. Yuk, mulai curhat! 😊</p>
+                                <p>Selamat datang. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan kuliah, informasi prospek karier, maupun konsultasi lainnya terkait pendidikan tinggi. Silakan sampaikan pertanyaan Anda.</p>
                             </div>
                         </div>
                     </div>
@@ -217,9 +217,15 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    addMessage(data.message, 'ai');
+                    // Strip markdown formatting (**, *, #, etc.)
+                    let cleanMessage = data.message
+                        .replace(/\*\*(.*?)\*\*/g, '$1')
+                        .replace(/\*(.*?)\*/g, '$1')
+                        .replace(/^#{1,6}\s+/gm, '')
+                        .replace(/`(.*?)`/g, '$1');
+                    addMessage(cleanMessage, 'ai');
                     // Add AI response to history
-                    conversationHistory.push({ role: 'ai', text: data.message });
+                    conversationHistory.push({ role: 'ai', text: cleanMessage });
                 } else {
                     addMessage(data.message || 'Maaf, terjadi kesalahan.', 'ai');
                 }

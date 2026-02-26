@@ -7,30 +7,30 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .btn-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
             color: #fff;
             transition: all 0.3s ease;
         }
         .btn-maroon:hover {
             opacity: 0.9;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(107, 44, 44, 0.3);
+            box-shadow: 0 4px 12px rgba(91, 123, 137, 0.3);
         }
         .input-focus:focus {
-            border-color: #6B2C2C;
-            box-shadow: 0 0 0 3px rgba(107, 44, 44, 0.15);
+            border-color: #5B7B89;
+            box-shadow: 0 0 0 3px rgba(91, 123, 137, 0.15);
             outline: none;
         }
     </style>
@@ -46,7 +46,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <span class="text-xs sm:text-sm md:text-base text-yellow-200">{{ Auth::user()->name }}</span>
-                    <a href="{{ route('dashboard') }}" class="block sm:inline-block w-full sm:w-auto bg-yellow-400 text-center font-bold py-2 px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm" style="color: #6B2C2C;">
+                    <a href="{{ route('dashboard') }}" class="block sm:inline-block w-full sm:w-auto bg-yellow-400 text-center font-bold py-2 px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm" style="color: #5B7B89;">
                         ← Kembali ke Dashboard
                     </a>
                 </div>
@@ -162,8 +162,11 @@
 
                 <div class="mb-4">
                     <label for="current_password" class="block text-sm font-semibold text-maroon mb-1">Password Saat Ini</label>
-                    <input type="password" id="current_password" name="current_password"
-                        class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="current_password" name="current_password"
+                            class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0" style="padding-right: 45px;">
+                        <button type="button" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #5B7B89; font-size: 18px;" onclick="togglePasswordVisibility('current_password', this)">👁️</button>
+                    </div>
                     @error('current_password', 'updatePassword')
                         <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -171,8 +174,11 @@
 
                 <div class="mb-4">
                     <label for="password" class="block text-sm font-semibold text-maroon mb-1">Password Baru</label>
-                    <input type="password" id="password" name="password"
-                        class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="password" name="password"
+                            class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0" style="padding-right: 45px;">
+                        <button type="button" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #5B7B89; font-size: 18px;" onclick="togglePasswordVisibility('password', this)">👁️</button>
+                    </div>
                     @error('password', 'updatePassword')
                         <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -180,8 +186,11 @@
 
                 <div class="mb-6">
                     <label for="password_confirmation" class="block text-sm font-semibold text-maroon mb-1">Konfirmasi Password Baru</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                        class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0">
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="password_confirmation" name="password_confirmation"
+                            class="input-focus w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-0" style="padding-right: 45px;">
+                        <button type="button" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #5B7B89; font-size: 18px;" onclick="togglePasswordVisibility('password_confirmation', this)">👁️</button>
+                    </div>
                     @error('password_confirmation', 'updatePassword')
                         <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -252,6 +261,12 @@
                 }
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+        
+        function togglePasswordVisibility(inputId, buttonElement) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
         }
     </script>
 </body>

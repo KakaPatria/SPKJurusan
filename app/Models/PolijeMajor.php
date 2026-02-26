@@ -9,6 +9,18 @@ class PolijeMajor extends Model
 {
     use HasFactory;
 
-    // Tambahkan baris ini agar data bisa masuk
-    protected $fillable = ['nama_jurusan', 'deskripsi', 'prospek_kerja'];
+    protected $fillable = [
+        'nama_jurusan',
+        'deskripsi',
+        'keywords',
+        'preferensi_studi',
+        'bobot_mapel',
+        'prospek_kerja',
+    ];
+
+    protected $casts = [
+        'keywords' => 'array',
+        'preferensi_studi' => 'array',
+        'bobot_mapel' => 'array',
+    ];
 }

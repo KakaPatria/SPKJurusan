@@ -19,11 +19,11 @@
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
-            background-color: #6B2C2C;
+            background-color: #5B7B89;
         }
         .left-section {
             width: 100%;
-            background-color: #6B2C2C;
+            background-color: #5B7B89;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -353,25 +353,33 @@
                     </div>
 
                     <!-- Password -->
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label for="password">Password</label>
-                        <input 
-                            id="password" 
-                            type="password" 
-                            name="password" 
-                            required
-                            placeholder="Minimal 8 karakter" />
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input 
+                                id="password" 
+                                type="password" 
+                                name="password" 
+                                required
+                                placeholder="Minimal 8 karakter"
+                                style="width: 100%; padding-right: 45px;" />
+                            <button type="button" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #5B7B89; font-size: 18px;" onclick="togglePasswordVisibility('password', this)">👁️</button>
+                        </div>
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label for="password_confirmation">Konfirmasi Password</label>
-                        <input 
-                            id="password_confirmation" 
-                            type="password" 
-                            name="password_confirmation" 
-                            required
-                            placeholder="Masukkan ulang password Anda" />
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <input 
+                                id="password_confirmation" 
+                                type="password" 
+                                name="password_confirmation" 
+                                required
+                                placeholder="Masukkan ulang password Anda"
+                                style="width: 100%; padding-right: 45px;" />
+                            <button type="button" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #5B7B89; font-size: 18px;" onclick="togglePasswordVisibility('password_confirmation', this)">👁️</button>
+                        </div>
                     </div>
 
                     <div class="form-links">
@@ -383,5 +391,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePasswordVisibility(inputId, buttonElement) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+        }
+    </script>
 </body>
 </html>

@@ -7,19 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #6B2C2C 0%, #8B3E3E 100%);
+            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
         }
         .text-maroon {
-            color: #6B2C2C;
+            color: #5B7B89;
         }
         .border-maroon {
-            border-color: #6B2C2C;
+            border-color: #5B7B89;
         }
         .bg-cream {
-            background-color: #FFF9F5;
+            background-color: #F8FAFC;
         }
         .user-message {
-            background-color: #6B2C2C;
+            background-color: #5B7B89;
             color: white;
             border-radius: 12px 12px 0 12px;
         }
@@ -77,7 +77,7 @@
                                         <!-- AI Response -->
                                         <div class="flex justify-start">
                                             <div class="ai-message max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl p-3 sm:p-4">
-                                                <p class="text-xs sm:text-sm">{{ $chat->response }}</p>
+                                                <p class="text-xs sm:text-sm">{{ preg_replace(['/\*\*(.*?)\*\*/s', '/\*(.*?)\*/s', '/^#{1,6}\s+/m', '/`(.*?)`/s'], ['$1', '$1', '', '$1'], $chat->response) }}</p>
                                             </div>
                                         </div>
                                     </div>
