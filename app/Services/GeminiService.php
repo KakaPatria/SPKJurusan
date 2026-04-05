@@ -125,7 +125,17 @@ class GeminiService
         $messageLower = strtolower($message);
 
         if (strpos($messageLower, 'halo') !== false || strpos($messageLower, 'hai') !== false || strpos($messageLower, 'hallo') !== false || strpos($messageLower, 'hi') !== false) {
-            $greeting = "Selamat datang. Saya adalah konselor BK virtual SMA Bima Ambulu yang siap membantu Anda dalam pemilihan jurusan kuliah. ";
+            $hour = (int) now()->format('H');
+            if ($hour >= 3 && $hour < 11) {
+                $sapaan = 'Selamat pagi';
+            } elseif ($hour >= 11 && $hour < 15) {
+                $sapaan = 'Selamat siang';
+            } elseif ($hour >= 15 && $hour < 18) {
+                $sapaan = 'Selamat sore';
+            } else {
+                $sapaan = 'Selamat malam';
+            }
+            $greeting = "{$sapaan}. Saya adalah konselor BK virtual SMA Bima Ambulu yang siap membantu Anda dalam pemilihan jurusan kuliah. ";
             if ($hasRecommendation) {
                 $greeting .= "Berdasarkan data yang tersedia, Anda telah memperoleh rekomendasi jurusan \"{$jurusan}\" dengan skor kesesuaian {$score}%. Apakah Anda ingin membahas lebih lanjut mengenai jurusan tersebut, atau ada pertanyaan lain yang ingin disampaikan?";
             } else {
@@ -151,7 +161,7 @@ class GeminiService
             if ($hasRecommendation) {
                 return [
                     'success' => true,
-                    'message' => "Jurusan \"{$jurusan}\" memiliki prospek karier yang menjanjikan. Lulusan dari jurusan ini dapat bekerja di berbagai sektor industri yang relevan dengan bidang keahliannya. Setiap program studi di perguruan tinggi dirancang untuk membekali lulusannya dengan kompetensi praktis yang dibutuhkan oleh dunia kerja. Apakah Anda ingin mengetahui lebih detail mengenai posisi pekerjaan spesifik yang dapat ditempuh?"
+                    'message' => "Jurusan \"{$jurusan}\" memiliki prospek karier yang menjanjikan. Lulusan dari jurusan ini dapat bekerja di berbagai sektor industri yang relevan dengan bidang keahliannya. Setiap jurusan di POLIJE dirancang untuk membekali lulusannya dengan kompetensi praktis yang dibutuhkan oleh dunia kerja. Apakah Anda ingin mengetahui lebih detail mengenai posisi pekerjaan spesifik yang dapat ditempuh?"
                 ];
             }
             return [
@@ -183,7 +193,7 @@ class GeminiService
         if (strpos($messageLower, 'ipa') !== false || strpos($messageLower, 'ips') !== false) {
             return [
                 'success' => true,
-                'message' => "Perlu dipahami bahwa kelompok IPA dan IPS bukan merupakan batasan mutlak dalam memilih jurusan kuliah. Banyak program studi yang dapat dimasuki oleh siswa dari kedua kelompok tersebut. Faktor yang lebih menentukan adalah minat, kemampuan, dan kompetensi yang Anda miliki. Siswa IPA dapat memilih bidang bisnis, dan sebaliknya siswa IPS dapat menempuh bidang teknologi informasi. Silakan manfaatkan fitur Analisis Rekomendasi untuk melihat jurusan yang paling sesuai berdasarkan profil lengkap Anda."
+                'message' => "Perlu dipahami bahwa kelompok IPA dan IPS bukan merupakan batasan mutlak dalam memilih jurusan kuliah. Banyak jurusan di POLIJE dapat dimasuki oleh siswa dari kedua kelompok tersebut. Faktor yang lebih menentukan adalah minat, kemampuan, dan kompetensi yang Anda miliki. Siswa IPA dapat memilih bidang bisnis, dan sebaliknya siswa IPS dapat menempuh bidang teknologi informasi. Silakan manfaatkan fitur Analisis Rekomendasi untuk melihat jurusan yang paling sesuai berdasarkan profil lengkap Anda."
             ];
         }
         
@@ -209,14 +219,54 @@ class GeminiService
         $prompt .= "Kamu juga bisa menjawab pertanyaan umum di luar topik jurusan (seperti pengetahuan umum, tokoh, dll) secara singkat, lalu arahkan kembali ke topik konseling. ";
         $prompt .= "Gunakan bahasa Indonesia yang FORMAL, AKADEMIK, dan SOPAN — seperti seorang konselor profesional berbicara dengan siswa. ";
         $prompt .= "DILARANG menggunakan bahasa gaul, slang, atau terlalu santai. Gunakan kalimat yang baku dan terstruktur. ";
+
+        // PENTING: Konteks POLIJE
+        $prompt .= "\n\nKONTEKS PENTING POLIJE (Politeknik Negeri Jember):";
+        $prompt .= "\n- Di POLIJE, unit akademik disebut JURUSAN, BUKAN 'program studi' atau 'prodi'. Selalu gunakan istilah 'jurusan'.";
+        $prompt .= "\n- Contoh benar: 'Jurusan Teknologi Informasi', 'Jurusan Kesehatan', 'Jurusan Manajemen Agribisnis'.";
+        $prompt .= "\n- Contoh SALAH (JANGAN digunakan): 'program studi Teknologi Informasi', 'prodi TI'.";
+        $prompt .= "\n- Saat menjelaskan jurusan POLIJE, PRIORITASKAN data dari DAFTAR JURUSAN di bawah (deskripsi, prospek kerja, kata kunci).";
+        $prompt .= "\n- JANGAN gunakan informasi umum dari internet yang bisa berbeda dengan konteks POLIJE.";
+        $prompt .= "\n- Jika siswa bertanya tentang suatu jurusan, jawab berdasarkan data POLIJE yang tersedia, bukan pengetahuan umum.";
+
+        // Tambahkan informasi waktu saat ini
+        $hour = (int) now()->format('H');
+        if ($hour >= 3 && $hour < 11) {
+            $sapaan = 'Selamat pagi';
+            $waktu = 'pagi';
+        } elseif ($hour >= 11 && $hour < 15) {
+            $sapaan = 'Selamat siang';
+            $waktu = 'siang';
+        } elseif ($hour >= 15 && $hour < 18) {
+            $sapaan = 'Selamat sore';
+            $waktu = 'sore';
+        } else {
+            $sapaan = 'Selamat malam';
+            $waktu = 'malam';
+        }
+        $prompt .= "\n\nWAKTU SAAT INI: " . now()->format('H:i') . " WIB (" . $waktu . "). ";
+        $prompt .= "Jika perlu menyapa, gunakan sapaan yang sesuai waktu: '{$sapaan}'. JANGAN gunakan sapaan waktu yang tidak sesuai (misalnya jangan ucapkan 'Selamat pagi' jika saat ini malam hari).";
         
         // Tambahkan konteks rekomendasi jika ada
         if (!empty($context['recommendation'])) {
-            $prompt .= "\n\nDATA REKOMENDASI SISWA (dari sistem analisis): ";
+            $prompt .= "\n\nDATA REKOMENDASI SISWA (dari sistem analisis Naive Bayes): ";
             $prompt .= "Jurusan paling cocok: {$context['recommendation']}. ";
             if (!empty($context['score'])) {
                 $prompt .= "Skor kesesuaian: {$context['score']}%. ";
             }
+
+            // Tambahkan top 3 rekomendasi
+            if (!empty($context['top3'])) {
+                $prompt .= "\nPeringkat 3 besar rekomendasi: ";
+                foreach ($context['top3'] as $i => $t) {
+                    $num = $i + 1;
+                    $skorVal = $t['skor'] ?? 0;
+                    $pct = number_format(($skorVal > 1 ? $skorVal : $skorVal * 100), 1);
+                    $prompt .= "\n  {$num}. {$t['jurusan']} ({$pct}%)";
+                }
+            }
+
+            $prompt .= "\nGunakan data rekomendasi ini untuk menjelaskan MENGAPA jurusan tersebut direkomendasikan. Hubungkan dengan profil siswa di bawah.";
         }
 
         // Tambahkan profil siswa jika ada
@@ -229,29 +279,41 @@ class GeminiService
                 $prompt .= "Kelompok asal: {$context['profile']['kelompok']}. ";
             }
             if (!empty($context['profile']['nilai'])) {
-                $prompt .= "Nilai akademik: {$context['profile']['nilai']}. ";
+                $prompt .= "Kategori nilai akademik: {$context['profile']['nilai']}. ";
+            }
+            if (!empty($context['profile']['rata_rata'])) {
+                $prompt .= "Rata-rata nilai: {$context['profile']['rata_rata']}. ";
             }
             if (!empty($context['profile']['minat'])) {
                 $prompt .= "Minat: {$context['profile']['minat']}. ";
             }
             if (!empty($context['profile']['pref'])) {
-                $prompt .= "Preferensi pembelajaran: {$context['profile']['pref']}. ";
+                $prompt .= "Preferensi rumpun studi: {$context['profile']['pref']}. ";
+            }
+            if (!empty($context['profile']['cita_cita'])) {
+                $prompt .= "Cita-cita: {$context['profile']['cita_cita']}. ";
+            }
+            if (!empty($context['profile']['prestasi'])) {
+                $prompt .= "Prestasi: {$context['profile']['prestasi']}. ";
             }
         }
 
         $jurusanList = PolijeMajor::all();
         if ($jurusanList->isNotEmpty()) {
-            $prompt .= "\n\nDAFTAR JURUSAN POLIJE ({$jurusanList->count()} jurusan):";
+            $prompt .= "\n\nDAFTAR JURUSAN POLIJE ({$jurusanList->count()} jurusan) — INI ADALAH SUMBER DATA UTAMA, gunakan informasi ini saat menjelaskan jurusan:";
             foreach ($jurusanList as $j) {
-                $prompt .= "\n- {$j->nama_jurusan}";
+                $prompt .= "\n- JURUSAN {$j->nama_jurusan}";
                 if (!empty($j->deskripsi)) {
                     $prompt .= ": {$j->deskripsi}";
                 }
                 if (!empty($j->prospek_kerja)) {
-                    $prompt .= " Prospek kerja: {$j->prospek_kerja}.";
+                    $prompt .= " | Prospek kerja: {$j->prospek_kerja}.";
                 }
                 if (!empty($j->keywords) && is_array($j->keywords)) {
-                    $prompt .= " Kata kunci: " . implode(', ', array_slice($j->keywords, 0, 10)) . ".";
+                    $prompt .= " | Kata kunci: " . implode(', ', array_slice($j->keywords, 0, 10)) . ".";
+                }
+                if (!empty($j->preferensi_studi) && is_array($j->preferensi_studi)) {
+                    $prompt .= " | Rumpun: " . implode(', ', $j->preferensi_studi) . ".";
                 }
             }
         }
@@ -265,7 +327,17 @@ class GeminiService
         $prompt .= "\n6. Jawab RINGKAS (2-3 paragraf). Jangan terlalu panjang kecuali diminta detail.";
         $prompt .= "\n7. Boleh menjawab pertanyaan di luar topik jurusan secara singkat, lalu kembalikan ke konseling.";
         $prompt .= "\n8. JANGAN awali setiap respons dengan 'Halo' atau salam — langsung ke inti jawaban (kecuali percakapan baru dimulai).";
-        $prompt .= "\n9. DILARANG KERAS menggunakan format markdown seperti **, *, #, ##, atau simbol formatting lainnya. Tulis teks biasa (plain text) saja tanpa formatting markdown.";
+
+        // Tambahkan referensi Q&A serupa dari riwayat
+        if (!empty($context['similar_qa'])) {
+            $prompt .= "\n\nREFERENSI JAWABAN SEBELUMNYA (pertanyaan serupa yang pernah dijawab — gunakan sebagai referensi untuk konsistensi, tapi sesuaikan dengan konteks siswa saat ini):";
+            foreach ($context['similar_qa'] as $i => $qa) {
+                $num = $i + 1;
+                $prompt .= "\n{$num}. Pertanyaan: \"{$qa['prompt']}\"";
+                $prompt .= "\n   Jawaban sebelumnya: \"{$qa['response']}\"";
+            }
+            $prompt .= "\nGunakan referensi di atas untuk menjaga konsistensi jawaban, namun tetap sesuaikan dengan profil dan konteks percakapan siswa saat ini.";
+        }        $prompt .= "\n9. DILARANG KERAS menggunakan format markdown seperti **, *, #, ##, atau simbol formatting lainnya. Tulis teks biasa (plain text) saja tanpa formatting markdown.";
         $prompt .= "\n10. Gunakan bahasa Indonesia baku dan akademik. Hindari bahasa gaul seperti 'kek', 'banget', 'ngobrol', 'ngomongin', 'gampangnya'. Gunakan padanan formal seperti 'sangat', 'berbincang', 'membahas', 'secara sederhana'.";
 
         return $prompt;

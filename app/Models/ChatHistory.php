@@ -13,6 +13,8 @@ class ChatHistory extends Model
 
     protected $fillable = [
         'user_id',
+        'session_id',
+        'recommendation_id',
         'prompt',
         'response',
     ];
@@ -20,5 +22,10 @@ class ChatHistory extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function recommendation()
+    {
+        return $this->belongsTo(Recommendation::class);
     }
 }

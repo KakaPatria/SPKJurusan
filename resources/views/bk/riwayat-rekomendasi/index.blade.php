@@ -1,20 +1,20 @@
-@extends('admin.layouts.app')
+@extends('bk.layouts.app')
 
 @section('title', 'Riwayat Rekomendasi Siswa')
 
 @section('content')
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-maroon">🎯 Riwayat Rekomendasi Siswa</h2>
+            <h2 class="text-2xl font-bold text-bk">🎯 Riwayat Rekomendasi Siswa</h2>
             <p class="text-sm text-gray-500 mt-1">Seluruh hasil rekomendasi jurusan yang pernah dilakukan siswa</p>
         </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 border-t-4 border-maroon stat-card">
+        <div class="bg-white rounded-lg shadow p-4 border-t-4 border-teal-500 stat-card">
             <p class="text-gray-600 text-sm font-semibold">Total Rekomendasi</p>
-            <p class="text-2xl font-bold text-maroon mt-1">{{ $recommendations->total() }}</p>
+            <p class="text-2xl font-bold text-bk mt-1">{{ $recommendations->total() }}</p>
         </div>
         <div class="bg-white rounded-lg shadow p-4 border-t-4 border-blue-400 stat-card">
             <p class="text-gray-600 text-sm font-semibold">Siswa Unik</p>
@@ -27,14 +27,14 @@
     </div>
 
     <!-- Filter -->
-    <div class="bg-white rounded-lg shadow p-4 mb-6 border-l-4 border-maroon">
+    <div class="bg-white rounded-lg shadow p-4 mb-6 border-l-4 border-teal-500">
         <form method="GET" class="flex gap-3 flex-col sm:flex-row">
-            <input type="text" name="search" placeholder="Cari nama siswa..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" value="{{ request('search') }}">
-            <button type="submit" class="gradient-maroon text-white font-bold px-6 py-2 rounded-lg hover:opacity-90 transition">
+            <input type="text" name="search" placeholder="Cari nama siswa..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" value="{{ request('search') }}">
+            <button type="submit" class="gradient-bk text-white font-bold px-6 py-2 rounded-lg hover:opacity-90 transition">
                 🔍 Cari
             </button>
             @if(request('search'))
-                <a href="{{ route('admin.riwayat-rekomendasi') }}" class="bg-gray-400 text-white font-bold px-4 py-2 rounded-lg hover:bg-gray-500 transition text-center">
+                <a href="{{ route('bk.riwayat-rekomendasi') }}" class="bg-gray-400 text-white font-bold px-4 py-2 rounded-lg hover:bg-gray-500 transition text-center">
                     Reset
                 </a>
             @endif
@@ -44,7 +44,7 @@
     <!-- Table -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
         <table class="w-full text-sm">
-            <thead class="gradient-maroon text-white">
+            <thead class="gradient-bk text-white">
                 <tr>
                     <th class="px-4 py-3 text-left">No</th>
                     <th class="px-4 py-3 text-left">Nama Siswa</th>
@@ -78,7 +78,7 @@
                                             <span class="w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold {{ $i === 0 ? 'bg-yellow-400 text-yellow-900' : 'bg-gray-200 text-gray-600' }}">{{ $i + 1 }}</span>
                                             <span class="text-xs text-gray-700">{{ $hasil['jurusan'] ?? 'N/A' }}</span>
                                             @php $skorVal = $hasil['skor'] ?? 0; @endphp
-                                            <span class="text-xs font-semibold {{ $i === 0 ? 'text-blue-600' : 'text-gray-400' }}">{{ round(($skorVal > 1 ? $skorVal : $skorVal * 100), 1) }}%</span>
+                                            <span class="text-xs font-semibold {{ $i === 0 ? 'text-teal-600' : 'text-gray-400' }}">{{ round(($skorVal > 1 ? $skorVal : $skorVal * 100), 1) }}%</span>
                                         </div>
                                     @endforeach
                                 </div>
@@ -88,7 +88,7 @@
                         </td>
                         <td class="px-4 py-3 text-center text-gray-500 text-xs">{{ $rec->created_at->format('d M Y H:i') }}</td>
                         <td class="px-4 py-3 text-center">
-                            <a href="{{ route('admin.student.detail', $rec->user_id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs">👁 Detail Siswa</a>
+                            <a href="{{ route('bk.student.detail', $rec->user_id) }}" class="text-teal-600 hover:text-teal-800 font-semibold text-xs">👁 Detail Siswa</a>
                         </td>
                     </tr>
                 @empty

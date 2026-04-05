@@ -33,7 +33,7 @@
                                 <span class="text-sm font-semibold text-gray-700 w-20">{{ $stat->kelompok_asal ?? 'Tidak Ada' }}</span>
                                 <div class="flex-1 h-6 bg-gray-200 rounded">
                                     <div class="h-full rounded flex items-center justify-center text-white text-xs font-bold" 
-                                        style="width: {{ ($stat->count / $totalSiswa) * 100 }}%; background-color: {{ $stat->kelompok_asal == 'IPA' ? '#0369A1' : '#D97706' }};">
+                                        style="width: {{ $totalSiswa > 0 ? ($stat->count / $totalSiswa) * 100 : 0 }}%; background-color: {{ $stat->kelompok_asal == 'IPA' ? '#0369A1' : '#D97706' }};">
                                         {{ $stat->count }}
                                     </div>
                                 </div>
@@ -115,10 +115,11 @@
                                 @foreach($recentRecommendations as $rec)
                                     @php
                                         $topJurusan = $rec->hasil_rekomendasi[0]['jurusan'] ?? '-';
-                                        $topSkor = round(($rec->hasil_rekomendasi[0]['skor'] ?? 0) * 100, 1);
+                                        $skorRaw = $rec->hasil_rekomendasi[0]['skor'] ?? 0;
+                                        $topSkor = round(($skorRaw > 1 ? $skorRaw : $skorRaw * 100), 1);
                                     @endphp
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-2 font-semibold text-gray-800">{{ $rec->user->name }}</td>
+                                        <td class="px-4 py-2 font-semibold text-gray-800">{{ $rec->user->name ?? 'Pengguna Dihapus' }}</td>
                                         <td class="px-4 py-2 text-gray-700">{{ $topJurusan }}</td>
                                         <td class="px-4 py-2 text-center">
                                             <span class="px-2 py-1 rounded bg-green-100 text-green-800 font-bold">{{ $topSkor }}%</span>

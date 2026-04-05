@@ -78,7 +78,7 @@
                 </div>
                 <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Skor Nilai</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ number_format($average / 100 * 100, 1) }}%</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ number_format($average, 1) }}%</p>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
                                     </span>
                                 </td>
                                 <td class="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm font-semibold text-gray-900">
-                                    {{ $res['jurusan'] }}
+                                    {{ $res['jurusan'] ?? '-' }}
                                     @if($index == 0)
                                         <span class="ml-1 sm:ml-2 inline-block px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">
                                             ⭐ Utama
@@ -113,7 +113,7 @@
                                     @endif
                                 </td>
                                 <td class="px-3 sm:px-6 py-2 sm:py-4 text-right text-xs sm:text-sm font-bold text-maroon">
-                                    {{ number_format($res['skor'] * 100, 1) }}%
+                                    {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%
                                 </td>
                             </tr>
                         @endforeach
@@ -126,11 +126,11 @@
                 @foreach($hasilAkhir as $index => $res)
                     <div class="flex flex-col gap-1">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs sm:text-sm font-semibold text-gray-700">{{ $res['jurusan'] }}</span>
-                            <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format($res['skor'] * 100, 1) }}%</span>
+                            <span class="text-xs sm:text-sm font-semibold text-gray-700">{{ $res['jurusan'] ?? '-' }}</span>
+                            <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($res['skor'] ?? 0) * 100, 1) }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format($res['skor'] * 100, 1) }}%"></div>
+                            <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%"></div>
                         </div>
                     </div>
                 @endforeach
@@ -148,9 +148,9 @@
                 <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-yellow-100 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">1</div>
                     <div>
-                        <h3 class="text-lg sm:text-2xl font-bold text-maroon mb-1 sm:mb-2">{{ $topRecommendation['jurusan'] }}</h3>
+                        <h3 class="text-lg sm:text-2xl font-bold text-maroon mb-1 sm:mb-2">{{ $topRecommendation['jurusan'] ?? '-' }}</h3>
                         <p class="text-sm sm:text-lg text-gray-700">
-                            Skor Kesesuaian: <span class="font-bold text-maroon">{{ number_format($topRecommendation['skor'] * 100, 1) }}%</span>
+                            Skor Kesesuaian: <span class="font-bold text-maroon">{{ number_format(($topRecommendation['skor'] ?? 0) * 100, 1) }}%</span>
                         </p>
                         @if($topJurusan && $topJurusan->deskripsi)
                             <p class="text-xs sm:text-sm text-gray-600 mt-2">{{ $topJurusan->deskripsi }}</p>
@@ -160,12 +160,12 @@
 
                 <!-- Analysis Breakdown -->
                 <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <h4 class="font-bold text-maroon text-sm sm:text-base mb-3 sm:mb-4">Analisis per Kriteria:</h4>
+                    <h4 class="font-bold text-maroon text-sm sm:text-base mb-3 sm:mb-4">Likelihood per Kriteria (Weighted Naive Bayes):</h4>
                     
                     <div class="space-y-2 sm:space-y-3">
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik (40%)</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik — P(nilai|H) &times; w=0.40</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -175,7 +175,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat (35%)</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat — P(minat|H) &times; w=0.35</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -185,7 +185,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi (15%)</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi — P(pref|H) &times; w=0.15</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -195,7 +195,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita (5%)</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita — P(cita|H) &times; w=0.05</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -205,7 +205,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Prestasi (5%)</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Prestasi — P(prestasi|H) &times; w=0.05</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -221,8 +221,8 @@
                     <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
                         Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }} (rata-rata {{ number_format($average, 1) }})</strong> 
                         dan <strong>preferensi studi {{ $prefStudi }}</strong>, 
-                        sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] }}</strong> 
-                        adalah pilihan yang paling sesuai dengan skor {{ number_format($topRecommendation['skor'] * 100, 1) }}%.
+                        sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] ?? '-' }}</strong> 
+                        adalah pilihan yang paling sesuai dengan skor {{ number_format(($topRecommendation['skor'] ?? 0) * 100, 1) }}%.
                     </p>
                 </div>
 
@@ -243,11 +243,11 @@
                 <div class="flex-1">
                     <h3 class="text-base sm:text-xl font-bold text-maroon mb-1 sm:mb-2">Konsultasi Lebih Lanjut</h3>
                     <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
-                        Masih ragu dengan hasil rekomendasi? Konsultasikan dengan AI untuk mendapatkan penjelasan lebih detail 
-                        tentang jurusan yang direkomendasikan atau tanyakan pertanyaan lainnya.
+                        Ingin tahu mengapa jurusan <strong>{{ $hasilAkhir[0]['jurusan'] ?? '' }}</strong> direkomendasikan? 
+                        Konsultasikan dengan AI Konselor BK Virtual untuk penjelasan detail berdasarkan profil Anda.
                     </p>
-                    <a href="{{ route('chatbot.index') }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
-                        Konsultasi dengan AI
+                    <a href="{{ route('chatbot.index', ['rec' => session('last_recommendation_id')]) }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
+                        💬 Tanya AI: "Mengapa jurusan ini cocok untukku?"
                     </a>
                 </div>
             </div>
@@ -266,7 +266,7 @@
         <!-- Info Metode -->
         <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan Graduated Scoring dengan 5 kriteria: Nilai Akademik (40%), Minat & Bakat (35%), Preferensi Studi (15%), Cita-cita (5%), Prestasi (5%). Setiap kriteria dihitung secara proporsional (0-100%) berdasarkan kecocokan keyword.
+                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Preferensi Studi (w=0.15), Cita-cita (w=0.05), Prestasi (w=0.05). Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
             </p>
         </div>
     </div>

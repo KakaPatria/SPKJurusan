@@ -21,31 +21,41 @@
         .mobile-menu-toggle {
             display: none;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .mobile-menu-toggle {
                 display: block;
             }
             .mobile-menu {
-                display: none;
+                display: none !important;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
+                padding: 1rem 1.5rem;
+                gap: 0.5rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 50;
             }
             .mobile-menu.active {
-                display: block;
+                display: flex !important;
             }
         }
     </style>
 </head>
 <body class="bg-cream">
     <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+        <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center relative">
             <div>
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Sistem Pemilihan Jurusan</h1>
                 <p class="text-xs sm:text-sm text-gray-200 font-semibold mt-1">Pilih Jurusan yang Tepat.</p>
             </div>
             <button class="mobile-menu-toggle text-white text-2xl" id="menuToggle">☰</button>
-            <div class="mobile-menu hidden md:flex space-x-2 sm:space-x-4 absolute md:relative top-16 md:top-0 left-0 md:left-auto right-0 md:right-0 bg-gradient-maroon md:bg-transparent p-4 md:p-0 flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">
+            <div class="mobile-menu md:flex md:space-x-4 md:items-center" id="mobileMenu">
                 @if (Route::has('login'))
-                    <a href="{{ route('login') }}" class="bg-yellow-400 text-maroon font-bold py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-300 transition text-sm sm:text-base text-center">Login</a>
-                    <a href="{{ route('register') }}" class="border-2 border-yellow-400 text-yellow-300 font-bold py-2 px-4 sm:px-6 rounded-lg hover:bg-yellow-400 hover:text-maroon transition text-sm sm:text-base text-center">Daftar</a>
+                    <a href="{{ route('login') }}" class="bg-yellow-400 text-maroon font-bold py-2 px-6 rounded-lg hover:bg-yellow-300 transition text-sm sm:text-base text-center block md:inline-block">Login</a>
+                    <a href="{{ route('register') }}" class="border-2 border-yellow-400 text-yellow-300 font-bold py-2 px-6 rounded-lg hover:bg-yellow-400 hover:text-maroon transition text-sm sm:text-base text-center block md:inline-block">Daftar</a>
                 @endif
             </div>
         </div>
@@ -290,13 +300,23 @@
     <script>
         // Mobile menu toggle
         const menuToggle = document.getElementById('menuToggle');
-        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileMenu = document.getElementById('mobileMenu');
         
         if (menuToggle) {
-            menuToggle.addEventListener('click', function() {
+            menuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
                 mobileMenu.classList.toggle('active');
+                menuToggle.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
             });
         }
+
+        // Tutup menu saat klik di luar
+        document.addEventListener('click', function(e) {
+            if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuToggle) {
+                mobileMenu.classList.remove('active');
+                menuToggle.textContent = '☰';
+            }
+        });
     </script>
 </body>
 </html>

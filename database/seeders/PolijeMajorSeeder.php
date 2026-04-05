@@ -12,7 +12,7 @@ class PolijeMajorSeeder extends Seeder
         $jurusans = [
             [
                 'nama_jurusan' => 'Produksi Pertanian',
-                'deskripsi' => 'Program studi yang mempelajari teknik budidaya tanaman, pengelolaan lahan pertanian, dan produksi hasil pertanian secara modern.',
+                'deskripsi' => 'Jurusan yang mempelajari teknik budidaya tanaman, pengelolaan lahan pertanian, dan produksi hasil pertanian secara modern.',
                 'keywords' => ['pertanian', 'petani', 'kebun', 'sawah', 'panen', 'tanaman', 'budidaya', 'agronomi', 'tanam', 'bercocok tanam', 'alam', 'hortikultura', 'pupuk', 'bibit'],
                 'preferensi_studi' => ['Pertanian & Lingkungan'],
                 'bobot_mapel' => [
@@ -23,7 +23,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Teknologi Pertanian',
-                'deskripsi' => 'Program studi yang mengintegrasikan teknologi dengan pertanian, meliputi mekanisasi pertanian, pengolahan hasil pertanian, dan inovasi teknologi pangan.',
+                'deskripsi' => 'Jurusan yang mengintegrasikan teknologi dengan pertanian, meliputi mekanisasi pertanian, pengolahan hasil pertanian, dan inovasi teknologi pangan.',
                 'keywords' => ['teknologi pertanian', 'mesin pertanian', 'inovasi', 'otomasi', 'pengolahan pangan', 'pangan', 'mekanisasi', 'teknologi pangan', 'alat pertanian', 'rekayasa'],
                 'preferensi_studi' => ['Sains & Teknologi', 'Pertanian & Lingkungan'],
                 'bobot_mapel' => [
@@ -34,7 +34,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Peternakan',
-                'deskripsi' => 'Program studi yang mempelajari pengelolaan dan pemeliharaan ternak, nutrisi hewan, reproduksi, dan pengolahan produk peternakan.',
+                'deskripsi' => 'Jurusan yang mempelajari pengelolaan dan pemeliharaan ternak, nutrisi hewan, reproduksi, dan pengolahan produk peternakan.',
                 'keywords' => ['ternak', 'hewan', 'peternakan', 'peternak', 'sapi', 'ayam', 'unggas', 'kambing', 'susu', 'pakan', 'nutrisi hewan', 'veteriner', 'ikan', 'aquaculture'],
                 'preferensi_studi' => ['Pertanian & Lingkungan', 'Kesehatan & Ilmu Hayat'],
                 'bobot_mapel' => [
@@ -45,7 +45,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Manajemen Agribisnis',
-                'deskripsi' => 'Program studi yang menggabungkan ilmu pertanian dan bisnis, meliputi pemasaran hasil pertanian, manajemen usaha tani, dan kewirausahaan agribisnis.',
+                'deskripsi' => 'Jurusan yang menggabungkan ilmu pertanian dan bisnis, meliputi pemasaran hasil pertanian, manajemen usaha tani, dan kewirausahaan agribisnis.',
                 'keywords' => ['bisnis', 'agribisnis', 'usaha', 'entrepreneur', 'pengusaha', 'dagang', 'jual', 'pemasaran', 'kewirausahaan', 'manajemen', 'ekonomi pertanian', 'pasar'],
                 'preferensi_studi' => ['Bisnis & Manajemen', 'Pertanian & Lingkungan'],
                 'bobot_mapel' => [
@@ -56,7 +56,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Teknologi Informasi',
-                'deskripsi' => 'Program studi yang mempelajari pengembangan perangkat lunak, jaringan komputer, keamanan siber, dan teknologi digital.',
+                'deskripsi' => 'Jurusan yang mempelajari pengembangan perangkat lunak, jaringan komputer, keamanan siber, dan teknologi digital.',
                 'keywords' => ['programmer', 'developer', 'coding', 'software', 'web', 'aplikasi', 'komputer', 'it', 'jaringan', 'hacker', 'game', 'data', 'ai', 'robot', 'ngoding', 'laptop', 'teknologi', 'digital', 'internet', 'programming', 'desain grafis'],
                 'preferensi_studi' => ['Sains & Teknologi'],
                 'bobot_mapel' => [
@@ -67,7 +67,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Teknik',
-                'deskripsi' => 'Program studi yang mempelajari mesin, kelistrikan, elektronika, dan otomasi industri.',
+                'deskripsi' => 'Jurusan yang mempelajari mesin, kelistrikan, elektronika, dan otomasi industri.',
                 'keywords' => ['mesin', 'bengkel', 'listrik', 'las', 'robot', 'motor', 'teknik', 'otomasi', 'elektronik', 'instalasi', 'panel', 'mekanik', 'industri', 'manufaktur', 'pabrik', 'bangunan', 'konstruksi', 'sipil', 'energi'],
                 'preferensi_studi' => ['Sains & Teknologi'],
                 'bobot_mapel' => [
@@ -78,7 +78,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Kesehatan',
-                'deskripsi' => 'Program studi yang mempelajari ilmu kesehatan, gizi, rekam medis, dan pelayanan kesehatan masyarakat.',
+                'deskripsi' => 'Jurusan yang mempelajari ilmu kesehatan, gizi, rekam medis, dan pelayanan kesehatan masyarakat.',
                 'keywords' => ['dokter', 'perawat', 'medis', 'gizi', 'kesehatan', 'pelayanan', 'terapis', 'obat', 'rumah sakit', 'klinik', 'farmasi', 'nutrisi', 'sanitasi', 'rawat', 'sehat'],
                 'preferensi_studi' => ['Kesehatan & Ilmu Hayat'],
                 'bobot_mapel' => [
@@ -89,7 +89,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Bahasa, Komunikasi, dan Pariwisata',
-                'deskripsi' => 'Program studi yang mempelajari bahasa asing, komunikasi, perhotelan, dan industri pariwisata.',
+                'deskripsi' => 'Jurusan yang mempelajari bahasa asing, komunikasi, perhotelan, dan industri pariwisata.',
                 'keywords' => ['bahasa', 'komunikasi', 'pariwisata', 'tour guide', 'hotel', 'jurnalis', 'marketing', 'inggris', 'penerjemah', 'travel', 'wisata', 'hospitality', 'public speaking', 'media', 'broadcasting'],
                 'preferensi_studi' => ['Sosial & Humaniora', 'Bisnis & Manajemen'],
                 'bobot_mapel' => [
@@ -100,7 +100,7 @@ class PolijeMajorSeeder extends Seeder
             ],
             [
                 'nama_jurusan' => 'Bisnis',
-                'deskripsi' => 'Program studi yang mempelajari akuntansi, manajemen bisnis, perbankan, dan administrasi niaga.',
+                'deskripsi' => 'Jurusan yang mempelajari akuntansi, manajemen bisnis, perbankan, dan administrasi niaga.',
                 'keywords' => ['manager', 'pimpinan', 'bisnis', 'accounting', 'marketing', 'sales', 'kantor', 'keuangan', 'bank', 'akuntansi', 'hitung', 'administrasi', 'perbankan', 'ekonomi', 'uang', 'investasi', 'pajak'],
                 'preferensi_studi' => ['Bisnis & Manajemen'],
                 'bobot_mapel' => [

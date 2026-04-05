@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BKController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,8 +14,8 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
-    $recommendationCount = \App\Models\Recommendation::where('user_id', $user->id)->count();
-    $chatCount = \App\Models\ChatHistory::where('user_id', $user->id)->count();
+    $recommendationCount = $user ? \App\Models\Recommendation::where('user_id', $user->id)->count() : 0;
+    $chatCount = $user ? \App\Models\ChatHistory::where('user_id', $user->id)->count() : 0;
     
     return view('dashboard', [
         'recommendationCount' => $recommendationCount,
@@ -77,6 +78,25 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->name('admin
     Route::get('/profil', [AdminController::class, 'profil'])->name('profil');
     Route::put('/profil', [AdminController::class, 'updateProfil'])->name('profil.update');
     Route::put('/profil/password', [AdminController::class, 'updatePassword'])->name('profil.password');
+});
+
+// BK Routes (role-based access control)
+Route::middleware(['auth', 'verified', 'isBK'])->prefix('bk')->name('bk.')->group(function () {
+    Route::get('/dashboard', [BKController::class, 'dashboard'])->name('dashboard');
+    Route::get('/students', [BKController::class, 'students'])->name('students');
+    Route::get('/students/{id}', [BKController::class, 'studentDetail'])->name('student.detail');
+    Route::get('/students/{id}/chat', [BKController::class, 'chatHistory'])->name('student.chat');
+    Route::get('/riwayat-rekomendasi', [BKController::class, 'riwayatRekomendasi'])->name('riwayat-rekomendasi');
+    Route::get('/riwayat-chatbot', [BKController::class, 'riwayatChatbot'])->name('riwayat-chatbot');
+    Route::get('/jurusan', [BKController::class, 'jurusan'])->name('jurusan');
+    Route::get('/jurusan/create', [BKController::class, 'jurusanCreate'])->name('jurusan.create');
+    Route::post('/jurusan', [BKController::class, 'jurusanStore'])->name('jurusan.store');
+    Route::get('/jurusan/{id}/edit', [BKController::class, 'jurusanEdit'])->name('jurusan.edit');
+    Route::put('/jurusan/{id}', [BKController::class, 'jurusanUpdate'])->name('jurusan.update');
+    Route::delete('/jurusan/{id}', [BKController::class, 'jurusanDestroy'])->name('jurusan.destroy');
+    Route::get('/profil', [BKController::class, 'profil'])->name('profil');
+    Route::put('/profil', [BKController::class, 'updateProfil'])->name('profil.update');
+    Route::put('/profil/password', [BKController::class, 'updatePassword'])->name('profil.password');
 });
 
 require __DIR__.'/auth.php';

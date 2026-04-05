@@ -58,19 +58,19 @@
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
                                 <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
                                     <p class="text-xs sm:text-sm text-gray-600 font-semibold">Minat</p>
-                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ $rec->minat }}</p>
+                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ $rec->minat ?? '-' }}</p>
                                 </div>
                                 <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
                                     <p class="text-xs sm:text-sm text-gray-600 font-semibold">Pref. Belajar</p>
-                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ $rec->preferensi_studi }}</p>
+                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ $rec->preferensi_studi ?? '-' }}</p>
                                 </div>
                                 <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
                                     <p class="text-xs sm:text-sm text-gray-600 font-semibold">Cita-Cita</p>
-                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ Str::limit($rec->cita_cita, 15) }}</p>
+                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ Str::limit($rec->cita_cita ?? '-', 15) }}</p>
                                 </div>
                                 <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
                                     <p class="text-xs sm:text-sm text-gray-600 font-semibold">Prestasi</p>
-                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ Str::limit($rec->prestasi, 15) }}</p>
+                                    <p class="text-sm sm:text-base font-bold text-maroon mt-1">{{ Str::limit($rec->prestasi ?? '-', 15) }}</p>
                                 </div>
                             </div>
 
@@ -82,10 +82,11 @@
                                             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 bg-white rounded-lg border border-yellow-300">
                                                 <div class="flex items-center gap-3 sm:gap-4">
                                                     <span class="text-lg sm:text-xl font-bold text-yellow-500">{{ $index + 1 }}</span>
-                                                    <span class="text-sm sm:text-base font-bold text-maroon">{{ $hasil['jurusan'] }}</span>
+                                                    <span class="text-sm sm:text-base font-bold text-maroon">{{ $hasil['jurusan'] ?? '-' }}</span>
                                                 </div>
                                                 <span class="text-xs sm:text-sm bg-maroon text-white px-3 py-1 rounded-full font-bold">
-                                                    {{ number_format($hasil['skor'] * 100, 1) }}%
+                                                    @php $skorVal = $hasil['skor'] ?? 0; @endphp
+                                                    {{ number_format(($skorVal > 1 ? $skorVal : $skorVal * 100), 1) }}%
                                                 </span>
                                             </div>
                                         @endforeach

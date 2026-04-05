@@ -16,10 +16,10 @@ class AdminSeeder extends Seeder
     {
         // Create Admin User
         User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
+            ['email' => 'admin@polije.ac.id'],
             [
                 'name' => 'Admin Polije',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('admin1234'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]
@@ -27,17 +27,17 @@ class AdminSeeder extends Seeder
 
         // Create BK (Konselor) User
         User::firstOrCreate(
-            ['email' => 'bk@gmail.com'],
+            ['email' => 'gurubk@polije.ac.id'],
             [
                 'name' => 'Konselor BK',
-                'password' => Hash::make('bk123'),
+                'password' => Hash::make('gurubk1234'),
                 'role' => 'bk',
                 'email_verified_at' => now(),
             ]
         );
 
         echo "✅ Admin & BK users created successfully!\n";
-        echo "Admin: admin@gmail.com / admin123\n";
-        echo "BK: bk@gmail.com / bk123\n";
+        echo "Admin: admin@polije.ac.id / admin1234\n";
+        echo "BK: gurubk@polije.ac.id / gurubk1234\n";
     }
 }

@@ -94,6 +94,9 @@
                 <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Konseling Pemilihan Jurusan Kuliah</p>
             </div>
             <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <a href="{{ route('chatbot.index') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-white text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm">
+                    Sesi Baru
+                </a>
                 <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">
                     Kembali
                 </a>
@@ -114,8 +117,17 @@
                             <div class="bg-green-50 border border-green-200 rounded-lg p-3">
                                 <p class="text-xs text-green-600 font-semibold">Rekomendasi Terakhir</p>
                                 <p class="text-base sm:text-lg font-bold text-maroon">{{ $recommendation['jurusan'] }}</p>
-                                <p class="text-xs sm:text-sm text-gray-600">Skor: {{ isset($recommendation['skor']) ? number_format($recommendation['skor'] * 100, 1) : '-' }}%</p>
+                                <p class="text-xs sm:text-sm text-gray-600">Skor: {{ isset($recommendation['skor']) ? number_format(($recommendation['skor'] > 1 ? $recommendation['skor'] : $recommendation['skor'] * 100), 1) : '-' }}%</p>
                             </div>
+
+                            @if(!empty($recommendation['top3']) && count($recommendation['top3']) > 1)
+                                <div class="mt-2 text-xs text-gray-500">
+                                    <p class="font-semibold mb-1">Alternatif lain:</p>
+                                    @foreach(array_slice($recommendation['top3'], 1) as $alt)
+                                        <p>• {{ $alt['jurusan'] }} ({{ number_format(($alt['skor'] > 1 ? $alt['skor'] : $alt['skor'] * 100), 1) }}%)</p>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     @else
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
@@ -146,7 +158,7 @@
                     <div class="chat-container flex-1 mb-3 sm:mb-4" id="chatContainer">
                         <div class="message ai">
                             <div class="ai-msg">
-                                <p>Selamat datang. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan kuliah, informasi prospek karier, maupun konsultasi lainnya terkait pendidikan tinggi. Silakan sampaikan pertanyaan Anda.</p>
+                                <p id="initialGreeting"></p>
                             </div>
                         </div>
                     </div>
@@ -178,6 +190,38 @@
     </div>
 
     <script>
+        // Session ID for this chat
+        const sessionId = @json($sessionId);
+        const previousMessages = @json($previousMessages ?? []);
+        const recommendationId = @json($recommendationId ?? null);
+
+        // Langsung update URL agar refresh tetap di sesi ini
+        if (!window.location.search.includes('session=')) {
+            window.history.replaceState({}, '', '{{ route("chatbot.index") }}?session=' + sessionId);
+        }
+
+        // Time-aware greeting
+        (function() {
+            const hour = new Date().getHours();
+            let sapaan;
+            if (hour >= 3 && hour < 11) {
+                sapaan = 'Selamat pagi';
+            } else if (hour >= 11 && hour < 15) {
+                sapaan = 'Selamat siang';
+            } else if (hour >= 15 && hour < 18) {
+                sapaan = 'Selamat sore';
+            } else {
+                sapaan = 'Selamat malam';
+            }
+
+            if (previousMessages.length > 0) {
+                // Melanjutkan sesi lama — tampilkan info lanjutan
+                document.getElementById('initialGreeting').textContent = sapaan + '. Anda melanjutkan sesi konsultasi sebelumnya. Silakan lanjutkan pertanyaan Anda.';
+            } else {
+                document.getElementById('initialGreeting').textContent = sapaan + '. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan kuliah, informasi prospek karier, maupun konsultasi lainnya terkait pendidikan tinggi. Silakan sampaikan pertanyaan Anda.';
+            }
+        })();
+
         const chatForm = document.getElementById('chatForm');
         const messageInput = document.getElementById('messageInput');
         const chatContainer = document.getElementById('chatContainer');
@@ -185,6 +229,14 @@
 
         // Track conversation history for multi-turn context
         let conversationHistory = [];
+
+        // Load previous messages if resuming session
+        if (previousMessages.length > 0) {
+            previousMessages.forEach(function(msg) {
+                addMessage(msg.text, msg.role === 'user' ? 'user' : 'ai');
+                conversationHistory.push({ role: msg.role, text: msg.text });
+            });
+        }
 
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -202,17 +254,34 @@
             conversationHistory.push({ role: 'user', text: message });
 
             try {
+                // Truncate history texts to avoid validation failure
+                const trimmedHistory = conversationHistory.slice(0, -1).map(h => ({
+                    role: h.role,
+                    text: h.text.substring(0, 1500)
+                }));
+
                 const response = await fetch('{{ route("chatbot.send") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({ 
                         message: message,
-                        chatHistory: conversationHistory.slice(0, -1) // Send previous history (exclude current msg)
+                        sessionId: sessionId,
+                        recommendationId: recommendationId,
+                        chatHistory: trimmedHistory
                     })
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMsg = errorData?.message || 'Terjadi kesalahan pada server (kode: ' + response.status + '). Silakan coba lagi.';
+                    addMessage(errorMsg, 'ai');
+                    conversationHistory.pop(); // Remove failed user message from history
+                    return;
+                }
 
                 const data = await response.json();
 
