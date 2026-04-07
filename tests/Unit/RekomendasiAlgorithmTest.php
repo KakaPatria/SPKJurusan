@@ -113,11 +113,11 @@ class RekomendasiAlgorithmTest extends TestCase
 
     private function scorePrestasiScore(string $prestasiRaw): float
     {
-        $prestasiRaw = strtolower(trim($prestasiRaw));
-
         if (empty($prestasiRaw)) {
             return 0.0;
         }
+
+        $prestasiRaw = strtolower(trim($prestasiRaw));
 
         if (preg_match('/(juara|menang|champion|first|gold|emas|terbaik)/', $prestasiRaw)) {
             return 0.90;

@@ -12,7 +12,9 @@ class RekomendasiController extends Controller
 {
     public function index()
     {
+        // Ambil data siswa dari akun (kolom `nis`, `kelompok_asal` di tabel `users`)
         $user = Auth::user();
+        // Jika masih ada model Student di beberapa kode lama, abaikan; gunakan properti di User
         $student = null;
         if ($user) {
             $student = (object) [
@@ -87,423 +89,228 @@ class RekomendasiController extends Controller
         return $explanations;
     }
 
-    /**
-     * ============================================================
-     *  ALGORITMA NAIVE BAYES UNTUK REKOMENDASI JURUSAN
-     *  Sesuai flowchart:
-     *  1. Input Data
-     *  2. Preprocessing Data
-     *  3. Tentukan Hipotesis (H)
-     *  4. Hitung Probabilitas Awal (Prior) P(H)
-     *  5. Hitung Likelihood P(X|H) per fitur
-     *  6. Hitung Probabilitas Gabungan (Rumus Naive Bayes)
-     *     P(H|X) ∝ P(H) × P(X1|H) × P(X2|H) × ... × P(Xn|H)
-     *  7. Klasifikasi (Hasil Rekomendasi)
-     * ============================================================
-     */
     public function proses(Request $request)
     {
-        $validated = $request->validate([
-            'mtk' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'fisika' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'kimia' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'biologi' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'ekonomi' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'geografi' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'sosiologi' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'sejarah' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'minat' => ['required', 'string', 'max:255'],
-            'pref_studi' => ['required', 'string', 'in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora,Praktikum,Teori'],
-            'cita_cita' => ['required', 'string', 'max:255'],
-            'prestasi' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $kelompokAsal = Auth::user()?->kelompok_asal;
-        if ($kelompokAsal === 'IPA') {
-            $request->validate([
-                'mtk' => ['required', 'numeric', 'min:0', 'max:100'],
-                'fisika' => ['required', 'numeric', 'min:0', 'max:100'],
-                'kimia' => ['required', 'numeric', 'min:0', 'max:100'],
-                'biologi' => ['required', 'numeric', 'min:0', 'max:100'],
-            ]);
-        } elseif ($kelompokAsal === 'IPS') {
-            $request->validate([
-                'ekonomi' => ['required', 'numeric', 'min:0', 'max:100'],
-                'geografi' => ['required', 'numeric', 'min:0', 'max:100'],
-                'sosiologi' => ['required', 'numeric', 'min:0', 'max:100'],
-                'sejarah' => ['required', 'numeric', 'min:0', 'max:100'],
-            ]);
-        }
-
-        $epsilon = 1e-9;
-
-        // ================================================================
-        // LANGKAH 1: INPUT DATA
-        // ================================================================
-        $scores = [
-            'mtk' => $validated['mtk'] ?? null,
-            'fisika' => $validated['fisika'] ?? null,
-            'kimia' => $validated['kimia'] ?? null,
-            'biologi' => $validated['biologi'] ?? null,
-            'ekonomi' => $validated['ekonomi'] ?? null,
-            'geografi' => $validated['geografi'] ?? null,
-            'sosiologi' => $validated['sosiologi'] ?? null,
-            'sejarah' => $validated['sejarah'] ?? null,
-        ];
-        $minatRaw    = strtolower(trim($validated['minat'] ?? ''));
-        $prefStudi   = $validated['pref_studi'] ?? 'Sains & Teknologi';
-        $citaRaw     = strtolower(trim($validated['cita_cita'] ?? ''));
-        $prestasiRaw = strtolower(trim($validated['prestasi'] ?? ''));
-
-        // ================================================================
-        // LANGKAH 2: PREPROCESSING DATA
-        // ================================================================
-
-        // 2a. Hitung rata-rata nilai
-        $validScores = array_filter($scores, fn($v) => $v !== null && $v !== '');
+        // --- 1. PREPROCESSING NILAI (Kriteria 1: Akademik) ---
+        $scores = $request->only(['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah']);
+        $validScores = array_filter($scores);
         $average = count($validScores) > 0 ? array_sum($validScores) / count($validScores) : 0;
 
-        // 2b. Kategorisasi nilai
-        if ($average >= 85) {
-            $katNilai = 'Tinggi';
-        } elseif ($average >= 70) {
-            $katNilai = 'Sedang';
-        } else {
-            $katNilai = 'Rendah';
+        // Kategorisasi Nilai berdasarkan config
+        $nilaiCategories = config('polije.nilai_category', []);
+        $katNilai = 'Rendah';
+        foreach ($nilaiCategories as $category => $range) {
+            if ($average >= $range['min'] && $average <= $range['max']) {
+                $katNilai = $category;
+                break;
+            }
         }
 
-        // 2c. Skor prestasi
-        $prestasiScore = $this->hitungSkorPrestasi($prestasiRaw);
+        // --- 2. ANALISIS MINAT (Kriteria 2) ---
+        $minatRaw = strtolower($request->minat ?? '');
+        $minatMapped = $this->mapMinat($minatRaw);
 
-        // ================================================================
-        // LANGKAH 3: TENTUKAN HIPOTESIS (H)
-        // H = {Jurusan1, Jurusan2, ..., JurusanN} dari database
-        // ================================================================
-        $jurusanList = PolijeMajor::all();
+        // --- 3. ANALISIS CITA-CITA (Kriteria 3) ---
+        $citaRaw = strtolower($request->cita_cita ?? '');
+        $citaMapped = $this->mapCitaCita($citaRaw);
 
-        if ($jurusanList->isEmpty()) {
-            return back()->with('error', 'Data jurusan belum tersedia di database.');
-        }
+        // --- 4. PEMETAAN PREFERENSI STUDI (Kriteria 4) ---
+        $prefStudi = $request->pref_studi ?? 'Blended';
+        $prefMapping = config('polije.pref_mapping', []);
 
-        $jumlahJurusan = $jurusanList->count();
+        // --- 5. ANALISIS PRESTASI (Kriteria 5) ---
+        $prestasiRaw = strtolower($request->prestasi ?? '');
+        $prestasiScore = $this->scorePrestasiScore($prestasiRaw);
 
-        // ================================================================
-        // LANGKAH 4: HITUNG PROBABILITAS AWAL (PRIOR) P(H)
-        // Prior uniform: P(H) = 1 / jumlah_jurusan
-        // ================================================================
-        $prior = 1 / $jumlahJurusan;
-
-        // ================================================================
-        // LANGKAH 5 & 6: HITUNG LIKELIHOOD DAN PROBABILITAS GABUNGAN
-        // Rumus Naive Bayes:
-        //   P(H|X) ∝ P(H) × P(X1|H) × P(X2|H) × P(X3|H) × P(X4|H) × P(X5|H)
-        //
-        // Fitur (Xi):
-        //   X1 = Nilai Akademik   → P(nilai|H)
-        //   X2 = Minat            → P(minat|H)
-        //   X3 = Preferensi Studi → P(pref|H)
-        //   X4 = Cita-cita        → P(cita|H)
-        //   X5 = Prestasi         → P(prestasi|H)
-        //
-        // Weighted Naive Bayes (log-space):
-        //   log P(H|X) = log P(H) + Σ wi × log P(Xi|H)
-        //
-        // Bobot (wi):
-        //   w1 = 0.40 (Nilai), w2 = 0.35 (Minat), w3 = 0.15 (Pref),
-        //   w4 = 0.05 (Cita-cita), w5 = 0.05 (Prestasi)
-        // ================================================================
-        $weights = [
-            'nilai'    => 0.40,
-            'minat'    => 0.35,
-            'pref'     => 0.15,
-            'cita'     => 0.05,
-            'prestasi' => 0.05,
-        ];
-
+        // --- 6. PERHITUNGAN NAIVE BAYES BERBOBOT ---
+        $cfg = config('polije.criteria', []);
         $logPosteriors = [];
         $detailPerJurusan = [];
+        $epsilon = 1e-9;
 
-        foreach ($jurusanList as $jurusan) {
-            // --- Log Prior ---
+        foreach ($cfg as $jurusan => $c) {
+            // Prior: uniform
+            $prior = 1 / count($cfg);
             $logPrior = log(max($prior, $epsilon));
 
-            // --- X1: Likelihood Nilai Akademik P(nilai|H) ---
-            $pNilai = $this->hitungLikelihoodNilai($scores, $jurusan->bobot_mapel);
+            // Weights dan match probabilities
+            $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
+            $matchProb = $c['match_prob'] ?? ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
 
-            // --- X2: Likelihood Minat P(minat|H) ---
-            $pMinat = $this->hitungLikelihoodMinat($minatRaw, $jurusan->keywords);
+            // 1. Likelihood untuk Nilai
+            $p_nilai = ($katNilai == ($c['nilai'] ?? 'Sedang')) ? $matchProb['nilai'] : max(1 - $matchProb['nilai'], $epsilon);
 
-            // --- X3: Likelihood Preferensi Studi P(pref|H) ---
-            $pPref = $this->hitungLikelihoodPref($prefStudi, $jurusan->preferensi_studi);
+            // 2. Likelihood untuk Minat
+            $p_minat = ($minatMapped == ($c['minat'] ?? 'Umum')) ? $matchProb['minat'] : max(1 - $matchProb['minat'], $epsilon);
 
-            // --- X4: Likelihood Cita-cita P(cita|H) ---
-            $pCita = $this->hitungLikelihoodCitaCita($citaRaw, $jurusan->keywords);
+            // 3. Likelihood untuk Preferensi Studi
+            $prefList = $c['pref'] ?? ['Praktik Langsung', 'DuDi', 'Project Based'];
+            if (!is_array($prefList)) {
+                $prefList = [$prefList];
+            }
+            $p_pref = in_array($prefStudi, $prefList) ? $matchProb['pref'] : max(1 - $matchProb['pref'], $epsilon);
 
-            // --- X5: Likelihood Prestasi P(prestasi|H) ---
-            $pPrestasi = $this->hitungLikelihoodPrestasi($prestasiScore);
+            // 4. Likelihood untuk Cita-cita
+            $citaCitaKeywords = $c['cita_cita_keywords'] ?? [];
+            $matchCitaCita = false;
+            if (!empty($citaCitaKeywords)) {
+                foreach ($citaCitaKeywords as $keyword) {
+                    if (stripos($citaMapped, $keyword) !== false) {
+                        $matchCitaCita = true;
+                        break;
+                    }
+                }
+            }
+            $p_cita_cita = $matchCitaCita ? $matchProb['cita_cita'] : max(1 - $matchProb['cita_cita'], $epsilon);
 
-            // --- Probabilitas Gabungan (Weighted Naive Bayes) ---
-            // log P(H|X) = log P(H) + w1·log P(X1|H) + w2·log P(X2|H) + ... + w5·log P(X5|H)
-            $logPosterior = $logPrior
-                + $weights['nilai']    * log(max($pNilai, $epsilon))
-                + $weights['minat']    * log(max($pMinat, $epsilon))
-                + $weights['pref']     * log(max($pPref, $epsilon))
-                + $weights['cita']     * log(max($pCita, $epsilon))
-                + $weights['prestasi'] * log(max($pPrestasi, $epsilon));
-
-            $logPosteriors[$jurusan->nama_jurusan] = $logPosterior;
+            // 5. Likelihood untuk Prestasi (boost jika ada prestasi)
+            $p_prestasi = ($prestasiScore > 0.5) ? $matchProb['prestasi'] : max(1 - $matchProb['prestasi'], $epsilon);
 
             // Simpan detail per kriteria untuk tampilan
-            $detailPerJurusan[$jurusan->nama_jurusan] = [
-                'nilai'    => round($pNilai, 4),
-                'minat'    => round($pMinat, 4),
-                'pref'     => round($pPref, 4),
-                'cita'     => round($pCita, 4),
-                'prestasi' => round($pPrestasi, 4),
+            $detailPerJurusan[$jurusan] = [
+                'nilai'    => round($p_nilai, 4),
+                'minat'    => round($p_minat, 4),
+                'pref'     => round($p_pref, 4),
+                'cita'     => round($p_cita_cita, 4),
+                'prestasi' => round($p_prestasi, 4),
             ];
+
+            // Hitung log-likelihood dengan bobot
+            $logLikelihood =
+                ($weights['nilai'] ?? 0) * log(max($p_nilai, $epsilon)) +
+                ($weights['minat'] ?? 0) * log(max($p_minat, $epsilon)) +
+                ($weights['pref'] ?? 0) * log(max($p_pref, $epsilon)) +
+                ($weights['cita_cita'] ?? 0) * log(max($p_cita_cita, $epsilon)) +
+                ($weights['prestasi'] ?? 0) * log(max($p_prestasi, $epsilon));
+
+            $logPosteriors[$jurusan] = $logPrior + $logLikelihood;
         }
 
-        // ================================================================
-        // LANGKAH 7: KLASIFIKASI (HASIL REKOMENDASI)
-        // Konversi log-posterior ke probabilitas menggunakan softmax
-        // P(Hk|X) = exp(log Pk) / Σ exp(log Pi)
-        // ================================================================
+        // Convert log-posteriors ke probabilitas (softmax)
         $maxLog = max($logPosteriors);
         $expVals = [];
         $sumExp = 0.0;
-
-        foreach ($logPosteriors as $namaJurusan => $lv) {
-            $expVals[$namaJurusan] = exp($lv - $maxLog);
-            $sumExp += $expVals[$namaJurusan];
+        foreach ($logPosteriors as $jurusan => $lv) {
+            $expVals[$jurusan] = exp($lv - $maxLog);
+            $sumExp += $expVals[$jurusan];
         }
 
         $hasilAkhir = [];
-        foreach ($expVals as $namaJurusan => $val) {
+        foreach ($expVals as $jurusan => $val) {
             $prob = $val / max($sumExp, $epsilon);
-            $detail = $detailPerJurusan[$namaJurusan];
+            $detail = $detailPerJurusan[$jurusan] ?? [];
             $explanations = $this->generateExplanation(
-                $namaJurusan,
+                $jurusan,
                 $detail,
                 $katNilai,
-                $minatRaw,
+                $minatMapped,
                 $prefStudi,
                 $prestasiRaw
             );
             $hasilAkhir[] = [
-                'jurusan' => $namaJurusan,
-                'skor'    => round($prob, 4),
+                'jurusan' => $jurusan,
+                'skor' => round($prob, 4),
                 'detail'  => $detail,
                 'explanation' => $explanations,
                 'kecocokan_nilai' => $katNilai,
-                'kecocokan_minat' => $minatRaw,
-                'kecocokan_pref'  => $prefStudi,
+                'kecocokan_minat' => $minatMapped,
+                'kecocokan_pref' => $prefStudi,
             ];
         }
 
-        // Urutkan berdasarkan skor tertinggi
+        // Sort hasil berdasarkan skor (tertinggi dulu)
         usort($hasilAkhir, fn($a, $b) => $b['skor'] <=> $a['skor']);
 
-        // Ambil data jurusan teratas untuk detail view
-        $topJurusan = !empty($hasilAkhir) ? PolijeMajor::where('nama_jurusan', $hasilAkhir[0]['jurusan'] ?? '')->first() : null;
-
-        // Simpan ke database
+        // Simpan data rekomendasi ke database
         $user = Auth::user();
-        $savedRec = null;
         if ($user) {
-            $savedRec = Recommendation::create([
-                'user_id'           => $user->id,
-                'mtk'               => $validated['mtk'] ?? null,
-                'fisika'            => $validated['fisika'] ?? null,
-                'kimia'             => $validated['kimia'] ?? null,
-                'biologi'           => $validated['biologi'] ?? null,
-                'ekonomi'           => $validated['ekonomi'] ?? null,
-                'geografi'          => $validated['geografi'] ?? null,
-                'sosiologi'         => $validated['sosiologi'] ?? null,
-                'sejarah'           => $validated['sejarah'] ?? null,
-                'minat'             => $validated['minat'],
-                'preferensi_studi'  => $validated['pref_studi'],
-                'cita_cita'         => $validated['cita_cita'],
-                'prestasi'          => $validated['prestasi'] ?? '',
+            Recommendation::create([
+                'user_id' => $user->id,
+                'mtk' => $request->mtk ?? null,
+                'fisika' => $request->fisika ?? null,
+                'kimia' => $request->kimia ?? null,
+                'biologi' => $request->biologi ?? null,
+                'ekonomi' => $request->ekonomi ?? null,
+                'geografi' => $request->geografi ?? null,
+                'sosiologi' => $request->sosiologi ?? null,
+                'sejarah' => $request->sejarah ?? null,
+                'minat' => $request->minat ?? null,
+                'preferensi_studi' => $request->pref_studi ?? null,
+                'cita_cita' => $request->cita_cita ?? null,
+                'prestasi' => $request->prestasi ?? null,
                 'hasil_rekomendasi' => $hasilAkhir,
             ]);
         }
 
-        // Simpan recommendation_id ke session agar bisa dipakai link chatbot
-        $recId = $savedRec ? $savedRec->id : null;
-        session(['last_recommendation_id' => $recId]);
-
-        // Simpan ke session untuk chatbot
+        // Simpan data rekomendasi ke session untuk chatbot
         if (count($hasilAkhir) > 0) {
             $topResult = $hasilAkhir[0];
-            // Ambil top 3 untuk konteks chatbot
-            $top3 = array_slice($hasilAkhir, 0, 3);
             session([
                 'recomendation_data' => [
-                    'jurusan'    => $topResult['jurusan'],
-                    'skor'       => $topResult['skor'],  // Sudah 0-1, jangan ×100
-                    'detail'     => $topResult['detail'] ?? [],
-                    'nilai'      => $katNilai,
-                    'rata_rata'  => round($average, 1),
-                    'minat'      => $minatRaw,
+                    'jurusan' => $topResult['jurusan'],
+                    'skor' => $topResult['skor'],
+                    'nilai' => $katNilai,
+                    'minat' => $minatMapped,
                     'pref_studi' => $prefStudi,
-                    'cita_cita'  => $citaRaw,
-                    'prestasi'   => $prestasiRaw,
-                    'top3'       => array_map(fn($r) => [
-                        'jurusan' => $r['jurusan'],
-                        'skor'    => $r['skor'],
-                    ], $top3),
                 ]
             ]);
         }
 
-        return view('rekomendasi.hasil', compact(
-            'hasilAkhir', 'katNilai', 'average', 'prefStudi', 'prestasiScore', 'topJurusan'
-        ));
-    }
-
-    // ==================================================================
-    //  FUNGSI LIKELIHOOD — P(Xi | H)
-    // ==================================================================
-
-    /**
-     * P(nilai | H) — Likelihood nilai akademik terhadap jurusan
-     * Menggunakan bobot_mapel dari database untuk menghitung
-     * weighted average yang dinormalisasi ke range probabilitas.
-     */
-    private function hitungLikelihoodNilai(array $scores, ?array $bobotMapel): float
-    {
-        // Jika tidak ada bobot, gunakan rata-rata biasa
-        if (empty($bobotMapel)) {
-            $valid = array_filter($scores, fn($v) => $v !== null && $v !== '');
-            if (empty($valid)) return 0.3;
-            $avg = array_sum($valid) / count($valid);
-            return $this->normalisasiProbabilitas($avg / 100, 0.10, 0.95);
-        }
-
-        $weightedSum = 0;
-        $totalWeight = 0;
-
-        foreach ($bobotMapel as $subject => $weight) {
-            $nilai = floatval($scores[$subject] ?? 0);
-            if ($nilai > 0 && $weight > 0) {
-                $weightedSum += $weight * ($nilai / 100);
-                $totalWeight += $weight;
-            }
-        }
-
-        if ($totalWeight == 0) return 0.3;
-
-        $weightedAvg = $weightedSum / $totalWeight;
-        return $this->normalisasiProbabilitas($weightedAvg, 0.10, 0.95);
+        return view('rekomendasi.hasil', compact('hasilAkhir', 'katNilai', 'minatMapped', 'citaMapped', 'prefStudi', 'prestasiScore'));
     }
 
     /**
-     * P(minat | H) — Likelihood minat terhadap jurusan
-     * Menggunakan keyword matching terhadap keywords jurusan dari database.
+     * Pemetaan minat ke kategori yang dipahami sistem
      */
-    private function hitungLikelihoodMinat(string $minatRaw, ?array $keywords): float
+    private function mapMinat(string $minatRaw): string
     {
-        if (empty($keywords) || empty($minatRaw)) {
-            return 0.20; // probabilitas dasar jika tidak ada data
+        if (preg_match('/(coding|komputer|laptop|web|aplikasi|logika|programming|software|development)/', $minatRaw)) {
+            return 'Logika & Komputer';
+        } elseif (preg_match('/(tanam|kebun|sawah|hewan|ternak|alam|pertanian|agri)/', $minatRaw)) {
+            return 'Alam & Tanaman';
+        } elseif (preg_match('/(obat|sakit|rawat|medis|gizi|sehat|kesehatan|perawat|dokter)/', $minatRaw)) {
+            return 'Pelayanan & Kesehatan';
+        } elseif (preg_match('/(bisnis|uang|jual|kantor|hitung|ekonomi|dagang|usaha|entrepreneur)/', $minatRaw)) {
+            return 'Manajemen & Bisnis';
+        } elseif (preg_match('/(mesin|bengkel|listrik|las|robot|motor|teknik|otomasi|elektronik)/', $minatRaw)) {
+            return 'Mesin & Listrik';
         }
-
-        $matchCount = 0;
-        foreach ($keywords as $keyword) {
-            if (stripos($minatRaw, strtolower($keyword)) !== false) {
-                $matchCount++;
-            }
-        }
-
-        // Rasio kecocokan keyword
-        $matchRatio = $matchCount / count($keywords);
-
-        // Konversi ke range probabilitas: 0 match → 0.10, full match → 0.95
-        return $this->normalisasiProbabilitas($matchRatio, 0.10, 0.95);
+        return 'Umum';
     }
 
     /**
-     * P(pref | H) — Likelihood preferensi studi terhadap jurusan
-     * Membandingkan preferensi siswa dengan preferensi_studi jurusan dari database.
+     * Pemetaan cita-cita ke kategori jurusan
      */
-    private function hitungLikelihoodPref(string $prefStudi, ?array $jurusanPref): float
+    private function mapCitaCita(string $citaRaw): string
     {
-        if (empty($jurusanPref)) {
-            return 0.40; // probabilitas netral
-        }
-
-        // Cek apakah preferensi siswa ada di list preferensi jurusan
-        if (in_array($prefStudi, $jurusanPref)) {
-            return 0.85; // cocok
-        }
-
-        return 0.15; // tidak cocok
+        // Return raw mapped text untuk matching dengan keywords
+        return $citaRaw;
     }
 
     /**
-     * P(cita_cita | H) — Likelihood cita-cita terhadap jurusan
-     * Menggunakan keyword matching dari cita-cita siswa terhadap keywords jurusan.
+     * Scoring prestasi berdasarkan keyword
      */
-    private function hitungLikelihoodCitaCita(string $citaRaw, ?array $keywords): float
+    private function scorePrestasiScore(string $prestasiRaw): float
     {
-        if (empty($keywords) || empty($citaRaw)) {
-            return 0.25; // probabilitas dasar
-        }
-
-        $matchCount = 0;
-        foreach ($keywords as $keyword) {
-            if (stripos($citaRaw, strtolower($keyword)) !== false) {
-                $matchCount++;
-            }
-        }
-
-        $matchRatio = $matchCount / count($keywords);
-        return $this->normalisasiProbabilitas($matchRatio, 0.10, 0.90);
-    }
-
-    /**
-     * P(prestasi | H) — Likelihood prestasi
-     * Prestasi bersifat umum (tidak spesifik per jurusan), sehingga
-     * memberikan boost yang sama untuk semua jurusan.
-     */
-    private function hitungLikelihoodPrestasi(float $prestasiScore): float
-    {
-        // Konversi skor prestasi (0-1) ke range probabilitas
-        return $this->normalisasiProbabilitas($prestasiScore, 0.20, 0.90);
-    }
-
-    // ==================================================================
-    //  FUNGSI HELPER
-    // ==================================================================
-
-    /**
-     * Normalisasi nilai (0-1) ke range probabilitas [min, max]
-     * Agar tidak ada likelihood 0 atau 1 (menghindari dominasi)
-     */
-    private function normalisasiProbabilitas(float $value, float $min = 0.10, float $max = 0.95): float
-    {
-        return $min + ($value * ($max - $min));
-    }
-
-    /**
-     * Hitung skor prestasi berdasarkan keyword
-     */
-    private function hitungSkorPrestasi(string $prestasiRaw): float
-    {
-        $prestasiRaw = strtolower(trim($prestasiRaw));
-
         if (empty($prestasiRaw)) {
             return 0.0;
         }
 
+        $prestasiRaw = strtolower(trim($prestasiRaw));
+        $prestasiScore = 0.0;
+
+        // Berbagai tingkat prestasi
         if (preg_match('/(juara|menang|champion|first|gold|emas|terbaik)/', $prestasiRaw)) {
-            return 0.90;
-        } elseif (preg_match('/(finalis|semifinal|peringkat|ranking|podium|medali|silver|perak)/', $prestasiRaw)) {
-            return 0.75;
+            $prestasiScore = 0.90; // Prestasi tinggi
+        } elseif (preg_match('/(finalis|semifinal|peringkat|ranking|podium|medali|silver|silver|perak)/', $prestasiRaw)) {
+            $prestasiScore = 0.75; // Prestasi sedang
         } elseif (preg_match('/(sertifikat|training|kursus|workshop|peserta|mengikuti)/', $prestasiRaw)) {
-            return 0.60;
+            $prestasiScore = 0.60; // Prestasi cukup
+        } else {
+            $prestasiScore = 0.30; // Prestasi minimal
         }
 
-        return 0.30;
+        return $prestasiScore;
     }
 
     /**
