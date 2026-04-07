@@ -86,7 +86,7 @@ class BKController extends Controller
 
     public function studentDetail($id)
     {
-        $student = User::findOrFail($id);
+        $student = User::where('role', 'siswa')->findOrFail($id);
         $recommendations = Recommendation::where('user_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -99,7 +99,7 @@ class BKController extends Controller
 
     public function chatHistory($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('role', 'siswa')->findOrFail($id);
         $chatHistories = ChatHistory::where('user_id', $id)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -301,15 +301,11 @@ class BKController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => 'required|current_password',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $guru = Auth::user();
-
-        if (!Hash::check($request->current_password, $guru->password)) {
-            return back()->withErrors(['current_password' => 'Password lama salah.']);
-        }
 
         $guru->password = Hash::make($request->password);
         $guru->save();

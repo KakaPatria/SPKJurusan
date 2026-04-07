@@ -45,6 +45,6 @@ class RekomendasiTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('rekomendasi.proses'), $payload);
         $response->assertStatus(200);
-        $response->assertSee('Bahasa, Komunikasi dan Pariwisata');
+        $response->assertSee('Bahasa, Komunikasi, dan Pariwisata');
     }
 }

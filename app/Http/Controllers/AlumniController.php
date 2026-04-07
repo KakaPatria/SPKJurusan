@@ -49,7 +49,7 @@ class AlumniController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended',
+            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended,Praktik Langsung,Project Based',
             'prestasi' => 'nullable|string|max:255',
             
             // Major & Outcome
@@ -58,6 +58,10 @@ class AlumniController extends Controller
             'success_status' => 'nullable|in:sangat_sukses,sukses,cukup,kurang_sukses',
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        if (!empty($validated['preferensi_studi'])) {
+            $validated['preferensi_studi'] = str_replace(['Praktik Langsung', 'Project Based'], ['Praktik_Langsung', 'Project_Based'], $validated['preferensi_studi']);
+        }
 
         Alumni::create($validated);
 
@@ -101,7 +105,7 @@ class AlumniController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended',
+            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended,Praktik Langsung,Project Based',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|max:255',
@@ -109,6 +113,10 @@ class AlumniController extends Controller
             'success_status' => 'nullable|in:sangat_sukses,sukses,cukup,kurang_sukses',
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        if (!empty($validated['preferensi_studi'])) {
+            $validated['preferensi_studi'] = str_replace(['Praktik Langsung', 'Project Based'], ['Praktik_Langsung', 'Project_Based'], $validated['preferensi_studi']);
+        }
 
         $alumni->update($validated);
 

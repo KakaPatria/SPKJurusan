@@ -86,7 +86,7 @@ class AdminController extends Controller
 
     public function studentDetail($id)
     {
-        $student = User::findOrFail($id);
+        $student = User::where('role', 'siswa')->findOrFail($id);
         $recommendations = Recommendation::where('user_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -99,7 +99,7 @@ class AdminController extends Controller
 
     public function chatHistory($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('role', 'siswa')->findOrFail($id);
         $chatHistories = ChatHistory::where('user_id', $id)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -380,15 +380,11 @@ class AdminController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required',
+            'current_password' => 'required|current_password',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $admin = Auth::user();
-
-        if (!Hash::check($request->current_password, $admin->password)) {
-            return back()->withErrors(['current_password' => 'Password lama salah.']);
-        }
 
         $admin->password = Hash::make($request->password);
         $admin->save();

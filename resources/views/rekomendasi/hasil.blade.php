@@ -215,9 +215,49 @@
                     </div>
                 </div>
 
+                <!-- Explanation Breakdown -->
+                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 class="font-bold text-blue-900 text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
+                        <span class="text-lg">💡</span> Alasan Kenapa Jurusan Ini Cocok:
+                    </h4>
+                    
+                    <div class="space-y-2 sm:space-y-3">
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="text-lg flex-shrink-0">📊</span>
+                            <p class="text-xs sm:text-sm text-gray-800">
+                                <strong>Nilai Akademik:</strong> {{ $topRecommendation['explanation']['nilai'] ?? '-' }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="text-lg flex-shrink-0">❤️</span>
+                            <p class="text-xs sm:text-sm text-gray-800">
+                                <strong>Minat & Bakat:</strong> {{ $topRecommendation['explanation']['minat'] ?? '-' }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="text-lg flex-shrink-0">🎓</span>
+                            <p class="text-xs sm:text-sm text-gray-800">
+                                <strong>Metode Pembelajaran:</strong> {{ $topRecommendation['explanation']['pref'] ?? '-' }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="text-lg flex-shrink-0">🎯</span>
+                            <p class="text-xs sm:text-sm text-gray-800">
+                                <strong>Cita-cita Karir:</strong> {{ $topRecommendation['explanation']['cita'] ?? '-' }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2 sm:gap-3">
+                            <span class="text-lg flex-shrink-0">🏆</span>
+                            <p class="text-xs sm:text-sm text-gray-800">
+                                <strong>Prestasi Akademik:</strong> {{ $topRecommendation['explanation']['prestasi'] ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Kesimpulan -->
                 <div class="p-3 sm:p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mb-3 sm:mb-4">
-                    <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">Penjelasan:</h4>
+                    <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">📋 Kesimpulan:</h4>
                     <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
                         Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }} (rata-rata {{ number_format($average, 1) }})</strong> 
                         dan <strong>preferensi studi {{ $prefStudi }}</strong>, 
@@ -233,6 +273,113 @@
                         <p class="text-xs sm:text-sm text-gray-700">{{ $topJurusan->prospek_kerja }}</p>
                     </div>
                 @endif
+            </div>
+        @endif
+
+        <!-- Rekomendasi Alternatif & Penjelasan Detail -->
+        @if(count($hasilAkhir) > 1)
+            <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8">
+                <h3 class="text-lg sm:text-xl font-bold text-maroon mb-4 sm:mb-6 flex items-center gap-2">
+                    <span class="text-2xl">🔍</span> Rekomendasi Alternatif & Penjelasan Detail
+                </h3>
+                
+                <div class="space-y-3 sm:space-y-4">
+                    @foreach($hasilAkhir as $index => $rec)
+                        @if($index > 0)
+                            <details class="border border-gray-300 rounded-lg overflow-hidden">
+                                <summary class="cursor-pointer p-4 hover:bg-gray-50 flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-bold text-sm">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <div>
+                                            <p class="font-semibold text-gray-900 text-sm sm:text-base">{{ $rec['jurusan'] ?? '-' }}</p>
+                                            <p class="text-xs sm:text-sm text-gray-600">Skor: {{ number_format(($rec['skor'] ?? 0) * 100, 1) }}%</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-gray-400">▸</span>
+                                </summary>
+                                
+                                <div class="p-4 bg-gray-50 border-t border-gray-300 space-y-4">
+                                    <!-- Score Breakdown -->
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <p class="text-xs sm:text-sm font-bold text-gray-700 mb-3">Scoring per Kriteria:</p>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-gray-600">📊 Nilai (40%)</span>
+                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['nilai'] ?? 0) * 100, 1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded h-1.5">
+                                                <div class="bg-red-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['nilai'] ?? 0) * 100, 1) }}%"></div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center text-xs mt-2">
+                                                <span class="text-gray-600">❤️ Minat (35%)</span>
+                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['minat'] ?? 0) * 100, 1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded h-1.5">
+                                                <div class="bg-pink-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['minat'] ?? 0) * 100, 1) }}%"></div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center text-xs mt-2">
+                                                <span class="text-gray-600">🎓 Preferensi (15%)</span>
+                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['pref'] ?? 0) * 100, 1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded h-1.5">
+                                                <div class="bg-yellow-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['pref'] ?? 0) * 100, 1) }}%"></div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center text-xs mt-2">
+                                                <span class="text-gray-600">🎯 Cita-cita (5%)</span>
+                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded h-1.5">
+                                                <div class="bg-blue-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%"></div>
+                                            </div>
+
+                                            <div class="flex justify-between items-center text-xs mt-2">
+                                                <span class="text-gray-600">🏆 Prestasi (5%)</span>
+                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded h-1.5">
+                                                <div class="bg-green-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Explanation -->
+                                    @if(isset($rec['explanation']) && is_array($rec['explanation']))
+                                        <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                            <p class="text-xs sm:text-sm font-bold text-blue-900 mb-2">💡 Alasan Cocok:</p>
+                                            <ul class="space-y-1.5 text-xs sm:text-sm text-gray-800">
+                                                <li class="flex gap-2">
+                                                    <span class="flex-shrink-0">📊</span>
+                                                    <span>{{ $rec['explanation']['nilai'] ?? '-' }}</span>
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <span class="flex-shrink-0">❤️</span>
+                                                    <span>{{ $rec['explanation']['minat'] ?? '-' }}</span>
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <span class="flex-shrink-0">🎓</span>
+                                                    <span>{{ $rec['explanation']['pref'] ?? '-' }}</span>
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <span class="flex-shrink-0">🎯</span>
+                                                    <span>{{ $rec['explanation']['cita'] ?? '-' }}</span>
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <span class="flex-shrink-0">🏆</span>
+                                                    <span>{{ $rec['explanation']['prestasi'] ?? '-' }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+                            </details>
+                        @endif
+                    @endforeach
+                </div>
             </div>
         @endif
 
