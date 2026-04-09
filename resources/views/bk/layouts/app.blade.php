@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Panel Guru BK') - SPK Jurusan Kuliah</title>
+    <title>@yield('title', 'Panel Guru BK') - SPK Jurusan Polije</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-bk { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); }
@@ -101,7 +101,7 @@
                     </button>
                     <div>
                         <h1 class="text-lg sm:text-xl md:text-2xl font-bold">📋 Panel Guru BK</h1>
-                        <p class="text-xs text-teal-100 font-semibold">Sistem Pemilihan Jurusan Kuliah</p>
+                        <p class="text-xs text-teal-100 font-semibold">Sistem Pemilihan Jurusan Politeknik Negeri Jember</p>
                     </div>
                 </div>
                 <div class="relative">

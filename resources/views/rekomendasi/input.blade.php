@@ -48,6 +48,9 @@
             <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-2">
                 Silakan isi data berikut dengan jujur agar sistem dapat memberikan rekomendasi yang akurat.
             </p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2">
+                Perhitungan menggunakan algoritma <strong>Naive Bayes berbobot</strong> berdasarkan 5 atribut input: <strong>nilai akademik (40%)</strong>, <strong>minat (35%)</strong>, <strong>preferensi studi lanjutan (15%)</strong>, <strong>cita-cita (5%)</strong>, dan <strong>prestasi (5%)</strong>.
+            </p>
             <p class="text-xs sm:text-sm text-gray-600">
                 Sistem akan menganalisis data Anda dan menampilkan ranking <strong>9 jurusan</strong> yang tersedia di Politeknik Negeri Jember.
             </p>
@@ -189,19 +192,19 @@
                     <div class="p-4 sm:p-5 rounded-lg border-2 border-gray-200 bg-gray-50">
                         <h3 class="font-bold text-maroon text-base sm:text-lg mb-1 sm:mb-2">3. Preferensi Studi Lanjutan <span class="text-red-500">*</span></h3>
                         <p class="text-xs text-gray-600 mb-3 sm:mb-4">
-                            Preferensi studi lanjutan adalah kecenderungan pilihan Anda terhadap rumpun bidang studi yang ingin ditempuh setelah lulus, berdasarkan pertimbangan minat, bakat, kemampuan, dan prospek karir di masa depan.
+                            Bagian ini menanyakan arah lanjutan studi Anda setelah lulus SMA, yaitu ingin melanjutkan ke rumpun jurusan Politeknik Negeri Jember yang mana. Jadi fokusnya adalah tujuan jalur jurusan yang ingin dituju, bukan metode belajar.
                         </p>
                         <div>
-                            <label for="pref_studi" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Rumpun Bidang Studi</label>
+                            <label for="pref_studi" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Arah Rumpun Jurusan Tujuan</label>
                             <select id="pref_studi" name="pref_studi" class="block w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm @error('pref_studi') border-red-500 @enderror" required>
-                                <option value="">-- Pilih Rumpun Bidang Studi --</option>
-                                <option value="Sains & Teknologi" {{ old('pref_studi') == 'Sains & Teknologi' ? 'selected' : '' }}>Sains & Teknologi</option>
-                                <option value="Pertanian & Lingkungan" {{ old('pref_studi') == 'Pertanian & Lingkungan' ? 'selected' : '' }}>Pertanian & Lingkungan</option>
-                                <option value="Kesehatan & Ilmu Hayat" {{ old('pref_studi') == 'Kesehatan & Ilmu Hayat' ? 'selected' : '' }}>Kesehatan & Ilmu Hayat</option>
-                                <option value="Bisnis & Manajemen" {{ old('pref_studi') == 'Bisnis & Manajemen' ? 'selected' : '' }}>Bisnis & Manajemen</option>
-                                <option value="Sosial & Humaniora" {{ old('pref_studi') == 'Sosial & Humaniora' ? 'selected' : '' }}>Sosial, Bahasa & Humaniora</option>
+                                <option value="">-- Pilih Arah Rumpun Jurusan --</option>
+                                <option value="Sains & Teknologi" {{ old('pref_studi') == 'Sains & Teknologi' ? 'selected' : '' }}>Sains & Teknologi (contoh: TI, Teknik)</option>
+                                <option value="Pertanian & Lingkungan" {{ old('pref_studi') == 'Pertanian & Lingkungan' ? 'selected' : '' }}>Pertanian & Lingkungan (contoh: Produksi/Teknologi Pertanian)</option>
+                                <option value="Kesehatan & Ilmu Hayat" {{ old('pref_studi') == 'Kesehatan & Ilmu Hayat' ? 'selected' : '' }}>Kesehatan & Ilmu Hayat (contoh: rumpun Kesehatan)</option>
+                                <option value="Bisnis & Manajemen" {{ old('pref_studi') == 'Bisnis & Manajemen' ? 'selected' : '' }}>Bisnis & Manajemen (contoh: Akuntansi, Manajemen Agribisnis)</option>
+                                <option value="Sosial & Humaniora" {{ old('pref_studi') == 'Sosial & Humaniora' ? 'selected' : '' }}>Sosial & Humaniora (contoh: Bahasa, Komunikasi, Pariwisata)</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Pilih rumpun studi yang paling mendekati kecenderungan Anda</p>
+                            <p class="text-xs text-gray-500 mt-1">Pilih rumpun yang paling menggambarkan jurusan Polije yang ingin Anda tuju setelah lulus.</p>
                             @error('pref_studi')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror

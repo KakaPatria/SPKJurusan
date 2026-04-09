@@ -65,7 +65,9 @@
                 <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Prestasi</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">
-                        @if($prestasiScore >= 0.8)
+                        @if(!($isPrestasiFilled ?? true))
+                            Tidak Dihitung
+                        @elseif($prestasiScore >= 0.8)
                             Tinggi
                         @elseif($prestasiScore >= 0.6)
                             Sedang
@@ -205,8 +207,16 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Prestasi — P(prestasi|H) &times; w=0.05</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%</span>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">
+                                    Prestasi — P(prestasi|H) &times; w={{ ($isPrestasiFilled ?? true) ? '0.05' : '0.00' }}
+                                </p>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">
+                                    @if(!($isPrestasiFilled ?? true))
+                                        Tidak dihitung
+                                    @else
+                                        {{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%
+                                    @endif
+                                </span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
                                 <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%"></div>
@@ -338,8 +348,14 @@
                                             </div>
 
                                             <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">🏆 Prestasi (5%)</span>
-                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%</span>
+                                                <span class="text-gray-600">🏆 Prestasi ({{ ($isPrestasiFilled ?? true) ? '5%' : '0%' }})</span>
+                                                <span class="font-semibold text-maroon">
+                                                    @if(!($isPrestasiFilled ?? true))
+                                                        Tidak dihitung
+                                                    @else
+                                                        {{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%
+                                                    @endif
+                                                </span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded h-1.5">
                                                 <div class="bg-green-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%"></div>
@@ -413,7 +429,7 @@
         <!-- Info Metode -->
         <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Preferensi Studi (w=0.15), Cita-cita (w=0.05), Prestasi (w=0.05). Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
+                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Preferensi Studi (w=0.15), Cita-cita (w=0.05), Prestasi (w=0.05). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
             </p>
         </div>
     </div>

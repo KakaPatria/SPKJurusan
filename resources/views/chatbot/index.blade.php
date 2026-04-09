@@ -91,7 +91,7 @@
         <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
             <div>
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Konsultasi BK Virtual</h1>
-                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Konseling Pemilihan Jurusan Kuliah</p>
+                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Konseling Pemilihan Jurusan Politeknik Negeri Jember</p>
             </div>
             <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <a href="{{ route('chatbot.index') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-white text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm">
@@ -145,7 +145,7 @@
                             <li class="text-gray-700">• Aku bingung pilih jurusan</li>
                             <li class="text-gray-700">• Skill apa yang dibutuhkan?</li>
                             <li class="text-gray-700">• Bedanya IPA dan IPS?</li>
-                            <li class="text-gray-700">• Tips sukses di kampus?</li>
+                            <li class="text-gray-700">• Tips sukses kuliah di Polije?</li>
                         </ul>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
                 // Melanjutkan sesi lama — tampilkan info lanjutan
                 document.getElementById('initialGreeting').textContent = sapaan + '. Anda melanjutkan sesi konsultasi sebelumnya. Silakan lanjutkan pertanyaan Anda.';
             } else {
-                document.getElementById('initialGreeting').textContent = sapaan + '. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan kuliah, informasi prospek karier, maupun konsultasi lainnya terkait pendidikan tinggi. Silakan sampaikan pertanyaan Anda.';
+                document.getElementById('initialGreeting').textContent = sapaan + '. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan Politeknik Negeri Jember, informasi prospek karier, maupun konsultasi lanjutan studi. Silakan sampaikan pertanyaan Anda.';
             }
         })();
 

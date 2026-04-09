@@ -118,6 +118,7 @@ class ChatbotController extends Controller
             'recommendation' => $recentRecommendation['jurusan'] ?? null,
             'score' => isset($recentRecommendation['skor']) ? number_format(($recentRecommendation['skor'] > 1 ? $recentRecommendation['skor'] : $recentRecommendation['skor'] * 100), 1) : null,
             'top3' => $recentRecommendation['top3'] ?? [],
+            'intent' => $this->detectIntent($message),
             'profile' => [
                 'nama' => $user->name,
                 'kelompok' => $user->kelompok_asal ?? null,
@@ -338,5 +339,49 @@ class ChatbotController extends Controller
         $text = preg_replace('/^#{1,6}\s+/m', '', $text);
         $text = preg_replace('/`(.*?)`/s', '$1', $text);
         return $text;
+    }
+
+    private function detectIntent(string $message): string
+    {
+        $message = strtolower($message);
+
+        if (
+            str_contains($message, 'banding') ||
+            str_contains($message, 'beda') ||
+            str_contains($message, 'vs') ||
+            str_contains($message, 'dibanding')
+        ) {
+            return 'compare_majors';
+        }
+
+        if (
+            str_contains($message, 'jelaskan semua') ||
+            str_contains($message, 'semua jurusan')
+        ) {
+            return 'explain_all_majors';
+        }
+
+        if (
+            str_contains($message, 'lanjut') ||
+            str_contains($message, 'yang tadi') ||
+            str_contains($message, 'yang sebelumnya') ||
+            str_contains($message, 'maksudnya')
+        ) {
+            return 'follow_up';
+        }
+
+        if (str_contains($message, 'kenapa') || str_contains($message, 'mengapa')) {
+            return 'ask_reason';
+        }
+
+        if (
+            str_contains($message, 'prospek') ||
+            str_contains($message, 'karir') ||
+            str_contains($message, 'kerja')
+        ) {
+            return 'ask_career';
+        }
+
+        return 'general';
     }
 }

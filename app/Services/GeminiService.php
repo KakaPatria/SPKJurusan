@@ -33,6 +33,17 @@ class GeminiService
                 ];
             }
 
+            // Intent router: mode perbandingan jurusan ditangani terstruktur agar konsisten.
+            if (($context['intent'] ?? '') === 'compare_majors') {
+                $comparison = $this->buildStructuredComparisonResponse($message, $context);
+                if (!empty($comparison)) {
+                    return [
+                        'success' => true,
+                        'message' => $comparison,
+                    ];
+                }
+            }
+
             $systemPrompt = $this->buildSystemPrompt($context);
 
             // Build multi-turn conversation for Gemini
@@ -102,7 +113,7 @@ class GeminiService
 
             // All models failed
             Log::error('All Gemini models failed, using fallback');
-            return $this->getFallbackResponse($message, $context);
+            return $this->getFallbackResponse($message, $context, $chatHistory);
 
         } catch (\Exception $e) {
             Log::error('Gemini Service Exception', [
@@ -111,18 +122,68 @@ class GeminiService
                 'line' => $e->getLine()
             ]);
             
-            return $this->getFallbackResponse($message, $context);
+            return $this->getFallbackResponse($message, $context, $chatHistory);
         }
     }
 
-    protected function getFallbackResponse($message, $context = [])
+    protected function getFallbackResponse($message, $context = [], $chatHistory = [])
     {
         $jurusan = $context['recommendation'] ?? null;
         $score = isset($context['score']) ? floatval($context['score']) : 0;
         $hasRecommendation = !empty($jurusan);
 
+        if (($context['intent'] ?? '') === 'compare_majors') {
+            $comparison = $this->buildStructuredComparisonResponse($message, $context);
+            if (!empty($comparison)) {
+                return [
+                    'success' => true,
+                    'message' => $comparison,
+                ];
+            }
+        }
+
+        $major = null;
+        if ($hasRecommendation) {
+            $major = PolijeMajor::where('nama_jurusan', $jurusan)->first();
+        }
+        $majorDesc = $major->deskripsi ?? null;
+        $majorProspek = $major->prospek_kerja ?? null;
+
         // Keyword-based responses
         $messageLower = strtolower($message);
+        $lastAiMessage = $this->getLastAssistantMessage($chatHistory);
+
+        // Tangani pertanyaan lanjutan agar tetap nyambung saat fallback aktif
+        if ($this->isFollowUpMessage($messageLower)) {
+            if (
+                strpos($messageLower, 'jelaskan semua') !== false ||
+                strpos($messageLower, 'semua jurusan') !== false ||
+                strpos($messageLower, 'satu satu') !== false ||
+                strpos($messageLower, 'satu-satu') !== false
+            ) {
+                return [
+                    'success' => true,
+                    'message' => $this->buildAllMajorsResponse($hasRecommendation, $jurusan, $score),
+                ];
+            }
+
+            if ($hasRecommendation) {
+                $parts = [];
+                $parts[] = "Menindaklanjuti pembahasan sebelumnya, fokus utama Anda saat ini tetap pada jurusan \"{$jurusan}\" dengan skor kesesuaian {$score}%.";
+                if (!empty($majorDesc)) {
+                    $parts[] = "Fokus pembelajaran jurusan: {$majorDesc}";
+                }
+                if (!empty($majorProspek)) {
+                    $parts[] = "Prospek kerja yang relevan: {$majorProspek}";
+                }
+                $parts[] = "Jika Anda berkenan, saya dapat lanjutkan secara bertahap: (1) kompetensi yang harus dipersiapkan, (2) mata kuliah inti, dan (3) perbandingan dengan alternatif jurusan lain.";
+
+                return [
+                    'success' => true,
+                    'message' => implode(' ', $parts),
+                ];
+            }
+        }
 
         if (strpos($messageLower, 'halo') !== false || strpos($messageLower, 'hai') !== false || strpos($messageLower, 'hallo') !== false || strpos($messageLower, 'hi') !== false) {
             $hour = (int) now()->format('H');
@@ -148,7 +209,7 @@ class GeminiService
             if ($hasRecommendation) {
                 return [
                     'success' => true,
-                    'message' => "Jurusan \"{$jurusan}\" direkomendasikan berdasarkan analisis komprehensif terhadap profil akademik, minat, serta preferensi studi Anda. Skor kesesuaian sebesar {$score}% menunjukkan tingkat kecocokan yang signifikan antara profil Anda dengan karakteristik jurusan tersebut. Sistem menghitung skor ini berdasarkan lima faktor utama, yaitu: nilai akademik, minat dan bakat, preferensi studi lanjutan, prestasi, dan cita-cita."
+                    'message' => "Jurusan \"{$jurusan}\" direkomendasikan karena paling sesuai dengan kombinasi profil Anda. Skor kesesuaian {$score}% diperoleh dari analisis lima atribut: nilai akademik, minat, preferensi studi lanjutan, cita-cita, dan prestasi (jika diisi). Berdasarkan data tersebut, jurusan ini memiliki kecocokan paling kuat dibanding alternatif lain pada sesi analisis Anda."
                 ];
             }
             return [
@@ -157,11 +218,40 @@ class GeminiService
             ];
         }
         
+        if (
+            strpos($messageLower, 'apa itu') !== false ||
+            strpos($messageLower, 'jurusan tersebut') !== false ||
+            strpos($messageLower, 'jelaskan jurusan') !== false ||
+            strpos($messageLower, 'maksud jurusan') !== false
+        ) {
+            if ($hasRecommendation) {
+                $parts = [];
+                $parts[] = "Jurusan \"{$jurusan}\" adalah bidang yang berfokus pada kompetensi terapan sesuai kebutuhan dunia kerja.";
+                if (!empty($majorDesc)) {
+                    $parts[] = "Gambaran jurusan: {$majorDesc}";
+                }
+                if (!empty($majorProspek)) {
+                    $parts[] = "Prospek kerja utama: {$majorProspek}";
+                }
+                $parts[] = "Jika Anda berkenan, saya dapat lanjutkan dengan mata kuliah inti, kemampuan yang perlu dipersiapkan, dan alasan kesesuaiannya dengan profil Anda.";
+
+                return [
+                    'success' => true,
+                    'message' => implode(' ', $parts),
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => "Saya dapat menjelaskan jurusan secara rinci. Agar lebih tepat sasaran, sebutkan nama jurusan yang ingin Anda ketahui, atau jalankan Analisis Rekomendasi terlebih dahulu agar saya menjelaskan jurusan yang paling sesuai dengan profil Anda.",
+            ];
+        }
+
         if (strpos($messageLower, 'prospek') !== false || strpos($messageLower, 'karir') !== false || strpos($messageLower, 'kerja') !== false) {
             if ($hasRecommendation) {
                 return [
                     'success' => true,
-                    'message' => "Jurusan \"{$jurusan}\" memiliki prospek karier yang menjanjikan. Lulusan dari jurusan ini dapat bekerja di berbagai sektor industri yang relevan dengan bidang keahliannya. Setiap jurusan di POLIJE dirancang untuk membekali lulusannya dengan kompetensi praktis yang dibutuhkan oleh dunia kerja. Apakah Anda ingin mengetahui lebih detail mengenai posisi pekerjaan spesifik yang dapat ditempuh?"
+                    'message' => "Jurusan \"{$jurusan}\" memiliki prospek karier yang baik. " . (!empty($majorProspek) ? "Contoh prospek kerja: {$majorProspek}. " : "Lulusan dapat bekerja pada bidang yang relevan dengan kompetensi jurusan. ") . "Jika Anda berkenan, saya dapat jelaskan jalur karier dari level awal sampai pengembangan jangka panjang."
                 ];
             }
             return [
@@ -197,11 +287,15 @@ class GeminiService
             ];
         }
         
-        // Default response
+        // Default response: tetap menanggapi isi pertanyaan agar nyambung
         if ($hasRecommendation) {
+            $lead = !empty($lastAiMessage)
+                ? "Menindaklanjuti percakapan sebelumnya, "
+                : "";
+
             return [
                 'success' => true,
-                'message' => "Saya adalah konselor BK virtual SMA Bima Ambulu. Berdasarkan hasil analisis, jurusan \"{$jurusan}\" memiliki kesesuaian tertinggi dengan profil Anda, yaitu sebesar {$score}%. Anda dapat berkonsultasi mengenai prospek karier, kompetensi yang dibutuhkan, perbandingan antar jurusan, atau hal lain terkait persiapan pendidikan tinggi. Silakan sampaikan pertanyaan Anda."
+                'message' => $lead . "berdasarkan hasil analisis Anda saat ini, jurusan dengan kecocokan tertinggi adalah \"{$jurusan}\" ({$score}%). " . (!empty($majorDesc) ? "Ringkasan jurusan: {$majorDesc}. " : "") . "Silakan lanjutkan dengan pertanyaan yang lebih spesifik, misalnya perbandingan dengan jurusan lain, kompetensi yang harus dipersiapkan, atau prospek kariernya."
             ];
         }
 
@@ -319,6 +413,7 @@ class GeminiService
         }
         
         $prompt .= "\n\nCara kamu merespons:";
+        $prompt .= "\n0. WAJIB jawab inti pertanyaan pengguna terlebih dahulu secara langsung dalam 1-2 kalimat pertama. Jangan memutar atau memberi jawaban generik yang tidak menanggapi pertanyaan.";
         $prompt .= "\n1. INGAT seluruh percakapan sebelumnya. Jangan tanya ulang hal yang sudah dijawab siswa.";
         $prompt .= "\n2. Kalau siswa sudah bilang minat/kemampuan/kesukaan, LANGSUNG analisis dan arahkan ke jurusan yang cocok dengan ALASAN LOGIS (misal: 'kamu suka logika → TI cocok karena...')";
         $prompt .= "\n3. Berikan REKOMENDASI TEGAS, bukan cuma daftar pilihan. Contoh: 'Menurut Bapak, kamu paling cocok ke Teknologi Informasi. Alasannya: ...'";
@@ -327,6 +422,8 @@ class GeminiService
         $prompt .= "\n6. Jawab RINGKAS (2-3 paragraf). Jangan terlalu panjang kecuali diminta detail.";
         $prompt .= "\n7. Boleh menjawab pertanyaan di luar topik jurusan secara singkat, lalu kembalikan ke konseling.";
         $prompt .= "\n8. JANGAN awali setiap respons dengan 'Halo' atau salam — langsung ke inti jawaban (kecuali percakapan baru dimulai).";
+        $prompt .= "\n8a. Jika pengguna bertanya 'apa itu jurusan X' atau 'jelaskan jurusan tersebut', jelaskan definisi jurusan, fokus pembelajaran, dan prospek kerjanya secara ringkas dan nyambung dengan konteks pengguna.";
+        $prompt .= "\n8b. Jika pengguna menilai jawaban tidak nyambung, lakukan klarifikasi singkat lalu jawab ulang secara spesifik sesuai pertanyaan terbaru.";
 
         // Tambahkan referensi Q&A serupa dari riwayat
         if (!empty($context['similar_qa'])) {
@@ -339,7 +436,232 @@ class GeminiService
             $prompt .= "\nGunakan referensi di atas untuk menjaga konsistensi jawaban, namun tetap sesuaikan dengan profil dan konteks percakapan siswa saat ini.";
         }        $prompt .= "\n9. DILARANG KERAS menggunakan format markdown seperti **, *, #, ##, atau simbol formatting lainnya. Tulis teks biasa (plain text) saja tanpa formatting markdown.";
         $prompt .= "\n10. Gunakan bahasa Indonesia baku dan akademik. Hindari bahasa gaul seperti 'kek', 'banget', 'ngobrol', 'ngomongin', 'gampangnya'. Gunakan padanan formal seperti 'sangat', 'berbincang', 'membahas', 'secara sederhana'.";
+        $prompt .= "\n11. Jika pertanyaan bersifat umum di luar jurusan (misalnya pengetahuan umum), jawab singkat namun benar, lalu tawarkan kaitan dengan rencana studi/karier pengguna.";
+
+        if (($context['intent'] ?? '') === 'compare_majors') {
+            $prompt .= "\n12. Pengguna sedang meminta PERBANDINGAN JURUSAN. Gunakan format terstruktur dengan urutan tetap: (1) Fokus pembelajaran, (2) Kompetensi yang perlu dipersiapkan, (3) Prospek kerja, (4) Tantangan belajar, (5) Rekomendasi paling sesuai untuk profil pengguna beserta alasan.";
+        }
 
         return $prompt;
     }
+
+    protected function isFollowUpMessage(string $messageLower): bool
+    {
+        $followUpHints = [
+            'jelaskan semua',
+            'lanjut',
+            'lanjutkan',
+            'yang tadi',
+            'yang sebelumnya',
+            'maksudnya',
+            'lebih detail',
+            'perjelas',
+            'itu gimana',
+            'jurusan itu',
+            'jurusan tersebut',
+            'semua jurusan',
+            'satu satu',
+            'satu-satu',
+        ];
+
+        foreach ($followUpHints as $hint) {
+            if (strpos($messageLower, $hint) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getLastAssistantMessage(array $chatHistory): ?string
+    {
+        for ($i = count($chatHistory) - 1; $i >= 0; $i--) {
+            $item = $chatHistory[$i] ?? null;
+            if (!$item || !isset($item['role'], $item['text'])) {
+                continue;
+            }
+
+            if ($item['role'] === 'ai' && trim((string) $item['text']) !== '') {
+                return (string) $item['text'];
+            }
+        }
+
+        return null;
+    }
+
+    protected function buildAllMajorsResponse(bool $hasRecommendation, ?string $jurusan, float $score): string
+    {
+        $majors = PolijeMajor::orderBy('nama_jurusan')->get();
+
+        if ($majors->isEmpty()) {
+            if ($hasRecommendation) {
+                return "Menindaklanjuti pertanyaan Anda, saat ini rekomendasi utama Anda tetap pada jurusan \"{$jurusan}\" dengan skor {$score}%. Jika Anda berkenan, saya dapat jelaskan detail jurusan ini terlebih dahulu.";
+            }
+
+            return "Data jurusan saat ini belum tersedia. Silakan coba kembali beberapa saat lagi, atau ajukan satu jurusan yang ingin dibahas agar saya jelaskan secara umum.";
+        }
+
+        $lines = [];
+        $lines[] = "Berikut ringkasan seluruh jurusan di Politeknik Negeri Jember agar pembahasan kita tetap nyambung dengan pertanyaan Anda:";
+
+        foreach ($majors as $index => $m) {
+            $desc = trim((string) ($m->deskripsi ?? ''));
+            if ($desc === '') {
+                $desc = 'Berorientasi pada kompetensi terapan yang relevan dengan kebutuhan dunia kerja.';
+            }
+            $num = $index + 1;
+            $lines[] = "{$num}. {$m->nama_jurusan}: {$desc}";
+        }
+
+        if ($hasRecommendation) {
+            $lines[] = "Berdasarkan profil Anda, jurusan yang paling direkomendasikan tetap \"{$jurusan}\" ({$score}%). Jika Anda ingin, saya lanjutkan dengan perbandingan jurusan rekomendasi Anda terhadap 2 alternatif teratas.";
+        } else {
+            $lines[] = "Jika Anda berkenan, saya dapat bantu menyaring 2-3 jurusan paling relevan berdasarkan minat dan nilai Anda.";
+        }
+
+        return implode(' ', $lines);
+    }
+
+    protected function buildStructuredComparisonResponse(string $message, array $context = []): ?string
+    {
+        $majors = PolijeMajor::orderBy('nama_jurusan')->get();
+        if ($majors->count() < 2) {
+            return null;
+        }
+
+        $selected = $this->resolveMajorsForComparison($message, $context, $majors);
+        if (count($selected) < 2) {
+            return null;
+        }
+
+        $a = $selected[0];
+        $b = $selected[1];
+
+        $aDesc = trim((string) ($a->deskripsi ?? ''));
+        $bDesc = trim((string) ($b->deskripsi ?? ''));
+        $aProspek = trim((string) ($a->prospek_kerja ?? ''));
+        $bProspek = trim((string) ($b->prospek_kerja ?? ''));
+
+        if ($aDesc === '') {
+            $aDesc = 'Berfokus pada kompetensi terapan sesuai kebutuhan industri.';
+        }
+        if ($bDesc === '') {
+            $bDesc = 'Berfokus pada kompetensi terapan sesuai kebutuhan industri.';
+        }
+        if ($aProspek === '') {
+            $aProspek = 'Lulusan berpeluang masuk pada bidang kerja yang relevan dengan kompetensi jurusan.';
+        }
+        if ($bProspek === '') {
+            $bProspek = 'Lulusan berpeluang masuk pada bidang kerja yang relevan dengan kompetensi jurusan.';
+        }
+
+        $recommended = $context['recommendation'] ?? null;
+        $winner = $a->nama_jurusan;
+        if (!empty($recommended)) {
+            if (strcasecmp($recommended, $b->nama_jurusan) === 0) {
+                $winner = $b->nama_jurusan;
+            } elseif (strcasecmp($recommended, $a->nama_jurusan) !== 0) {
+                $winner = $a->nama_jurusan;
+            }
+        }
+
+        $score = isset($context['score']) ? (float) $context['score'] : null;
+        $scoreText = $score !== null && $score > 0 ? " dengan skor kesesuaian {$score}%" : "";
+
+        $lines = [];
+        $lines[] = "Perbandingan terstruktur antara Jurusan {$a->nama_jurusan} dan Jurusan {$b->nama_jurusan}:";
+        $lines[] = "1. Fokus pembelajaran";
+        $lines[] = "- {$a->nama_jurusan}: {$aDesc}";
+        $lines[] = "- {$b->nama_jurusan}: {$bDesc}";
+        $lines[] = "2. Kompetensi yang perlu dipersiapkan";
+        $lines[] = "- {$a->nama_jurusan}: Penguasaan konsep inti jurusan, kemampuan analitis, komunikasi profesional, dan disiplin praktik.";
+        $lines[] = "- {$b->nama_jurusan}: Penguasaan konsep inti jurusan, kemampuan analitis, komunikasi profesional, dan disiplin praktik.";
+        $lines[] = "3. Prospek kerja";
+        $lines[] = "- {$a->nama_jurusan}: {$aProspek}";
+        $lines[] = "- {$b->nama_jurusan}: {$bProspek}";
+        $lines[] = "4. Tantangan belajar";
+        $lines[] = "- {$a->nama_jurusan}: Menuntut konsistensi belajar, adaptasi pada praktik lapangan, dan ketekunan menyelesaikan tugas proyek.";
+        $lines[] = "- {$b->nama_jurusan}: Menuntut konsistensi belajar, adaptasi pada praktik lapangan, dan ketekunan menyelesaikan tugas proyek.";
+        $lines[] = "5. Rekomendasi untuk profil Anda";
+        $lines[] = "- Berdasarkan konteks analisis Anda, jurusan yang lebih diprioritaskan adalah {$winner}{$scoreText}. Jika Anda berkenan, saya dapat lanjutkan dengan langkah persiapan 6 bulan pertama agar transisi belajar Anda lebih terarah.";
+
+        return implode("\n", $lines);
+    }
+
+    protected function resolveMajorsForComparison(string $message, array $context, $majors): array
+    {
+        $messageLower = mb_strtolower($message);
+        $mentioned = [];
+
+        foreach ($majors as $major) {
+            $name = mb_strtolower((string) $major->nama_jurusan);
+            if ($name !== '' && str_contains($messageLower, $name)) {
+                $mentioned[$major->nama_jurusan] = $major;
+            }
+        }
+
+        if (count($mentioned) >= 2) {
+            return array_slice(array_values($mentioned), 0, 2);
+        }
+
+        $picked = array_values($mentioned);
+        $recommendationName = $context['recommendation'] ?? null;
+
+        if (!empty($recommendationName)) {
+            $recMajor = $majors->first(function ($m) use ($recommendationName) {
+                return strcasecmp((string) $m->nama_jurusan, (string) $recommendationName) === 0;
+            });
+
+            if ($recMajor && !$this->containsMajor($picked, $recMajor->nama_jurusan)) {
+                $picked[] = $recMajor;
+            }
+        }
+
+        if (!empty($context['top3']) && is_array($context['top3'])) {
+            foreach ($context['top3'] as $candidate) {
+                $name = $candidate['jurusan'] ?? null;
+                if (empty($name)) {
+                    continue;
+                }
+
+                $candidateMajor = $majors->first(function ($m) use ($name) {
+                    return strcasecmp((string) $m->nama_jurusan, (string) $name) === 0;
+                });
+
+                if ($candidateMajor && !$this->containsMajor($picked, $candidateMajor->nama_jurusan)) {
+                    $picked[] = $candidateMajor;
+                }
+
+                if (count($picked) >= 2) {
+                    break;
+                }
+            }
+        }
+
+        if (count($picked) < 2) {
+            foreach ($majors as $major) {
+                if (!$this->containsMajor($picked, $major->nama_jurusan)) {
+                    $picked[] = $major;
+                }
+
+                if (count($picked) >= 2) {
+                    break;
+                }
+            }
+        }
+
+        return array_slice($picked, 0, 2);
+    }
+
+    protected function containsMajor(array $picked, string $name): bool
+    {
+        foreach ($picked as $item) {
+            if (strcasecmp((string) $item->nama_jurusan, $name) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

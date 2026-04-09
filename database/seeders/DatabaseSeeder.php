@@ -12,11 +12,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Seeder inti untuk kebutuhan aplikasi
+        // Jalankan otomatis saat migrate:fresh --seed
+        $this->call([
+            AdminSeeder::class,
+            PolijeMajorSeeder::class,
+            // AlumniSeeder::class, // Aktifkan jika butuh data evaluasi alumni
+        ]);
     }
 }
