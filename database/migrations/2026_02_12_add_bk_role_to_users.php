@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,10 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modify role enum to include 'bk'
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'guru', 'bk', 'siswa'])->default('siswa')->change();
-        });
+        // Use raw SQL for MySQL to avoid Doctrine enum introspection issues in tests.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('admin','guru','bk','siswa') NOT NULL DEFAULT 'siswa'");
+        }
     }
 
     /**
@@ -22,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'guru', 'siswa'])->default('siswa')->change();
-        });
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('admin','guru','siswa') NOT NULL DEFAULT 'siswa'");
+        }
     }
 };

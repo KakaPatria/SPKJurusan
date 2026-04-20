@@ -1,0 +1,240 @@
+PENJELASAN SISTEM REKOMENDASI JURUSAN POLIJE
+(Weighted Naive Bayes)
+
+============================================================
+1) BOBOT KRITERIA
+============================================================
+
+Sistem menggunakan 5 kriteria utama:
+1. Nilai akademik
+2. Minat
+3. Preferensi studi lanjutan
+4. Prestasi
+5. Cita-cita
+
+Bobot per jurusan berbeda-beda (disesuaikan karakter jurusan):
+
+- Produksi Pertanian:
+  nilai=0.40, minat=0.35, pref=0.15, prestasi=0.05, cita_cita=0.05
+
+- Teknologi Pertanian:
+  nilai=0.50, minat=0.25, pref=0.15, prestasi=0.05, cita_cita=0.05
+
+- Peternakan:
+  nilai=0.40, minat=0.40, pref=0.10, prestasi=0.05, cita_cita=0.05
+
+- Manajemen Agribisnis:
+  nilai=0.35, minat=0.40, pref=0.15, prestasi=0.05, cita_cita=0.05
+
+- Teknologi Informasi:
+  nilai=0.45, minat=0.35, pref=0.12, prestasi=0.05, cita_cita=0.03
+
+- Teknik:
+  nilai=0.42, minat=0.38, pref=0.12, prestasi=0.05, cita_cita=0.03
+
+- Kesehatan:
+  nilai=0.45, minat=0.35, pref=0.10, prestasi=0.05, cita_cita=0.05
+
+- Bahasa, Komunikasi, dan Pariwisata:
+  nilai=0.30, minat=0.40, pref=0.15, prestasi=0.08, cita_cita=0.07
+
+- Bisnis:
+  nilai=0.35, minat=0.40, pref=0.15, prestasi=0.05, cita_cita=0.05
+
+Catatan penting:
+Jika prestasi tidak diisi, bobot prestasi diubah menjadi 0.00,
+lalu bobot kriteria lain dinormalisasi agar total bobot tetap 1.00.
+
+
+============================================================
+2) CARA PERHITUNGAN NAIVE BAYES BERBOBOT
+============================================================
+
+2.1 Rumus dasar weighted Naive Bayes
+
+P(Hj|X) proporsional P(Hj) * produk_i( P(xi|Hj) ^ wi )
+
+Keterangan:
+- Hj = jurusan ke-j
+- X  = data siswa
+- wi = bobot kriteria ke-i
+
+
+2.2 Bentuk log (dipakai di sistem untuk stabilitas numerik)
+
+logScore(Hj) = log(P(Hj)) +
+               w_nilai    * log(P(nilai|Hj)) +
+               w_minat    * log(P(minat|Hj)) +
+               w_pref     * log(P(pref|Hj)) +
+               w_cita     * log(P(cita|Hj)) +
+               w_prestasi * log(P(prestasi|Hj))
+
+Jika prestasi kosong, suku prestasi tidak dihitung.
+
+
+2.3 Prior
+
+Prior dibuat seragam untuk semua jurusan:
+P(Hj) = 1 / N, dengan N = jumlah jurusan (9)
+
+
+2.4 Likelihood tiap kriteria
+
+A) Nilai akademik
+- Sistem gabungkan dua komponen:
+  1) Kecocokan kategori nilai (Tinggi/Sedang/Rendah)
+  2) Kecocokan bobot mapel jurusan
+
+- Rumus gabungan:
+  p_nilai = 0.6 * p_nilai_category + 0.4 * p_nilai_subject
+
+
+B) Minat
+- Minat teks dipetakan + dihitung keyword coverage.
+- Rumus:
+  combined = 0.6 * coverage + 0.4 * categoryMatch
+  p_minat  = 0.20 + combined * (matchProb_minat - 0.20)
+
+
+C) Preferensi studi
+- Jika pref siswa termasuk pref jurusan -> pakai matchProb_pref
+- Jika tidak cocok -> pakai (1 - matchProb_pref)
+
+
+D) Cita-cita
+- Berdasarkan keyword coverage cita-cita terhadap keyword jurusan:
+  p_cita = 0.20 + coverage * (matchProb_cita - 0.20)
+
+
+E) Prestasi
+- Prestasi diklasifikasi level:
+  tinggi / sedang / cukup / minimal
+- Skor dasar prestasi (baseScore) digabung relevansi keyword jurusan:
+  combined = 0.75 * baseScore + 0.25 * relevance
+  p_prestasi = 0.20 + combined * (matchProb_prestasi - 0.20)
+
+
+2.5 Batas likelihood
+
+Setiap likelihood dibatasi agar stabil:
+0.05 <= p <= 0.98
+
+
+2.6 Softmax (normalisasi akhir)
+
+Setelah semua logScore dihitung:
+
+score_j = exp(logScore_j - maxLog)
+prob_j  = score_j / sum(score_k)
+
+prob_j adalah skor kecocokan akhir jurusan ke-j.
+Hasil diurutkan dari skor terbesar ke terkecil.
+
+
+============================================================
+3) LOGIKA REKOMENDASI (IMPLEMENTASI)
+============================================================
+
+3.1 Validasi input
+
+- Untuk siswa IPA, nilai wajib:
+  mtk, fisika, kimia, biologi
+
+- Untuk siswa IPS, nilai wajib:
+  ekonomi, geografi, sosiologi, sejarah
+
+- minat, pref_studi, cita_cita wajib diisi
+- prestasi boleh kosong
+
+
+3.2 Preprocessing
+
+A) Hitung rata-rata nilai
+- Dari mata pelajaran yang diisi.
+
+B) Kategorisasi nilai
+- Tinggi: 85-100
+- Sedang: 70-84
+- Rendah: 0-69
+
+C) Pemetaan minat teks
+- Logika dan Komputer
+- Alam dan Tanaman
+- Pelayanan dan Kesehatan
+- Manajemen dan Bisnis
+- Mesin dan Listrik
+- Umum
+
+D) Cita-cita
+- Diproses sebagai teks, lalu dicocokkan dengan keyword jurusan.
+
+E) Prestasi
+- Jika ada kata seperti juara/menang/gold -> level tinggi
+- Jika finalis/medali/peringkat -> level sedang
+- Jika sertifikat/workshop/kursus -> level cukup
+- Selain itu -> level minimal
+- Jika kosong -> tidak dihitung dalam bobot akhir
+
+
+3.3 Scoring per jurusan
+
+Untuk setiap jurusan, sistem:
+1. Ambil bobot dan match_prob jurusan
+2. Hitung p_nilai, p_minat, p_pref, p_cita, p_prestasi
+3. Hitung logScore weighted Naive Bayes
+4. Simpan detail kontribusi tiap kriteria
+
+
+3.4 Ranking output
+
+1. LogScore semua jurusan dinormalisasi dengan softmax
+2. Dibentuk daftar hasil akhir (jurusan + skor)
+3. Diurutkan menurun berdasarkan skor
+4. Jurusan tertinggi jadi rekomendasi utama
+
+
+3.5 Penjelasan hasil
+
+Sistem juga menghasilkan explanation text untuk tiap kriteria:
+- alasan berdasarkan nilai
+- alasan berdasarkan minat
+- alasan berdasarkan preferensi
+- alasan berdasarkan cita-cita
+- alasan berdasarkan prestasi (atau not counted jika kosong)
+
+
+============================================================
+4) ALUR SISTEM END-TO-END
+============================================================
+
+1. Siswa login ke dashboard.
+2. Siswa buka halaman Analisis Rekomendasi.
+3. Siswa isi data:
+   - nilai mapel sesuai kelompok
+   - minat
+   - preferensi studi
+   - cita-cita
+   - prestasi (opsional)
+4. Sistem validasi input.
+5. Sistem lakukan preprocessing.
+6. Sistem hitung skor semua jurusan dengan weighted Naive Bayes.
+7. Sistem normalisasi skor (softmax).
+8. Sistem tampilkan ranking 9 jurusan + detail alasan.
+9. Sistem simpan hasil rekomendasi ke database.
+10. Data hasil teratas disimpan ke session untuk konteks chatbot.
+11. Siswa bisa lanjut konsultasi chatbot berbasis hasil rekomendasi.
+
+
+============================================================
+5) RINGKASAN UNTUK SIDANG (SIAP BACA)
+============================================================
+
+Sistem ini adalah SPK rekomendasi jurusan Polije berbasis weighted Naive Bayes
+menggunakan 5 kriteria utama: nilai, minat, preferensi studi, prestasi, dan
+cita-cita. Bobot kriteria disesuaikan per jurusan agar lebih representatif.
+Perhitungan dilakukan di domain log untuk stabilitas numerik, lalu dinormalisasi
+menggunakan softmax agar menghasilkan probabilitas akhir. Jika prestasi kosong,
+atribut prestasi dikeluarkan dari perhitungan dan bobot atribut lain
+dinormalisasi ulang. Output sistem berupa ranking 9 jurusan, nilai skor, serta
+penjelasan alasan kecocokan per kriteria sehingga hasil lebih transparan dan
+mudah dipertanggungjawabkan.

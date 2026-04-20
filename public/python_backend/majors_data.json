@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-04-21",
+  "notes": "Edit file ini jika ada perubahan data jurusan. Backend Python akan membaca file ini untuk konteks chatbot.",
+  "majors": [
+    {
+      "id": "produksi_pertanian",
+      "name": "Produksi Pertanian",
+      "description": "Mempelajari budidaya tanaman, pengelolaan lahan, dan produksi hasil pertanian modern.",
+      "keywords": ["pertanian", "budidaya", "tanaman", "agronomi", "pangan"],
+      "study_preferences": ["Pertanian & Lingkungan"],
+      "career_prospects": "Petani modern, konsultan pertanian, pengelola perkebunan, peneliti pertanian, agronomis."
+    },
+    {
+      "id": "teknologi_pertanian",
+      "name": "Teknologi Pertanian",
+      "description": "Mengintegrasikan teknologi dengan pertanian, termasuk mekanisasi, otomasi, dan pengolahan hasil pangan.",
+      "keywords": ["teknologi pertanian", "mekanisasi", "otomasi", "smart farming", "teknologi pangan"],
+      "study_preferences": ["Sains & Teknologi", "Pertanian & Lingkungan"],
+      "career_prospects": "Teknisi pertanian, ahli mekanisasi, quality control pangan, peneliti teknologi pangan."
+    },
+    {
+      "id": "peternakan",
+      "name": "Peternakan",
+      "description": "Mempelajari pengelolaan ternak, nutrisi hewan, reproduksi, dan pengolahan produk peternakan.",
+      "keywords": ["peternakan", "ternak", "nutrisi hewan", "farm management", "kesehatan hewan"],
+      "study_preferences": ["Pertanian & Lingkungan", "Kesehatan & Ilmu Hayat"],
+      "career_prospects": "Peternak profesional, konsultan peternakan, manajer peternakan, ahli nutrisi hewan."
+    },
+    {
+      "id": "manajemen_agribisnis",
+      "name": "Manajemen Agribisnis",
+      "description": "Menggabungkan ilmu pertanian dan bisnis, termasuk manajemen usaha, pemasaran, dan kewirausahaan agribisnis.",
+      "keywords": ["agribisnis", "manajemen", "pemasaran", "wirausaha", "supply chain"],
+      "study_preferences": ["Bisnis & Manajemen", "Pertanian & Lingkungan"],
+      "career_prospects": "Manajer agribisnis, entrepreneur pertanian, konsultan pemasaran pertanian, analis pasar komoditas."
+    },
+    {
+      "id": "teknologi_informasi",
+      "name": "Teknologi Informasi",
+      "description": "Mempelajari pengembangan software, data, jaringan, keamanan siber, dan teknologi digital terapan.",
+      "keywords": ["programming", "software", "web", "data", "cybersecurity"],
+      "study_preferences": ["Sains & Teknologi"],
+      "career_prospects": "Software developer, web developer, network engineer, data analyst, cybersecurity specialist."
+    },
+    {
+      "id": "teknik",
+      "name": "Teknik",
+      "description": "Mempelajari mesin, kelistrikan, elektronika, otomasi, dan sistem teknik industri.",
+      "keywords": ["mesin", "listrik", "otomasi", "manufaktur", "mekatronika"],
+      "study_preferences": ["Sains & Teknologi"],
+      "career_prospects": "Teknisi mesin, ahli listrik, engineer industri, maintenance engineer, kontraktor."
+    },
+    {
+      "id": "kesehatan",
+      "name": "Kesehatan",
+      "description": "Mempelajari ilmu kesehatan terapan, gizi, rekam medis, dan pelayanan kesehatan masyarakat.",
+      "keywords": ["kesehatan", "gizi", "rekam medis", "farmasi", "kesehatan masyarakat"],
+      "study_preferences": ["Kesehatan & Ilmu Hayat"],
+      "career_prospects": "Ahli gizi, perekam medis, tenaga kesehatan, asisten apoteker, sanitarian."
+    },
+    {
+      "id": "bahasa_komunikasi_pariwisata",
+      "name": "Bahasa, Komunikasi, dan Pariwisata",
+      "description": "Mempelajari bahasa, komunikasi profesional, perhotelan, layanan publik, dan industri pariwisata.",
+      "keywords": ["bahasa", "komunikasi", "pariwisata", "hospitality", "media"],
+      "study_preferences": ["Sosial & Humaniora", "Bisnis & Manajemen"],
+      "career_prospects": "Tour guide, staf perhotelan, jurnalis, public relation, penerjemah, staf maskapai."
+    },
+    {
+      "id": "bisnis",
+      "name": "Bisnis",
+      "description": "Mempelajari akuntansi, manajemen bisnis, perbankan, keuangan, dan administrasi niaga.",
+      "keywords": ["akuntansi", "manajemen", "perbankan", "keuangan", "analisis bisnis"],
+      "study_preferences": ["Bisnis & Manajemen"],
+      "career_prospects": "Akuntan, staf perbankan, manajer bisnis, marketing executive, analis keuangan."
+    }
+  ]
+}

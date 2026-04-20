@@ -86,7 +86,7 @@ class AdminController extends Controller
 
     public function studentDetail($id)
     {
-        $student = User::findOrFail($id);
+        $student = User::where('role', 'siswa')->findOrFail($id);
         $recommendations = Recommendation::where('user_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();

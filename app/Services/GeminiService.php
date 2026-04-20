@@ -9,6 +9,8 @@ use App\Models\PolijeMajor;
 class GeminiService
 {
     protected $apiKey;
+    protected $backendUrl;
+    protected $backendToken;
     protected $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/';
     
     // Model priority list - try each if previous fails
@@ -21,6 +23,8 @@ class GeminiService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
+        $this->backendUrl = rtrim((string) config('services.gemini.backend_url', ''), '/');
+        $this->backendToken = (string) config('services.gemini.backend_token', '');
     }
 
     public function chat($message, $context = [], $chatHistory = [])
@@ -79,6 +83,18 @@ class GeminiService
                 ]
             ];
 
+            // Jika backend Python dikonfigurasi, gunakan sebagai gateway Gemini terlebih dahulu.
+            if (!empty($this->backendUrl)) {
+                $proxyResponse = $this->sendViaPythonBackend($payload);
+                if (($proxyResponse['success'] ?? false) === true) {
+                    return $proxyResponse;
+                }
+
+                Log::warning('Python Gemini backend failed, fallback to direct API', [
+                    'error' => $proxyResponse['message'] ?? 'unknown',
+                ]);
+            }
+
             // Try each model until one works
             foreach ($this->models as $model) {
                 $url = $this->baseUrl . $model . ':generateContent?key=' . $this->apiKey;
@@ -123,6 +139,55 @@ class GeminiService
             ]);
             
             return $this->getFallbackResponse($message, $context, $chatHistory);
+        }
+    }
+
+    protected function sendViaPythonBackend(array $payload): array
+    {
+        try {
+            $url = $this->backendUrl . '/api/chat';
+            $request = Http::timeout(35)->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ]);
+
+            if (!empty($this->backendToken)) {
+                $request = $request->withToken($this->backendToken);
+            }
+
+            $response = $request->post($url, [
+                'payload' => $payload,
+                'models' => $this->models,
+            ]);
+
+            if (!$response->successful()) {
+                return [
+                    'success' => false,
+                    'message' => 'Python backend error HTTP ' . $response->status(),
+                ];
+            }
+
+            $data = $response->json();
+            if (($data['success'] ?? false) === true && !empty($data['message'])) {
+                return [
+                    'success' => true,
+                    'message' => $data['message'],
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $data['message'] ?? 'Python backend response invalid',
+            ];
+        } catch (\Exception $e) {
+            Log::warning('Python backend exception', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Python backend exception',
+            ];
         }
     }
 

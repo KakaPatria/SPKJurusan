@@ -18,7 +18,7 @@ class CrudValidationTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($admin)->post(route('jurusan.store'), [
+        $response = $this->actingAs($admin)->post(route('admin.jurusan.store'), [
             'nama_jurusan' => 'Informatika',
             'singkatan' => 'IF',
             'tujuan_kompetensi' => 'Profesional IT sejati',
@@ -41,7 +41,7 @@ class CrudValidationTest extends TestCase
     {
         $bk = User::factory()->create(['role' => 'bk']);
 
-        $response = $this->actingAs($bk)->post(route('jurusan.store'), [
+        $response = $this->actingAs($bk)->post(route('bk.jurusan.store'), [
             'nama_jurusan' => 'Akuntansi',
             'singkatan' => 'AK',
             'tujuan_kompetensi' => 'Profesional akuntansi',
@@ -65,7 +65,7 @@ class CrudValidationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
 
         // Invalid email format
-        $response = $this->actingAs($admin)->post(route('admin.store'), [
+        $response = $this->actingAs($admin)->post(route('admin.guru-bk.store'), [
             'email' => 'invalid-email',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -74,7 +74,7 @@ class CrudValidationTest extends TestCase
         $response->assertSessionHasErrors('email');
 
         // Password too short
-        $response = $this->actingAs($admin)->post(route('admin.store'), [
+        $response = $this->actingAs($admin)->post(route('admin.guru-bk.store'), [
             'email' => 'valid@example.com',
             'password' => 'pass',
             'password_confirmation' => 'pass',
@@ -113,7 +113,7 @@ class CrudValidationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $bk = User::factory()->create(['role' => 'bk']);
 
-        $response = $this->actingAs($admin)->get(route('admin.studentDetail', $bk->id));
+        $response = $this->actingAs($admin)->get(route('admin.student.detail', $bk->id));
         $response->assertStatus(404);
     }
 }

@@ -33,6 +33,8 @@ return [
 
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
+        'backend_url' => env('GEMINI_BACKEND_URL'),
+        'backend_token' => env('GEMINI_BACKEND_TOKEN'),
     ],
 
 ];
