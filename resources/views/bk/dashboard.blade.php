@@ -28,39 +28,41 @@
         </div>
     </div>
 
-    <!-- Kelompok Distribution & Top Majors -->
+    <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-teal-500">
-            <h3 class="text-lg font-bold text-bk mb-4">📊 Siswa per Kelompok</h3>
-            <div class="space-y-3">
-                @foreach($kelompokStats as $stat)
-                    <div class="flex items-center gap-3">
-                        <span class="text-sm font-semibold text-gray-700 w-20">{{ $stat->kelompok_asal ?? 'Tidak Ada' }}</span>
-                        <div class="flex-1 h-6 bg-gray-200 rounded">
-                            <div class="h-full rounded flex items-center justify-center text-white text-xs font-bold" 
-                                style="width: {{ $totalSiswa > 0 ? ($stat->count / $totalSiswa) * 100 : 0 }}%; background-color: {{ $stat->kelompok_asal == 'IPA' ? '#0369A1' : '#D97706' }};">
-                                {{ $stat->count }}
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+        <!-- Rekomendasi Distribution Chart -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-400">
+            <h3 class="text-lg font-bold text-bk mb-4">📊 Distribusi Rekomendasi per Jurusan</h3>
+            <div style="position: relative; height: 300px;">
+                <canvas id="chartRecommendations"></canvas>
             </div>
         </div>
 
+        <!-- Kelompok Distribution Chart -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-400">
+            <h3 class="text-lg font-bold text-bk mb-4">📈 Distribusi Siswa per Kelompok</h3>
+            <div style="position: relative; height: 300px;">
+                <canvas id="chartKelompok"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kelompok Distribution & Top Majors -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Kelompok Chart -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-teal-500">
+            <h3 class="text-lg font-bold text-bk mb-4">📊 Siswa per Kelompok</h3>
+            <div style="position: relative; height: 250px;">
+                <canvas id="chartKelompokPie"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Recommended Majors Chart -->
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-400">
             <h3 class="text-lg font-bold text-bk mb-4">🎯 Jurusan Terpopuler</h3>
-            @if($topMajors->isNotEmpty())
-                <div class="space-y-3">
-                    @foreach($topMajors as $major)
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-semibold text-gray-700 flex-1 truncate">{{ $major->major_name }}</span>
-                            <span class="px-3 py-1 rounded bg-green-100 text-green-800 font-bold text-sm">{{ $major->count }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <p class="text-gray-500 text-sm">Belum ada data rekomendasi</p>
-            @endif
+            <div style="position: relative; height: 250px;">
+                <canvas id="chartTopMajors"></canvas>
+            </div>
         </div>
     </div>
 
@@ -138,4 +140,141 @@
             <p class="text-gray-500 text-sm">Belum ada rekomendasi</p>
         @endif
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script>
+        // Chart 1: Rekomendasi Distribution
+        const chartRecommendationsCtx = document.getElementById('chartRecommendations').getContext('2d');
+        const chartRecommendations = new Chart(chartRecommendationsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($chartMajorNames),
+                datasets: [{
+                    data: @json($chartMajorCounts),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11 },
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Kelompok Distribution Bar
+        const chartKelompokCtx = document.getElementById('chartKelompok').getContext('2d');
+        const chartKelompok = new Chart(chartKelompokCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($chartKelompokNames),
+                datasets: [{
+                    label: 'Jumlah Siswa',
+                    data: @json($chartKelompokCounts),
+                    backgroundColor: ['#0369A1', '#D97706'],
+                    borderColor: ['#0369A1', '#D97706'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Kelompok Pie Chart
+        const chartKelompokPieCtx = document.getElementById('chartKelompokPie').getContext('2d');
+        const chartKelompokPie = new Chart(chartKelompokPieCtx, {
+            type: 'pie',
+            data: {
+                labels: @json($chartKelompokNames),
+                datasets: [{
+                    data: @json($chartKelompokCounts),
+                    backgroundColor: ['#0369A1', '#D97706'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11 },
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Top Majors Horizontal Bar Chart
+        const chartTopMajorsCtx = document.getElementById('chartTopMajors').getContext('2d');
+        const chartTopMajors = new Chart(chartTopMajorsCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($topMajorsChart),
+                datasets: [{
+                    label: 'Jumlah Rekomendasi',
+                    data: @json($topMajorsCounts),
+                    backgroundColor: '#36A2EB',
+                    borderColor: '#36A2EB',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

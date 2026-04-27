@@ -36,7 +36,7 @@ class ChatbotController extends Controller
         if ($sessionId) {
             // Lanjutkan sesi lama — ambil semua chat dari sesi ini
             $chats = ChatHistory::where('user_id', $user->id)
-                ->where('session_id', $sessionId)
+                ->where('id_sesi', $sessionId)
                 ->orderBy('created_at', 'asc')
                 ->get();
 
@@ -140,14 +140,32 @@ class ChatbotController extends Controller
         // Panggil Gemini API dengan conversation history
         $response = $this->geminiService->chat($message, $context, $chatHistory);
 
+        // Normalisasi respons agar error tetap memiliki pesan yang konsisten.
+        $isSuccess = (bool) ($response['success'] ?? false);
+        $errorCode = (string) ($response['error_code'] ?? 'CHAT_SERVICE_ERROR');
+        $responseMessage = trim((string) ($response['message'] ?? ''));
+
+        if ($responseMessage === '') {
+            $responseMessage = $isSuccess
+                ? 'Respons berhasil diproses.'
+                : 'Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba kembali beberapa saat lagi.';
+        }
+
+        if (!$isSuccess) {
+            $responseMessage = "[ERROR:{$errorCode}] {$responseMessage}";
+        }
+
+        $response['message'] = $responseMessage;
+        $response['error_code'] = $isSuccess ? null : $errorCode;
+
         // Simpan chat ke database dengan session_id dan recommendation_id
-        if ($user && isset($response['message'])) {
+        if ($user) {
             ChatHistory::create([
                 'user_id' => $user->id,
-                'session_id' => $sessionId,
-                'recommendation_id' => $recommendationId,
-                'prompt' => $message,
-                'response' => $response['message'],
+                'id_sesi' => $sessionId,
+                'id_rekomendasi' => $recommendationId,
+                'pertanyaan' => $message,
+                'jawaban' => $responseMessage,
             ]);
         }
 
@@ -167,8 +185,8 @@ class ChatbotController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Kelompokkan per session_id
-        $sessions = $chatHistories->groupBy('session_id')->map(function ($chats, $sessionId) {
+        // Kelompokkan per id_sesi
+        $sessions = $chatHistories->groupBy('id_sesi')->map(function ($chats, $sessionId) {
             $first = $chats->last();  // oldest in group (karena desc)
             $last = $chats->first();  // newest in group
             $rec = $first->recommendation;
@@ -287,12 +305,12 @@ class ChatbotController extends Controller
         }
 
         // Cari chat history yang mengandung kata kunci serupa
-        $query = ChatHistory::select('prompt', 'response', 'created_at')
+        $query = ChatHistory::select('pertanyaan', 'jawaban', 'created_at')
             ->where('user_id', $currentUserId);
 
         $query->where(function ($q) use ($keywords) {
             foreach ($keywords as $keyword) {
-                $q->orWhere('prompt', 'like', "%{$keyword}%");
+                $q->orWhere('pertanyaan', 'like', "%{$keyword}%");
             }
         });
 
@@ -307,7 +325,7 @@ class ChatbotController extends Controller
         // Scoring: hitung berapa keyword yang cocok
         $scored = [];
         foreach ($candidates as $chat) {
-            $promptLower = strtolower($chat->prompt);
+            $promptLower = strtolower($chat->pertanyaan);
             $matchCount = 0;
             foreach ($keywords as $kw) {
                 if (stripos($promptLower, $kw) !== false) {
@@ -317,8 +335,8 @@ class ChatbotController extends Controller
             $ratio = $matchCount / count($keywords);
             if ($ratio >= 0.4) { // minimal 40% keyword cocok
                 $scored[] = [
-                    'prompt' => $chat->prompt,
-                    'response' => Str::limit($chat->response, 300),
+                    'prompt' => $chat->pertanyaan,
+                    'response' => Str::limit($chat->jawaban, 300),
                     'score' => $ratio,
                 ];
             }

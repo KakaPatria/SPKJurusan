@@ -49,6 +49,16 @@ def _is_authorized() -> bool:
     return token == BACKEND_TOKEN
 
 
+def _http_error(message: str, status_code: int, detail: str = "") -> Any:
+    payload = {
+        "success": False,
+        "message": message,
+    }
+    if detail:
+        payload["error"] = detail
+    return jsonify(payload), status_code
+
+
 def _extract_text(data: Dict[str, Any]) -> str:
     return (
         data.get("candidates", [{}])[0]
@@ -65,13 +75,13 @@ def _load_majors_file() -> Dict[str, Any]:
     except FileNotFoundError:
         return {
             "ok": False,
-            "message": f"File data jurusan tidak ditemukan: {MAJORS_FILE_PATH}",
+            "message": "Data jurusan belum tersedia.",
             "data": {"majors": []},
         }
     except json.JSONDecodeError as exc:
         return {
             "ok": False,
-            "message": f"Format JSON tidak valid: {exc}",
+            "message": "Data jurusan tidak dapat dibaca.",
             "data": {"majors": []},
         }
 
@@ -166,10 +176,16 @@ def chat() -> Any:
     _log("[PY-BACKEND] POST /api/chat")
     if not _is_authorized():
         _log("[PY-BACKEND] Unauthorized request")
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
+        return _http_error(
+            "Akses ke layanan chatbot ditolak.",
+            401,
+        )
 
     if not GEMINI_API_KEY:
-        return jsonify({"success": False, "message": "GEMINI_API_KEY belum diset di backend Python"}), 500
+        return _http_error(
+            "Layanan chatbot belum siap digunakan.",
+            500,
+        )
 
     body = request.get_json(silent=True) or {}
     payload = body.get("payload")
@@ -177,7 +193,10 @@ def chat() -> Any:
 
     if not isinstance(payload, dict) or not payload.get("contents"):
         _log("[PY-BACKEND] Invalid payload")
-        return jsonify({"success": False, "message": "payload tidak valid"}), 422
+        return _http_error(
+            "Pesan belum dapat diproses. Silakan perjelas pertanyaan Anda.",
+            422,
+        )
 
     majors_result = _load_majors_file()
     if majors_result["ok"]:
@@ -207,19 +226,30 @@ def chat() -> Any:
             if text:
                 _log(f"[PY-BACKEND] Success using model: {model}")
                 return jsonify({"success": True, "message": text, "model": model})
-            last_error = "Respons model tidak berisi teks"
+            last_error = "Jawaban dari layanan tidak ditemukan."
             continue
 
         if resp.status_code in (404, 429):
             if resp.status_code == 429:
                 time.sleep(1)
-            last_error = f"Model {model} gagal dengan status {resp.status_code}"
+            if resp.status_code == 429:
+                last_error = (
+                    "Layanan chatbot sedang ramai digunakan. Silakan tunggu sebentar lalu coba lagi."
+                )
+            else:
+                last_error = "Layanan chatbot sementara tidak tersedia."
             continue
 
-        last_error = f"Gemini error {resp.status_code}: {resp.text[:300]}"
+        last_error = (
+            "Terjadi gangguan pada layanan chatbot."
+        )
 
     _log(f"[PY-BACKEND] Failed all models: {last_error}")
-    return jsonify({"success": False, "message": "Semua model gagal", "error": last_error}), 502
+    return _http_error(
+        "Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba kembali beberapa saat lagi.",
+        502,
+        last_error,
+    )
 
 
 if __name__ == "__main__":

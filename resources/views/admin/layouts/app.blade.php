@@ -140,7 +140,7 @@
                         <div class="sidebar-brand-icon">🎓</div>
                         <div>
                             <p class="text-white font-bold text-sm leading-tight">SPK Jurusan</p>
-                            <p class="text-xs text-slate-400">Admin Panel</p>
+                            <p class="text-xs text-white">Admin Panel</p>
                         </div>
                     </div>
                 </div>
@@ -178,8 +178,8 @@
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-medium text-slate-300 truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-slate-500">{{ Auth::user()->role === 'admin' ? 'Administrator' : (Auth::user()->role === 'bk' ? 'Guru BK' : ucfirst(Auth::user()->role)) }}</p>
+                            <p class="text-xs font-medium text-white truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-white">{{ Auth::user()->role === 'admin' ? 'Administrator' : (Auth::user()->role === 'bk' ? 'Guru BK' : ucfirst(Auth::user()->role)) }}</p>
                         </div>
                     </div>
                 </div>

@@ -47,6 +47,30 @@ class BKController extends Controller
             ->take(5)
             ->get();
 
+        // Data untuk chart - semua jurusan
+        $allMajorsChart = Recommendation::selectRaw("
+            JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan') as major_name,
+            COUNT(*) as count
+        ")
+            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")
+            ->orderBy('count', 'desc')
+            ->get();
+
+        // Persiapkan data untuk Chart.js
+        $chartMajorNames = $allMajorsChart->pluck('major_name')->map(function($name) {
+            return trim($name, '"');
+        })->toArray();
+        $chartMajorCounts = $allMajorsChart->pluck('count')->toArray();
+
+        $chartKelompokNames = $kelompokStats->pluck('kelompok_asal')->toArray();
+        $chartKelompokCounts = $kelompokStats->pluck('count')->toArray();
+
+        // Top majors untuk horizontal bar chart
+        $topMajorsChart = $topMajors->pluck('major_name')->map(function($name) {
+            return trim($name, '"');
+        })->toArray();
+        $topMajorsCounts = $topMajors->pluck('count')->toArray();
+
         return view('bk.dashboard', compact(
             'totalSiswa',
             'totalRekomendasi',
@@ -55,7 +79,13 @@ class BKController extends Controller
             'recentStudents',
             'recentRecommendations',
             'kelompokStats',
-            'topMajors'
+            'topMajors',
+            'chartMajorNames',
+            'chartMajorCounts',
+            'chartKelompokNames',
+            'chartKelompokCounts',
+            'topMajorsChart',
+            'topMajorsCounts'
         ));
     }
 
@@ -148,8 +178,8 @@ class BKController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('prompt', 'like', "%{$search}%")
-                  ->orWhere('response', 'like', "%{$search}%")
+                $q->where('pertanyaan', 'like', "%{$search}%")
+                  ->orWhere('jawaban', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($q2) use ($search) {
                       $q2->where('name', 'like', "%{$search}%");
                   });
@@ -181,7 +211,7 @@ class BKController extends Controller
     public function jurusanStore(Request $request)
     {
         $request->validate([
-            'nama_jurusan' => 'required|string|max:255|unique:polije_majors,nama_jurusan',
+            'nama_jurusan' => 'required|string|max:255|unique:jurusan_polije,nama_jurusan',
             'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
@@ -219,7 +249,7 @@ class BKController extends Controller
         $jurusan = PolijeMajor::findOrFail($id);
 
         $request->validate([
-            'nama_jurusan' => ['required', 'string', 'max:255', Rule::unique('polije_majors', 'nama_jurusan')->ignore($jurusan->id)],
+            'nama_jurusan' => ['required', 'string', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
             'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',

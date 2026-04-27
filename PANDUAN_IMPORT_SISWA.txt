@@ -1,0 +1,210 @@
+PANDUAN PENAMBAHAN DATA SISWA KE SISTEM SPK JURUSAN
+
+═════════════════════════════════════════════════════════════════════════════
+
+1. STRUKTUR DATABASE UNTUK SISWA
+────────────────────────────────────────────────────────────────────────────
+
+Tabel: users (informasi siswa)
+┌──────────────────┬──────────┬────────────────────────────────────────────┐
+│ Kolom            │ Tipe     │ Keterangan                                 │
+├──────────────────┼──────────┼────────────────────────────────────────────┤
+│ id               │ Integer  │ ID Otomatis (jangan isi)                   │
+│ name             │ String   │ Nama Lengkap Siswa (max 255 karakter)     │
+│ email            │ String   │ Email Unik (format: nama@student.edu)      │
+│ password         │ String   │ Password (bisa default atau custom)        │
+│ role             │ String   │ Role tetap: "siswa" (jangan diubah)        │
+│ kelompok_asal    │ String   │ IPA atau IPS (wajib diisi)                 │
+└──────────────────┴──────────┴────────────────────────────────────────────┘
+
+Tabel: rekomendasi (hasil test dan rekomendasi jurusan)
+┌──────────────────┬──────────┬────────────────────────────────────────────┐
+│ Kolom            │ Tipe     │ Keterangan                                 │
+├──────────────────┼──────────┼────────────────────────────────────────────┤
+│ user_id          │ Integer  │ ID Siswa (dari tabel users)                │
+│ mtk              │ Decimal  │ Nilai Matematika (0-100)                   │
+│ fisika           │ Decimal  │ Nilai Fisika (0-100) - Untuk IPA           │
+│ kimia            │ Decimal  │ Nilai Kimia (0-100) - Untuk IPA            │
+│ biologi          │ Decimal  │ Nilai Biologi (0-100) - Untuk IPA          │
+│ ekonomi          │ Decimal  │ Nilai Ekonomi (0-100) - Untuk IPS          │
+│ geografi         │ Decimal  │ Nilai Geografi (0-100) - Untuk IPS         │
+│ sosiologi        │ Decimal  │ Nilai Sosiologi (0-100) - Untuk IPS        │
+│ sejarah          │ Decimal  │ Nilai Sejarah (0-100) - Untuk IPS          │
+│ minat            │ String   │ Minat Siswa (max 255 karakter)             │
+│ preferensi_studi │ String   │ Preferensi Studi (lihat daftar di bawah)   │
+│ cita_cita        │ String   │ Cita-cita/Karir Impian (max 255 karakter) │
+│ prestasi         │ String   │ Prestasi yang dimiliki (max 255 karakter) │
+│ hasil_rekomendasi│ JSON     │ Hasil ranking jurusan (otomatis generate)   │
+└──────────────────┴──────────┴────────────────────────────────────────────┘
+
+═════════════════════════════════════════════════════════════════════════════
+
+2. DAFTAR PREFERENSI STUDI (Gunakan sesuai kategori)
+────────────────────────────────────────────────────────────────────────────
+
+UNTUK KELOMPOK IPA:
+  • Sains & Teknologi
+  • Pertanian & Lingkungan
+  • Kesehatan & Ilmu Hayat
+
+UNTUK KELOMPOK IPS:
+  • Bisnis & Manajemen
+  • Sosial & Humaniora
+
+═════════════════════════════════════════════════════════════════════════════
+
+3. DAFTAR JURUSAN & BOBOT MAPEL (UNTUK REFERENSI)
+────────────────────────────────────────────────────────────────────────────
+
+JURUSAN IPA:
+
+1. TEKNOLOGI INFORMASI
+   MTK: 0.50★  Fisika: 0.20  Kimia: 0.10  Biologi: 0.10
+   (Cocok untuk: nilai MTK tinggi, logika kuat, tertarik programming)
+
+2. TEKNIK
+   MTK: 0.40  Fisika: 0.45★  Kimia: 0.15  Biologi: 0.10
+   (Cocok untuk: fisika tinggi, suka mesin/listrik/konstruksi)
+
+3. TEKNOLOGI PERTANIAN
+   MTK: 0.35  Fisika: 0.35★  Kimia: 0.20  Biologi: 0.15
+   (Cocok untuk: fisika-mtk tinggi, tertarik inovasi pertanian)
+
+4. KESEHATAN
+   MTK: 0.20  Fisika: 0.15  Kimia: 0.35  Biologi: 0.45★
+   (Cocok untuk: kimia-biologi tinggi, peduli kesehatan)
+
+5. PRODUKSI PERTANIAN
+   MTK: 0.15  Fisika: 0.15  Kimia: 0.30  Biologi: 0.40★
+   (Cocok untuk: biologi tinggi, tertarik pertanian tradisional)
+
+6. PETERNAKAN
+   MTK: 0.20  Fisika: 0.15  Kimia: 0.25  Biologi: 0.45★
+   (Cocok untuk: biologi tinggi, tertarik hewan/ternak)
+
+JURUSAN IPS:
+
+7. BISNIS
+   MTK: 0.45  Ekonomi: 0.50★  Geografi: 0.15  Sosiologi: 0.20
+   (Cocok untuk: ekonomi-mtk tinggi, suka perhitungan bisnis)
+
+8. MANAJEMEN AGRIBISNIS
+   MTK: 0.35  Ekonomi: 0.45★  Geografi: 0.20  Sosiologi: 0.20
+   (Cocok untuk: ekonomi tinggi, tertarik bisnis pertanian)
+
+9. BAHASA, KOMUNIKASI, DAN PARIWISATA
+   MTK: 0.15  Ekonomi: 0.25  Geografi: 0.35  Sosiologi: 0.35★
+   (Cocok untuk: sejarah-sosiologi tinggi, suka bahasa/wisata)
+
+═════════════════════════════════════════════════════════════════════════════
+
+4. CONTOH DATA SISWA YANG LOGIS (FORMAT SPREADSHEET)
+────────────────────────────────────────────────────────────────────────────
+
+Format Excel/CSV:
+name | email | kelompok_asal | mtk | fisika | kimia | biologi | ekonomi | geografi | sosiologi | sejarah | minat | preferensi_studi | cita_cita | prestasi
+
+CONTOH DATA IPA:
+
+Rinto Wijaya|rinto@student.edu|IPA|92|88|75|70|0|0|0|0|Logika Komputer|Sains & Teknologi|Software Engineer|Juara 1 Coding
+
+Siti Aminah|siti@student.edu|IPA|78|68|90|89|0|0|0|0|Farmasi & Kesehatan|Kesehatan & Ilmu Hayat|Apoteker|Olimpiade Biologi
+
+Hendra Suryanto|hendra@student.edu|IPA|87|86|76|78|0|0|0|0|Inovasi Pertanian|Sains & Teknologi|Engineer Pertanian|Penemu Alat
+
+CONTOH DATA IPS:
+
+Rina Handayani|rina@student.edu|IPS|0|0|0|0|92|85|80|78|Bisnis & Kewirausahaan|Bisnis & Manajemen|Entrepreneur|Juara Kompetisi Bisnis
+
+Lisa Maharani|lisa@student.edu|IPS|0|0|0|0|76|85|82|85|Pariwisata & Budaya|Sosial & Humaniora|Tour Guide|Pelatihan Tour Guide
+
+═════════════════════════════════════════════════════════════════════════════
+
+5. TIPS UNTUK NILAI YANG LOGIS
+────────────────────────────────────────────────────────────────────────────
+
+UNTUK TEKNOLOGI INFORMASI:
+  • MTK: 85-95 (prioritas tertinggi)
+  • Fisika: 75-90 (penting)
+  • Kimia, Biologi: 60-75 (tidak prioritas)
+
+UNTUK TEKNIK:
+  • Fisika: 85-95 (prioritas tertinggi)
+  • MTK: 80-92 (penting)
+  • Kimia: 60-80 (cukup)
+  • Biologi: 50-70 (tidak prioritas)
+
+UNTUK KESEHATAN:
+  • Biologi: 85-95 (prioritas tertinggi)
+  • Kimia: 80-92 (penting)
+  • MTK, Fisika: 65-80 (cukup)
+
+UNTUK BISNIS (IPS):
+  • Ekonomi: 85-95 (prioritas tertinggi)
+  • MTK: 80-92 (penting untuk akuntansi)
+  • Geografi, Sosiologi: 70-85 (cukup)
+  • Sejarah: 60-80 (tidak prioritas)
+
+UNTUK BAHASA & PARIWISATA (IPS):
+  • Sejarah: 85-95 (prioritas tertinggi - konteks budaya)
+  • Sosiologi: 80-92 (penting - interaksi sosial)
+  • Geografi: 75-90 (penting - destinasi wisata)
+  • Ekonomi: 65-85 (cukup - bisnis pariwisata)
+  • MTK: 50-75 (tidak prioritas)
+
+═════════════════════════════════════════════════════════════════════════════
+
+6. CARA IMPORT DATA KE SISTEM
+────────────────────────────────────────────────────────────────────────────
+
+Opsi 1: Manual via UI Admin
+  1. Login sebagai Admin/BK
+  2. Ke menu Admin > Guru BK > Tambah Siswa
+  3. Isi data satu per satu
+  4. Siswa bisa langsung akses sistem
+
+Opsi 2: Bulk Import (melalui Database Langsung)
+  1. Siapkan file CSV dengan format di atas
+  2. Import ke database menggunakan migration/seeder
+  3. Hubungi admin untuk setup seeder khusus
+
+Opsi 3: API Import (untuk integrasi sistem SMK)
+  1. Gunakan endpoint POST /api/students
+  2. Format JSON dengan data siswa
+  3. Sistem akan auto-generate rekomendasi
+
+═════════════════════════════════════════════════════════════════════════════
+
+7. TEMPLATE EXCEL UNTUK IMPORT (KOSONG SIAP DIISI)
+────────────────────────────────────────────────────────────────────────────
+
+Nama Siswa       | Email                | Kelompok | MTK | Fisika | Kimia | Biologi | Ekonomi | Geografi | Sosiologi | Sejarah | Minat | Preferensi | Cita-cita | Prestasi
+─────────────────┼──────────────────────┼──────────┼─────┼────────┼───────┼─────────┼─────────┼──────────┼───────────┼─────────┼──────┼────────────┼───────────┼──────────
+                 |                      | IPA/IPS  |     |        |       |         |         |          |           |         |      |            |           |          
+                 |                      | IPA/IPS  |     |        |       |         |         |          |           |         |      |            |           |          
+                 |                      | IPA/IPS  |     |        |       |         |         |          |           |         |      |            |           |          
+
+═════════════════════════════════════════════════════════════════════════════
+
+8. CATATAN PENTING
+────────────────────────────────────────────────────────────────────────────
+
+✓ Pastikan nilai mapel sesuai dengan kelompok asal:
+  - IPA: isi MTK, Fisika, Kimia, Biologi (sisanya 0)
+  - IPS: isi Ekonomi, Geografi, Sosiologi, Sejarah (sisanya 0)
+
+✓ Email harus unik (tidak boleh sama dengan siswa lain)
+
+✓ Preferensi studi harus sesuai kategori yang tersedia (lihat poin 2)
+
+✓ Minat dan Cita-cita akan membantu sistem memberikan rekomendasi yang lebih akurat
+
+✓ Prestasi menunjukkan potensi siswa (bisa dilihat di chat history nantinya)
+
+✓ Setelah data diimport, siswa bisa langsung login dengan:
+  - Email: sesuai yang didaftar
+  - Password: "password" (atau sesuai yang ditetapkan admin)
+
+═════════════════════════════════════════════════════════════════════════════
+
+Jika ada pertanyaan atau butuh bantuan import data, hubungi admin sistem!

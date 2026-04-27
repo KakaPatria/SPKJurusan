@@ -9,6 +9,8 @@ class Recommendation extends Model
 {
     use HasFactory;
 
+    protected $table = 'rekomendasi';
+
     protected $fillable = [
         'user_id',
         'mtk',

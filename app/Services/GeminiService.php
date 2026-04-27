@@ -33,7 +33,7 @@ class GeminiService
             if (empty($this->apiKey)) {
                 return [
                     'success' => false,
-                    'message' => 'API Key tidak tersedia. Silakan konfigurasi GEMINI_API_KEY di .env'
+                    'message' => 'Layanan chatbot belum siap digunakan. Silakan hubungi pengelola sistem.'
                 ];
             }
 
@@ -83,53 +83,27 @@ class GeminiService
                 ]
             ];
 
-            // Jika backend Python dikonfigurasi, gunakan sebagai gateway Gemini terlebih dahulu.
-            if (!empty($this->backendUrl)) {
-                $proxyResponse = $this->sendViaPythonBackend($payload);
-                if (($proxyResponse['success'] ?? false) === true) {
-                    return $proxyResponse;
-                }
-
-                Log::warning('Python Gemini backend failed, fallback to direct API', [
-                    'error' => $proxyResponse['message'] ?? 'unknown',
-                ]);
+            // Mode Python-only: chatbot wajib melalui backend Python.
+            if (empty($this->backendUrl)) {
+                return [
+                    'success' => false,
+                    'message' => 'Layanan chatbot belum siap digunakan saat ini. Silakan coba kembali beberapa saat lagi.',
+                ];
             }
 
-            // Try each model until one works
-            foreach ($this->models as $model) {
-                $url = $this->baseUrl . $model . ':generateContent?key=' . $this->apiKey;
-
-                Log::info('Trying Gemini model', ['model' => $model]);
-
-                $response = Http::timeout(30)
-                    ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($url, $payload);
-
-                if ($response->successful()) {
-                    $data = $response->json();
-                    
-                    if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                        Log::info('Gemini API success', ['model' => $model]);
-                        return [
-                            'success' => true,
-                            'message' => $data['candidates'][0]['content']['parts'][0]['text']
-                        ];
-                    }
-                }
-
-                // If 429 (rate limit) or 404 (model not found), try next model
-                $status = $response->status();
-                Log::warning("Gemini model {$model} failed", ['status' => $status]);
-                
-                if ($status === 429) {
-                    // Wait briefly before trying next model
-                    sleep(1);
-                }
+            $proxyResponse = $this->sendViaPythonBackend($payload);
+            if (($proxyResponse['success'] ?? false) === true) {
+                return $proxyResponse;
             }
 
-            // All models failed
-            Log::error('All Gemini models failed, using fallback');
-            return $this->getFallbackResponse($message, $context, $chatHistory);
+            Log::error('Python Gemini backend failed in Python-only mode', [
+                'error' => $proxyResponse['message'] ?? 'unknown',
+            ]);
+
+            return [
+                'success' => false,
+                'message' => $proxyResponse['message'] ?? 'Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba lagi.',
+            ];
 
         } catch (\Exception $e) {
             Log::error('Gemini Service Exception', [
@@ -138,7 +112,10 @@ class GeminiService
                 'line' => $e->getLine()
             ]);
             
-            return $this->getFallbackResponse($message, $context, $chatHistory);
+            return [
+                'success' => false,
+                'message' => 'Maaf, layanan chatbot sedang mengalami kendala. Silakan coba kembali beberapa saat lagi.',
+            ];
         }
     }
 
@@ -161,9 +138,19 @@ class GeminiService
             ]);
 
             if (!$response->successful()) {
+                $status = $response->status();
+
+                $mappedMessage = match ($status) {
+                    401, 403 => 'Maaf, layanan chatbot sedang dibatasi sementara. Silakan coba kembali nanti.',
+                    422 => 'Pesan belum dapat diproses. Silakan perjelas pertanyaan Anda dan coba lagi.',
+                    429 => 'Layanan chatbot sedang ramai digunakan. Silakan tunggu sebentar lalu coba lagi.',
+                    500, 502, 503, 504 => 'Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba kembali beberapa saat lagi.',
+                    default => 'Layanan chatbot sedang tidak tersedia. Silakan coba kembali nanti.',
+                };
+
                 return [
                     'success' => false,
-                    'message' => 'Python backend error HTTP ' . $response->status(),
+                    'message' => $mappedMessage,
                 ];
             }
 
@@ -177,7 +164,7 @@ class GeminiService
 
             return [
                 'success' => false,
-                'message' => $data['message'] ?? 'Python backend response invalid',
+                'message' => $data['message'] ?? 'Maaf, layanan chatbot belum dapat memberikan jawaban saat ini.',
             ];
         } catch (\Exception $e) {
             Log::warning('Python backend exception', [
@@ -186,7 +173,7 @@ class GeminiService
 
             return [
                 'success' => false,
-                'message' => 'Python backend exception',
+                'message' => 'Koneksi layanan chatbot sedang bermasalah. Silakan coba kembali beberapa saat lagi.',
             ];
         }
     }

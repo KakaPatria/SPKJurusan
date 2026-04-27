@@ -9,6 +9,8 @@ class PolijeMajor extends Model
 {
     use HasFactory;
 
+    protected $table = 'jurusan_polije';
+
     protected $fillable = [
         'nama_jurusan',
         'deskripsi',

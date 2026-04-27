@@ -31,7 +31,7 @@ class CrudValidationTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('polije_majors', ['nama_jurusan' => 'Informatika']);
+        $this->assertDatabaseHas('jurusan_polije', ['nama_jurusan' => 'Informatika']);
     }
 
     /**
@@ -54,7 +54,7 @@ class CrudValidationTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('polije_majors', ['nama_jurusan' => 'Akuntansi']);
+        $this->assertDatabaseHas('jurusan_polije', ['nama_jurusan' => 'Akuntansi']);
     }
 
     /**
