@@ -25,38 +25,44 @@ class RekomendasiController extends Controller
             ];
         }
 
-        return view('rekomendasi.input', compact('student'));
+        // Ambil riwayat rekomendasi user (limit 10 terakhir, diurutkan dari terbaru)
+        $recommendations = Recommendation::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('rekomendasi.input', compact('student', 'recommendations'));
     }
 
     /**
      * Generate textual explanation untuk setiap kriteria
      * Menjelaskan "mengapa jurusan ini cocok" berdasarkan scoring detail
      */
-    private function generateExplanation($jurusanNama, $detail, $katNilai, $kategoriMinat, $prefStudi, $prestasi, array $prestasiAnalysis = [])
+    private function generateExplanation($jurusanNama, $detail, $katNilai, $kategoriMinat, $prefStudi, $prestasiRaw, array $prestasiAnalysis = [])
     {
         $explanations = [];
 
-        // 1. Penjelasan Nilai Akademik
+        // 1. Penjelasan Nilai Akademik (Kriteria 1)
         $skorNilai = $detail['nilai'] ?? 0;
         if ($skorNilai >= 0.8) {
-            $explanations['nilai'] = "✅ Nilai akademik Anda ($katNilai) sangat sesuai dengan jalur pendidikan yang dibutuhkan jurusan ini.";
+            $explanations['nilai'] = "✅ Nilai akademik Anda ($katNilai: avg score tinggi) sangat sesuai dengan jalur pendidikan yang dibutuhkan jurusan ini.";
         } elseif ($skorNilai >= 0.6) {
             $explanations['nilai'] = "✓ Nilai akademik Anda ($katNilai) cukup sesuai dengan persyaratan jurusan ini.";
         } else {
             $explanations['nilai'] = "⚠️ Nilai akademik Anda ($katNilai) masih perlu ditingkatkan untuk optimal di jurusan ini, namun tetap relevan.";
         }
 
-        // 2. Penjelasan Minat
+        // 2. Penjelasan Minat (Kriteria 2)
         $skorMinat = $detail['minat'] ?? 0;
         if ($skorMinat >= 0.8) {
-            $explanations['minat'] = "✅ Minat Anda sangat sesuai dan cocok dengan fokus kurikulum $jurusanNama.";
+            $explanations['minat'] = "✅ Minat Anda ($kategoriMinat) sangat sesuai dan cocok dengan fokus kurikulum $jurusanNama. Anda akan mempelajari hal-hal yang Anda sukai.";
         } elseif ($skorMinat >= 0.6) {
-            $explanations['minat'] = "✓ Minat Anda cukup relevan dan sesuai dengan area pembelajaran di $jurusanNama.";
+            $explanations['minat'] = "✓ Minat Anda ($kategoriMinat) cukup relevan dan sesuai dengan area pembelajaran di $jurusanNama.";
         } else {
-            $explanations['minat'] = "ℹ️ Minat Anda memiliki kesamaan dan relevansi dengan aspek-aspek tertentu di $jurusanNama.";
+            $explanations['minat'] = "ℹ️ Minat Anda ($kategoriMinat) memiliki kesamaan dan relevansi dengan aspek-aspek tertentu di $jurusanNama.";
         }
 
-        // 3. Penjelasan Preferensi Studi
+        // 3. Penjelasan Preferensi Studi (Kriteria 3)
         $skorPref = $detail['pref'] ?? 0;
         if ($skorPref >= 0.8) {
             $explanations['pref'] = "✅ Metode pembelajaran \"$prefStudi\" yang Anda pilih sangat sesuai dengan pendekatan pembelajaran $jurusanNama.";
@@ -66,39 +72,41 @@ class RekomendasiController extends Controller
             $explanations['pref'] = "ℹ️ Jurusan ini menawarkan elemen pembelajaran \"$prefStudi\" yang relevan dengan preferensi Anda.";
         }
 
-        // 4. Penjelasan Cita-cita
+        // 4. Penjelasan Cita-cita (Kriteria 4) - IMPROVED with more detail
         $skorCita = $detail['cita'] ?? 0;
         if ($skorCita >= 0.8) {
-            $explanations['cita'] = "✅ Cita-cita karir Anda sangat sesuai dan aligned dengan standar lulusan bidang ini.";
+            $explanations['cita'] = "✅ Cita-cita karir Anda sangat sesuai dan aligned dengan standar lulusan $jurusanNama. Jurusan ini secara langsung mempersiapkan Anda untuk mencapai cita-cita tersebut.";
         } elseif ($skorCita >= 0.6) {
-            $explanations['cita'] = "✓ Cita-cita Anda memiliki potensi besar untuk dicapai melalui jurusan ini.";
+            $explanations['cita'] = "✓ Cita-cita Anda memiliki potensi besar untuk dicapai melalui pendidikan di $jurusanNama. Kurikulum akan membekali skills yang relevan.";
         } else {
-            $explanations['cita'] = "ℹ️ Jurusan ini membuka jalur karir yang sesuai dengan cita-cita dan aspirasi Anda.";
+            $explanations['cita'] = "ℹ️ Jurusan ini membuka jalur karir yang sesuai dengan cita-cita dan aspirasi Anda, meski tidak secara langsung target-nya.";
         }
 
-        // 5. Penjelasan Prestasi
+        // 5. Penjelasan Prestasi (Kriteria 5) - IMPROVED with more detail
         $skorPrestasi = $detail['prestasi'] ?? 0;
         if (!($prestasiAnalysis['provided'] ?? false)) {
-            $explanations['prestasi'] = "ℹ️ Prestasi tidak diisi, sehingga atribut prestasi tidak dihitung pada proses skoring.";
+            $explanations['prestasi'] = "ℹ️ Prestasi tidak diisi. Jika Anda memiliki prestasi atau achievement, itu dapat meningkatkan score untuk jurusan ini.";
             return $explanations;
         }
 
         $levelPrestasi = $prestasiAnalysis['level'] ?? 'minimal';
+        $rawPrestasi = $prestasiAnalysis['raw'] ?? '';
+        
         $labelLevel = [
-            'tinggi' => 'tinggi',
-            'sedang' => 'menengah',
-            'cukup' => 'dasar',
-            'minimal' => 'minimal',
-        ][$levelPrestasi] ?? 'minimal';
-
-        if ($skorPrestasi >= 0.7) {
-            $explanations['prestasi'] = "✅ Prestasi Anda terdeteksi pada level {$labelLevel} dan memberi kontribusi kuat untuk kecocokan jurusan ini.";
-        } elseif ($skorPrestasi >= 0.4) {
-            $explanations['prestasi'] = "✓ Prestasi Anda berada pada level {$labelLevel} dan tetap dipertimbangkan sebagai faktor pendukung.";
+            'tinggi' => 'TINGGI (Juara/Winner)',
+            'sedang' => 'MENENGAH (Finalis/Medalist)',
+            'cukup' => 'DASAR (Peserta/Sertifikat)',
+            'minimal' => 'MINIMAL',
+        ];
+        
+        if ($skorPrestasi >= 0.8) {
+            $explanations['prestasi'] = "✅ Prestasi Anda ($labelLevel[$levelPrestasi]): \"$rawPrestasi\" sangat relevan dengan $jurusanNama. Ini menunjukkan Anda memiliki dedication dan capability.";
+        } elseif ($skorPrestasi >= 0.6) {
+            $explanations['prestasi'] = "✓ Prestasi Anda ($labelLevel[$levelPrestasi]): \"$rawPrestasi\" cukup relevan dan menunjukkan potensi di bidang ini.";
         } else {
-            $explanations['prestasi'] = "ℹ️ Input prestasi tetap dihitung (level {$labelLevel}), namun saat ini kontribusinya relatif kecil dibanding faktor utama lain.";
+            $explanations['prestasi'] = "ℹ️ Prestasi Anda ($labelLevel[$levelPrestasi]): \"$rawPrestasi\" menunjukkan usaha yang dapat dikembangkan lebih lanjut di $jurusanNama.";
         }
-
+        
         return $explanations;
     }
 
@@ -109,6 +117,7 @@ class RekomendasiController extends Controller
         $user = Auth::user();
         $kelompokAsal = strtoupper($user->kelompok_asal ?? 'IPA');
 
+        // Enhanced validation rules dengan lebih strict untuk non-akademik fields
         $rules = [
             'mtk' => 'nullable|numeric|min:0|max:100',
             'fisika' => 'nullable|numeric|min:0|max:100',
@@ -118,10 +127,10 @@ class RekomendasiController extends Controller
             'geografi' => 'nullable|numeric|min:0|max:100',
             'sosiologi' => 'nullable|numeric|min:0|max:100',
             'sejarah' => 'nullable|numeric|min:0|max:100',
-            'minat' => 'required|string|max:255',
-            'pref_studi' => 'required|string',
-            'cita_cita' => 'required|string|max:255',
-            'prestasi' => 'nullable|string|max:255',
+            'minat' => 'required|string|min:3|max:255',
+            'pref_studi' => 'required|string|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'cita_cita' => 'required|string|min:3|max:255',
+            'prestasi' => 'nullable|string|min:3|max:255',
         ];
 
         if ($kelompokAsal === 'IPA') {
@@ -136,7 +145,18 @@ class RekomendasiController extends Controller
             $rules['sejarah'] = 'required|numeric|min:0|max:100';
         }
 
-        $validated = $request->validate($rules);
+        // Custom error messages untuk lebih informatif
+        $messages = [
+            'minat.required' => 'Minat harus diisi (minimal 3 karakter)',
+            'minat.min' => 'Minat terlalu pendek, jelaskan lebih detail',
+            'cita_cita.required' => 'Cita-cita harus diisi (minimal 3 karakter)',
+            'cita_cita.min' => 'Cita-cita terlalu pendek, jelaskan lebih detail',
+            'prestasi.min' => 'Prestasi terlalu pendek, jelaskan lebih detail',
+            'pref_studi.required' => 'Pilih salah satu preferensi studi',
+            'pref_studi.in' => 'Preferensi studi tidak valid',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // --- 1. PREPROCESSING NILAI (Kriteria 1: Akademik) ---
         $scores = $request->only(['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah']);
@@ -155,8 +175,24 @@ class RekomendasiController extends Controller
 
         // --- 2. ANALISIS MINAT (Kriteria 2) ---
         $minatInput = trim((string) ($validated['minat'] ?? ''));
+        
+        // Validasi minat tidak hanya satu kata
+        if (strlen($minatInput) < 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minat harus diisi dengan minimal 3 karakter untuk analisis yang akurat',
+            ])->setStatusCode(422);
+        }
+        
         $minatRaw = strtolower($minatInput);
         $minatMapped = $this->mapMinat($minatRaw);
+        
+        // Log untuk audit trail
+        \Log::debug('Minat Analysis', [
+            'input' => $minatInput,
+            'normalized' => $minatRaw,
+            'mapped' => $minatMapped,
+        ]);
 
         // --- 3. PREFERENSI STUDI LANJUTAN (Kriteria 3) ---
         $prefStudi = $validated['pref_studi'];
@@ -164,15 +200,40 @@ class RekomendasiController extends Controller
 
         // --- 4. ANALISIS CITA-CITA (Kriteria 4) ---
         $citaInput = trim((string) ($validated['cita_cita'] ?? ''));
+        
+        // Validasi cita-cita tidak hanya satu kata
+        if (strlen($citaInput) < 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cita-cita harus diisi dengan minimal 3 karakter untuk analisis yang akurat',
+            ])->setStatusCode(422);
+        }
+        
         $citaRaw = strtolower($citaInput);
         $citaMapped = $this->mapCitaCita($citaRaw);
+        
+        // Log untuk audit trail
+        \Log::debug('Cita-cita Analysis', [
+            'input' => $citaInput,
+            'normalized' => $citaRaw,
+            'mapped' => $citaMapped,
+        ]);
 
         // --- 5. ANALISIS PRESTASI (Kriteria 5) ---
         $prestasiInput = trim((string) ($validated['prestasi'] ?? ''));
-        $isPrestasiFilled = $prestasiInput !== '';
+        $isPrestasiFilled = $prestasiInput !== '' && strlen($prestasiInput) >= 3;
         $prestasiRaw = strtolower($prestasiInput);
         $prestasiAnalysis = $this->analyzePrestasi($prestasiRaw);
         $prestasiScore = $prestasiAnalysis['score'];
+        
+        // Log untuk audit trail
+        \Log::debug('Prestasi Analysis', [
+            'input' => $prestasiInput,
+            'is_filled' => $isPrestasiFilled,
+            'normalized' => $prestasiRaw,
+            'level' => $prestasiAnalysis['level'] ?? 'not provided',
+            'score' => $prestasiScore,
+        ]);
 
         // --- 6. PERHITUNGAN NAIVE BAYES BERBOBOT ---
         $cfg = config('polije.criteria', []);
@@ -181,35 +242,63 @@ class RekomendasiController extends Controller
         $detailPerJurusan = [];
         $epsilon = 1e-9;
 
+        // Validate config exists
+        if (empty($cfg)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Konfigurasi sistem rekomendasi tidak ditemukan',
+            ])->setStatusCode(500);
+        }
+
         foreach ($cfg as $jurusan => $c) {
-            // Prior: uniform
-            $prior = 1 / count($cfg);
+            // Prior: uniform dengan safety check
+            $cfgCount = max(1, count($cfg)); // Prevent division by zero
+            $prior = 1 / $cfgCount;
             $logPrior = log(max($prior, $epsilon));
 
-            // Weights dan match probabilities
+            // Weights dan match probabilities dengan defaults
             $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
+            
+            // Ensure weights is array
+            if (!is_array($weights)) {
+                $weights = ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
+            }
 
-            // Jika prestasi kosong, atribut prestasi tidak dihitung.
+            // Jika prestasi kosong, atribut prestasi tidak dihitung dengan normalisasi ulang
             if (!$isPrestasiFilled) {
                 $weights['prestasi'] = 0.0;
                 $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['pref'] ?? 0) + ($weights['cita_cita'] ?? 0);
-                if ($sumNonPrestasi > 0) {
+                
+                // Normalize weights dengan safety check
+                if ($sumNonPrestasi > $epsilon) {
                     $weights['nilai'] = ($weights['nilai'] ?? 0) / $sumNonPrestasi;
                     $weights['minat'] = ($weights['minat'] ?? 0) / $sumNonPrestasi;
                     $weights['pref'] = ($weights['pref'] ?? 0) / $sumNonPrestasi;
                     $weights['cita_cita'] = ($weights['cita_cita'] ?? 0) / $sumNonPrestasi;
+                } else {
+                    // Fallback weights jika semua weight adalah 0
+                    $weights = ['nilai' => 0.4, 'minat' => 0.35, 'pref' => 0.15, 'cita_cita' => 0.1];
                 }
             }
+            
             $matchProb = $c['match_prob'] ?? ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
+            
+            // Ensure matchProb is array
+            if (!is_array($matchProb)) {
+                $matchProb = ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
+            }
 
             // 1. Likelihood untuk Nilai
-            // Tetap berbasis atribut Nilai Akademik, namun dibuat lebih granular:
-            // kombinasi kategori nilai + kecocokan bobot mapel per jurusan (dari data PolijeMajor).
             $p_nilai_category = ($katNilai == ($c['nilai'] ?? 'Sedang'))
-                ? $matchProb['nilai']
-                : max(1 - $matchProb['nilai'], $epsilon);
+                ? ($matchProb['nilai'] ?? 0.80)
+                : max(1 - ($matchProb['nilai'] ?? 0.80), $epsilon);
+            
+            // Safe access to majorMap with null check
+            $majorRecord = $majorMap[$jurusan] ?? null;
+            $bobotMapel = $majorRecord ? ($majorRecord->bobot_mapel ?? []) : [];
+            
             $p_nilai_subject = $this->scoreSubjectFitLikelihood(
-                $majorMap[$jurusan]->bobot_mapel ?? [],
+                $bobotMapel,
                 $scores,
                 $p_nilai_category
             );
@@ -220,7 +309,7 @@ class RekomendasiController extends Controller
                 $minatRaw,
                 $minatMapped,
                 $c['minat'] ?? 'Umum',
-                $matchProb['minat']
+                $matchProb['minat'] ?? 0.90
             );
 
             // 3. Likelihood untuk Preferensi Studi
@@ -228,17 +317,17 @@ class RekomendasiController extends Controller
             if (!is_array($prefList)) {
                 $prefList = [$prefList];
             }
-            $p_pref = in_array($prefStudi, $prefList) ? $matchProb['pref'] : max(1 - $matchProb['pref'], $epsilon);
+            $p_pref = in_array($prefStudi, $prefList) ? ($matchProb['pref'] ?? 0.85) : max(1 - ($matchProb['pref'] ?? 0.85), $epsilon);
 
             // 4. Likelihood untuk Cita-cita
             $citaCitaKeywords = $c['cita_cita_keywords'] ?? [];
-            $p_cita_cita = $this->scoreKeywordLikelihood($citaMapped, $citaCitaKeywords, $matchProb['cita_cita']);
+            $p_cita_cita = $this->scoreKeywordLikelihood($citaMapped, $citaCitaKeywords, $matchProb['cita_cita'] ?? 0.85);
 
             // 5. Likelihood untuk Prestasi (bertingkat: tinggi/menengah/dasar/minimal)
             $p_prestasi = $this->scorePrestasiLikelihood(
                 $prestasiAnalysis,
                 $citaCitaKeywords,
-                $matchProb['prestasi']
+                $matchProb['prestasi'] ?? 0.65
             );
 
             // Simpan detail per kriteria untuk tampilan
@@ -348,29 +437,115 @@ class RekomendasiController extends Controller
     /**
      * Pemetaan minat ke kategori yang dipahami sistem
      */
+    /**
+     * Normalize text untuk better keyword matching
+     * Menangani variasi kata seperti programmer/programming, coding/code
+     */
+    private function normalizeText(string $text): string
+    {
+        $text = strtolower(trim($text));
+        
+        // Simple stemming untuk common variations
+        $replacements = [
+            'programmer' => 'programming',
+            'coder' => 'coding',
+            'code' => 'coding',
+            'codes' => 'coding',
+            'develop' => 'development',
+            'developer' => 'development',
+            'develops' => 'development',
+            'manager' => 'manajemen',
+            'manages' => 'manajemen',
+            'doctor' => 'dokter',
+            'doctors' => 'dokter',
+            'nurse' => 'perawat',
+            'nurses' => 'perawat',
+            'engineer' => 'teknik',
+            'engineers' => 'teknik',
+            'farming' => 'pertanian',
+            'farmer' => 'pertanian',
+            'farmers' => 'pertanian',
+            'business' => 'bisnis',
+            'businessmen' => 'bisnis',
+        ];
+        
+        foreach ($replacements as $from => $to) {
+            $text = str_replace($from, $to, $text);
+        }
+        
+        return $text;
+    }
+
     private function mapMinat(string $minatRaw): string
     {
-        if (preg_match('/(coding|komputer|laptop|web|aplikasi|logika|programming|software|development)/', $minatRaw)) {
-            return 'Logika & Komputer';
-        } elseif (preg_match('/(tanam|kebun|sawah|hewan|ternak|alam|pertanian|agri)/', $minatRaw)) {
-            return 'Alam & Tanaman';
-        } elseif (preg_match('/(obat|sakit|rawat|medis|gizi|sehat|kesehatan|perawat|dokter)/', $minatRaw)) {
-            return 'Pelayanan & Kesehatan';
-        } elseif (preg_match('/(bisnis|uang|jual|kantor|hitung|ekonomi|dagang|usaha|entrepreneur)/', $minatRaw)) {
-            return 'Manajemen & Bisnis';
-        } elseif (preg_match('/(mesin|bengkel|listrik|las|robot|motor|teknik|otomasi|elektronik)/', $minatRaw)) {
-            return 'Mesin & Listrik';
+        // Normalize text untuk better matching
+        $minatNormalized = $this->normalizeText($minatRaw);
+        
+        // Use coverage-based scoring untuk handle ambiguous inputs
+        $categoryKeywords = [
+            'Logika & Komputer' => ['coding', 'komputer', 'laptop', 'web', 'aplikasi', 'logika', 'programming', 'software', 'development', 'developer', 'it', 'data', 'ai'],
+            'Alam & Tanaman' => ['tanam', 'kebun', 'sawah', 'hewan', 'ternak', 'alam', 'pertanian', 'agri', 'panen', 'tani', 'hortikultura'],
+            'Pelayanan & Kesehatan' => ['obat', 'sakit', 'rawat', 'medis', 'gizi', 'sehat', 'kesehatan', 'perawat', 'dokter', 'rumah sakit', 'klinik'],
+            'Manajemen & Bisnis' => ['bisnis', 'uang', 'jual', 'kantor', 'hitung', 'ekonomi', 'dagang', 'usaha', 'entrepreneur', 'manager', 'marketing', 'akuntan'],
+            'Mesin & Listrik' => ['mesin', 'bengkel', 'listrik', 'las', 'robot', 'motor', 'teknik', 'otomasi', 'elektronik', 'maintenance'],
+        ];
+        
+        // Score setiap kategori berdasarkan keyword coverage
+        $scores = [];
+        foreach ($categoryKeywords as $category => $keywords) {
+            $scores[$category] = $this->keywordCoverage($minatNormalized, $keywords);
         }
-        return 'Umum';
+        
+        // Return kategori dengan coverage tertinggi
+        $bestCategory = 'Umum';
+        $maxScore = 0;
+        foreach ($scores as $category => $score) {
+            if ($score > $maxScore) {
+                $maxScore = $score;
+                $bestCategory = $category;
+            }
+        }
+        
+        // Jika tidak ada keyword match, return Umum
+        return $maxScore > 0 ? $bestCategory : 'Umum';
     }
 
     /**
-     * Pemetaan cita-cita ke kategori jurusan
+     * Pemetaan cita-cita ke kategori jurusan yang relevan
+     * Mengevaluasi input cita-cita dengan lebih detail
      */
     private function mapCitaCita(string $citaRaw): string
     {
-        // Return raw mapped text untuk matching dengan keywords
-        return $citaRaw;
+        // Normalize text untuk better matching
+        $citaNormalized = $this->normalizeText($citaRaw);
+        
+        // Map cita-cita ke category berdasarkan keywords
+        $careerCategories = [
+            'IT & Software' => ['programmer', 'developer', 'software', 'coding', 'hacker', 'web', 'database', 'it', 'engineer'],
+            'Agriculture' => ['petani', 'pertanian', 'agribisnis', 'kebun', 'ternak', 'peternak', 'agronomi'],
+            'Healthcare' => ['dokter', 'perawat', 'medis', 'gizi', 'terapis', 'farmasi', 'kesehatan'],
+            'Business' => ['entrepreneur', 'manager', 'marketing', 'sales', 'akuntan', 'keuangan', 'bisnis'],
+            'Engineering' => ['teknik', 'engineer', 'mesin', 'listrik', 'bengkel', 'maintenance', 'industri'],
+            'Communication' => ['jurnalis', 'komunikator', 'presenter', 'content', 'pariwisata', 'hospitality'],
+        ];
+        
+        // Score setiap kategori
+        $scores = [];
+        foreach ($careerCategories as $category => $keywords) {
+            $scores[$category] = $this->keywordCoverage($citaNormalized, $keywords);
+        }
+        
+        // Return kategori dengan coverage tertinggi
+        $bestCategory = 'Umum';
+        $maxScore = 0;
+        foreach ($scores as $category => $score) {
+            if ($score > $maxScore) {
+                $maxScore = $score;
+                $bestCategory = $category;
+            }
+        }
+        
+        return $maxScore > 0 ? $bestCategory : 'Umum';
     }
 
     /**
@@ -434,6 +609,7 @@ class RekomendasiController extends Controller
 
     /**
      * Skor atribut teks berdasarkan coverage keyword (0..1) lalu dipetakan menjadi likelihood.
+     * Digunakan untuk cita-cita dan prestasi scoring.
      */
     private function scoreKeywordLikelihood(string $text, array $keywords, float $matchProb): float
     {
@@ -443,6 +619,16 @@ class RekomendasiController extends Controller
 
         $coverage = $this->keywordCoverage($text, $keywords);
 
+        // Log untuk debugging
+        if ($coverage > 0) {
+            \Log::debug('Keyword Coverage', [
+                'text' => $text,
+                'keywords_count' => count($keywords),
+                'coverage' => $coverage,
+                'match_prob' => $matchProb,
+            ]);
+        }
+
         // Base 0.2 agar tidak 0 total, lalu naik proporsional coverage.
         $likelihood = 0.20 + ($coverage * ($matchProb - 0.20));
 
@@ -451,20 +637,23 @@ class RekomendasiController extends Controller
 
     private function scoreMinatLikelihood(string $minatRaw, string $minatMapped, string $targetMinat, float $matchProb): float
     {
+        // Expanded keyword bank dengan lebih banyak variasi
         $keywordBank = [
-            'Logika & Komputer' => ['coding', 'programming', 'komputer', 'software', 'web', 'data', 'ai', 'digital'],
-            'Alam & Tanaman' => ['pertanian', 'tanaman', 'kebun', 'sawah', 'alam', 'peternakan', 'agribisnis'],
-            'Pelayanan & Kesehatan' => ['kesehatan', 'medis', 'gizi', 'perawat', 'dokter', 'klinik', 'rumah sakit'],
-            'Manajemen & Bisnis' => ['bisnis', 'usaha', 'marketing', 'keuangan', 'manajemen', 'akuntansi', 'entrepreneur'],
-            'Mesin & Listrik' => ['mesin', 'listrik', 'teknik', 'otomasi', 'elektronik', 'mekanik', 'industri'],
+            'Logika & Komputer' => ['coding', 'programming', 'komputer', 'software', 'web', 'data', 'ai', 'digital', 'aplikasi', 'developer', 'coding', 'programer', 'it', 'database', 'network'],
+            'Alam & Tanaman' => ['pertanian', 'tanaman', 'kebun', 'sawah', 'alam', 'peternakan', 'agribisnis', 'hewan', 'ternak', 'panen', 'tani', 'petani', 'hortikultura'],
+            'Pelayanan & Kesehatan' => ['kesehatan', 'medis', 'gizi', 'perawat', 'dokter', 'klinik', 'rumah sakit', 'farmasi', 'terapis', 'kesehatan masyarakat', 'kesehatan', 'sehat', 'rawat'],
+            'Manajemen & Bisnis' => ['bisnis', 'usaha', 'marketing', 'keuangan', 'manajemen', 'akuntansi', 'entrepreneur', 'sales', 'marketing', 'penjualan', 'perbankan', 'akuntan'],
+            'Mesin & Listrik' => ['mesin', 'listrik', 'teknik', 'otomasi', 'elektronik', 'mekanik', 'industri', 'bengkel', 'las', 'motor', 'teknis'],
         ];
 
         $targetKeywords = $keywordBank[$targetMinat] ?? [];
         $coverage = $this->keywordCoverage($minatRaw, $targetKeywords);
+        
+        // Perfect match jika mapped minat sama dengan target
         $categoryMatch = ($minatMapped === $targetMinat) ? 1.0 : 0.0;
 
-        // Kombinasi semantic match + category match.
-        $combined = (0.6 * $coverage) + (0.4 * $categoryMatch);
+        // Weighted combination: kategori match lebih penting (60%) daripada coverage (40%)
+        $combined = (0.6 * $categoryMatch) + (0.4 * $coverage);
         $likelihood = 0.20 + ($combined * ($matchProb - 0.20));
 
         return max(0.05, min(0.98, $likelihood));

@@ -243,44 +243,6 @@
                 </button>
             </form>
         </div>
-
-        {{-- ========== HAPUS AKUN ========== --}}
-        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 border-l-4 border-red-500">
-            <h2 class="text-xl font-bold text-red-700 mb-1">⚠️ Hapus Akun</h2>
-            <p class="text-sm text-gray-500 mb-4">
-                Setelah akun dihapus, semua data dan riwayat Anda akan dihapus secara permanen. Pastikan Anda sudah menyimpan data yang diperlukan.
-            </p>
-
-            <button type="button" onclick="document.getElementById('delete-section').classList.toggle('hidden')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition">
-                🗑️ Hapus Akun Saya
-            </button>
-
-            {{-- Konfirmasi Hapus --}}
-            <div id="delete-section" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p class="text-sm text-red-800 mb-4 font-semibold">⚠️ Apakah Anda yakin? Masukkan password untuk konfirmasi:</p>
-                <form method="POST" action="{{ route('profile.destroy') }}">
-                    @csrf
-                    @method('delete')
-
-                    <div class="mb-4">
-                        <input type="password" name="password" placeholder="Masukkan password Anda"
-                            class="input-focus w-full border border-red-300 rounded-lg px-4 py-2 text-sm focus:ring-0">
-                        @error('password', 'userDeletion')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button type="button" onclick="document.getElementById('delete-section').classList.add('hidden')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg text-sm transition">
-                            Batal
-                        </button>
-                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg text-sm transition">
-                            Ya, Hapus Akun
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     <!-- Footer -->

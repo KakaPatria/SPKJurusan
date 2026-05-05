@@ -5,6 +5,7 @@ use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BKController;
+use App\Http\Controllers\AlumniController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,14 +14,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $user = Auth::user();
-    $recommendationCount = $user ? \App\Models\Recommendation::where('user_id', $user->id)->count() : 0;
-    $chatCount = $user ? \App\Models\ChatHistory::where('user_id', $user->id)->count() : 0;
-    
-    return view('dashboard', [
-        'recommendationCount' => $recommendationCount,
-        'chatCount' => $chatCount
-    ]);
+    return view('dashboard');
 })->middleware(['auth', 'verified', 'roleRedirect'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -60,6 +54,9 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->name('admin
     Route::put('/jurusan/{id}', [AdminController::class, 'jurusanUpdate'])->name('jurusan.update');
     Route::delete('/jurusan/{id}', [AdminController::class, 'jurusanDestroy'])->name('jurusan.destroy');
 
+    // 3.5 Manajemen Data Alumni
+    Route::resource('alumni', AlumniController::class);
+
     // 4. Manajemen Akun Guru BK
     Route::get('/guru-bk', [AdminController::class, 'guruBK'])->name('guru-bk');
     Route::get('/guru-bk/create', [AdminController::class, 'guruBKCreate'])->name('guru-bk.create');
@@ -94,6 +91,16 @@ Route::middleware(['auth', 'verified', 'isBK'])->prefix('bk')->name('bk.')->grou
     Route::get('/jurusan/{id}/edit', [BKController::class, 'jurusanEdit'])->name('jurusan.edit');
     Route::put('/jurusan/{id}', [BKController::class, 'jurusanUpdate'])->name('jurusan.update');
     Route::delete('/jurusan/{id}', [BKController::class, 'jurusanDestroy'])->name('jurusan.destroy');
+    
+    // Alumni Routes untuk BK - sama seperti admin
+    Route::get('/alumni', [BKController::class, 'alumni'])->name('alumni');
+    Route::get('/alumni/create', [BKController::class, 'alumniCreate'])->name('alumni.create');
+    Route::post('/alumni', [BKController::class, 'alumniStore'])->name('alumni.store');
+    Route::get('/alumni/{alumni}', [BKController::class, 'alumniShow'])->name('alumni.show');
+    Route::get('/alumni/{alumni}/edit', [BKController::class, 'alumniEdit'])->name('alumni.edit');
+    Route::put('/alumni/{alumni}', [BKController::class, 'alumniUpdate'])->name('alumni.update');
+    Route::delete('/alumni/{alumni}', [BKController::class, 'alumniDestroy'])->name('alumni.destroy');
+    
     Route::get('/profil', [BKController::class, 'profil'])->name('profil');
     Route::put('/profil', [BKController::class, 'updateProfil'])->name('profil.update');
     Route::put('/profil/password', [BKController::class, 'updatePassword'])->name('profil.password');

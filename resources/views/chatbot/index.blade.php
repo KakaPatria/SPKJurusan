@@ -73,10 +73,26 @@
                 font-size: 15px;
             }
         }
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .error-message::before {
+            content: "⚠️";
+        }
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(-5px);
             }
             to {
                 opacity: 1;
@@ -165,28 +181,63 @@
 
                     <!-- Input Area -->
                     <div class="border-t border-gray-200 pt-3 sm:pt-4">
-                        <form id="chatForm" class="flex gap-2">
+                        <form id="chatForm" class="space-y-2">
                             @csrf
-                            <input 
-                                type="text" 
-                                id="messageInput" 
-                                name="message" 
-                                placeholder="Ketik pertanyaan..." 
-                                class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm"
-                                required
-                            >
-                            <button 
-                                type="submit" 
-                                class="gradient-maroon text-white font-bold py-2 px-4 sm:px-6 rounded-lg hover:opacity-90 transition text-sm sm:text-base whitespace-nowrap"
-                                id="sendBtn"
-                            >
-                                Kirim
-                            </button>
+                            <div class="flex gap-2">
+                                <div class="flex-1 relative">
+                                    <input 
+                                        type="text" 
+                                        id="messageInput" 
+                                        name="message" 
+                                        placeholder="Ketik pertanyaan..." 
+                                        class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm transition-colors"
+                                        autocomplete="off"
+                                    >
+                                    <div id="errorMessage" class="error-message hidden"></div>
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    class="gradient-maroon text-white font-bold py-2 px-4 sm:px-6 rounded-lg hover:opacity-90 transition text-sm sm:text-base whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                                    id="sendBtn"
+                                >
+                                    Kirim
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- History Chat Section -->
+        @php
+            $chatHistories = $chatHistories ?? [];
+        @endphp
+        
+        @if(count($chatHistories) > 0)
+            <div class="mt-8 sm:mt-12">
+                <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 border-l-4 border-orange-500">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-orange-100 flex items-center justify-center text-2xl flex-shrink-0">💬</div>
+                        <div>
+                            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon">Riwayat Chat</h2>
+                            <p class="text-xs sm:text-sm text-gray-600">Percakapan Anda dengan AI sebelumnya</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto">
+                        @foreach($chatHistories as $chat)
+                            <a href="{{ route('chatbot.index', ['session' => $chat->id_sesi]) }}" class="block border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-maroon transition">
+                                <p class="text-xs sm:text-sm text-gray-500 mb-2">{{ $chat->created_at->format('d M Y - H:i') }}</p>
+                                <p class="text-xs sm:text-sm text-gray-700 line-clamp-2 leading-relaxed">
+                                    <span class="font-semibold">Anda:</span> {{ $chat->prompt ?? 'Tidak ada pesan' }}
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     <script>
@@ -226,9 +277,46 @@
         const messageInput = document.getElementById('messageInput');
         const chatContainer = document.getElementById('chatContainer');
         const sendBtn = document.getElementById('sendBtn');
+        const errorMessage = document.getElementById('errorMessage');
 
         // Track conversation history for multi-turn context
         let conversationHistory = [];
+
+        // Validasi input saat user mengetik
+        messageInput.addEventListener('input', function() {
+            const message = this.value.trim();
+            
+            if (message === '') {
+                // Show error state
+                this.classList.add('input-error');
+                errorMessage.textContent = 'Pesan tidak boleh kosong';
+                errorMessage.classList.remove('hidden');
+                sendBtn.disabled = true;
+            } else {
+                // Clear error state
+                this.classList.remove('input-error');
+                errorMessage.classList.add('hidden');
+                sendBtn.disabled = false;
+            }
+        });
+
+        // Validasi saat blur
+        messageInput.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('input-error');
+                errorMessage.textContent = 'Pesan tidak boleh kosong';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Clear error saat focus
+        messageInput.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('input-error');
+                errorMessage.textContent = 'Ketik sesuatu untuk melanjutkan';
+                errorMessage.classList.remove('hidden');
+            }
+        });
 
         // Load previous messages if resuming session
         if (previousMessages.length > 0) {
@@ -238,11 +326,26 @@
             });
         }
 
+        // Initialize button state
+        sendBtn.disabled = true;
+
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const message = messageInput.value.trim();
-            if (!message) return;
+            
+            // Validasi pesan tidak kosong
+            if (!message) {
+                messageInput.classList.add('input-error');
+                errorMessage.textContent = 'Pesan tidak boleh kosong, ketik sesuatu';
+                errorMessage.classList.remove('hidden');
+                messageInput.focus();
+                return;
+            }
+
+            // Clear error sebelum mengirim
+            messageInput.classList.remove('input-error');
+            errorMessage.classList.add('hidden');
 
             // Add user message to UI
             addMessage(message, 'user');
@@ -306,8 +409,10 @@
             } catch (error) {
                 addMessage('Terjadi kesalahan koneksi. Silakan coba lagi.', 'ai');
             } finally {
-                sendBtn.disabled = false;
                 sendBtn.textContent = 'Kirim';
+                // Re-enable button only if input has text
+                const currentMessage = messageInput.value.trim();
+                sendBtn.disabled = currentMessage === '';
             }
         });
 

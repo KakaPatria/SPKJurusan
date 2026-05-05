@@ -154,55 +154,6 @@
             </div>
         </div>
 
-        <!-- History Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-16">
-            <!-- History Rekomendasi Card -->
-            <div class="card-hover bg-white rounded-lg shadow-lg p-5 sm:p-8 border-l-4 border-purple-500 flex flex-col h-full">
-                <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 flex-grow">
-                    <div class="text-3xl sm:text-4xl flex-shrink-0">📋</div>
-                    <div>
-                        <h3 class="text-lg sm:text-lg md:text-2xl font-bold text-maroon mb-1 sm:mb-2">History Rekomendasi</h3>
-                        <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                            Lihat semua hasil analisis rekomendasi yang telah Anda lakukan sebelumnya.
-                        </p>
-                    </div>
-                </div>
-                <div class="mt-4 sm:mt-6">
-                    <a href="{{ url('/history/rekomendasi') }}" class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 text-sm sm:text-base">
-                        Lihat History
-                    </a>
-                </div>
-                <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-purple-50 rounded-lg">
-                    <p class="text-xs sm:text-sm text-purple-800">
-                        <strong>Total:</strong> {{ $recommendationCount ?? 0 }} analisis
-                    </p>
-                </div>
-            </div>
-
-            <!-- History Chat Card -->
-            <div class="card-hover bg-white rounded-lg shadow-lg p-5 sm:p-8 flex flex-col h-full" style="border-left: 4px solid #EA580C;">
-                <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 flex-grow">
-                    <div class="text-3xl sm:text-4xl flex-shrink-0">💾</div>
-                    <div>
-                        <h3 class="text-lg sm:text-lg md:text-2xl font-bold text-maroon mb-1 sm:mb-2">History Chat</h3>
-                        <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                            Lihat riwayat semua percakapan Anda dengan AI chatbot.
-                        </p>
-                    </div>
-                </div>
-                <div class="mt-4 sm:mt-6">
-                    <a href="{{ url('/history/chat') }}" class="block w-full text-center text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 text-sm sm:text-base" style="background-color: #EA580C;">
-                        Lihat History
-                    </a>
-                </div>
-                <div class="mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg" style="background-color: #FFF7ED;">
-                    <p class="text-xs sm:text-sm" style="color: #9A3412;">
-                        <strong>Total:</strong> {{ $chatCount ?? 0 }} chat
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <!-- Info Section -->
         <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8">
             <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-4 sm:mb-6">9 Jurusan Tersedia</h3>

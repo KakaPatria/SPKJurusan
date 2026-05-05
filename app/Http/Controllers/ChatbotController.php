@@ -66,27 +66,60 @@ class ChatbotController extends Controller
         // Tentukan recommendation_id:
         // 1. Dari sesi lama (sudah diset di atas)
         // 2. Dari parameter ?rec= (klik dari hasil rekomendasi)
-        // 3. Dari rekomendasi terbaru user
+        // JANGAN fallback ke rekomendasi terbaru - biarkan null jika tidak ada
         if (!$recommendationId && $recId) {
             $rec = Recommendation::where('id', $recId)
                 ->where('user_id', $user->id)
                 ->first();
             $recommendationId = $rec ? $rec->id : null;
         }
-
-        if (!$recommendationId) {
-            $latestRec = Recommendation::where('user_id', $user->id)->latest()->first();
-            $recommendationId = $latestRec ? $latestRec->id : null;
-        }
+        // Jika tidak ada recommendation_id dari session atau ?rec param, biarkan null
 
         // Ambil konteks rekomendasi berdasarkan ID spesifik
-        $recentRecommendation = $this->getRecommendationContext($user, $recommendationId);
+        $recentRecommendation = $this->getRecommendationContext($user, $recommendationId) ?? [];
+
+        // Ambil 10 session terakhir yang unik untuk user
+        // Strategy: ambil last chat per session, sort by created_at, limit 10
+        $chatHistories = collect();
+        
+        $sessions = ChatHistory::where('user_id', $user->id)
+            ->select('id_sesi')
+            ->distinct('id_sesi')
+            ->get()
+            ->pluck('id_sesi');
+
+        foreach ($sessions as $session_id) {
+            $lastChat = ChatHistory::where('user_id', $user->id)
+                ->where('id_sesi', $session_id)
+                ->latest('created_at')
+                ->first();
+            
+            $firstChat = ChatHistory::where('user_id', $user->id)
+                ->where('id_sesi', $session_id)
+                ->oldest('created_at')
+                ->first();
+
+            if ($lastChat && $firstChat) {
+                $chatHistories->push((object)[
+                    'id_sesi' => $session_id,
+                    'created_at' => $lastChat->created_at,
+                    'prompt' => $firstChat->prompt ?? 'Tidak ada pesan',
+                ]);
+            }
+        }
+
+        // Sort by created_at desc dan ambil 10
+        $chatHistories = $chatHistories->sortByDesc('created_at')
+            ->take(10)
+            ->values()
+            ->toArray();
 
         return view('chatbot.index', [
             'recommendation' => $recentRecommendation,
             'sessionId' => $sessionId,
             'previousMessages' => $previousMessages,
             'recommendationId' => $recommendationId,
+            'chatHistories' => $chatHistories,
         ]);
     }
 
@@ -192,14 +225,24 @@ class ChatbotController extends Controller
             $rec = $first->recommendation;
             $recInfo = null;
             if ($rec) {
-                $hasil = is_array($rec->hasil_rekomendasi)
-                    ? $rec->hasil_rekomendasi
-                    : json_decode($rec->hasil_rekomendasi, true);
+                // Safely decode hasil_rekomendasi
+                $hasil = [];
+                if (!empty($rec->hasil_rekomendasi)) {
+                    $hasil = is_array($rec->hasil_rekomendasi)
+                        ? $rec->hasil_rekomendasi
+                        : json_decode($rec->hasil_rekomendasi, true);
+                    
+                    // Validate hasil is array
+                    if (!is_array($hasil)) {
+                        $hasil = [];
+                    }
+                }
+                
                 $topJurusan = $hasil[0] ?? null;
                 $recInfo = [
                     'id' => $rec->id,
-                    'jurusan' => $topJurusan['jurusan'] ?? '-',
-                    'skor' => $topJurusan['skor'] ?? 0,
+                    'jurusan' => is_array($topJurusan) ? ($topJurusan['jurusan'] ?? '-') : '-',
+                    'skor' => is_array($topJurusan) ? ($topJurusan['skor'] ?? 0) : 0,
                     'tanggal' => $rec->created_at,
                 ];
             }
@@ -232,45 +275,62 @@ class ChatbotController extends Controller
                 ->first();
         }
 
-        // Fallback: dari session (saat baru selesai rekomendasi)
+        // ONLY fallback: dari session (saat baru selesai rekomendasi)
+        // Jangan ambil rekomendasi terbaru dari DB jika tidak ada recommendation_id
         if (!$lastRec) {
             $sessionData = session('recomendation_data', null);
             if ($sessionData) {
                 return $sessionData;
             }
-        }
-
-        // Fallback: rekomendasi terbaru dari DB
-        if (!$lastRec) {
-            $lastRec = Recommendation::where('user_id', $user->id)
-                ->latest()
-                ->first();
+            // Jika tidak ada di session dan tidak ada recommendation_id, return null
+            return null;
         }
 
         if (!$lastRec) {
             return null;
         }
 
-        $hasil = is_array($lastRec->hasil_rekomendasi)
-            ? $lastRec->hasil_rekomendasi
-            : json_decode($lastRec->hasil_rekomendasi, true);
+        // Safely decode hasil_rekomendasi
+        $hasil = [];
+        if (!empty($lastRec->hasil_rekomendasi)) {
+            $hasil = is_array($lastRec->hasil_rekomendasi)
+                ? $lastRec->hasil_rekomendasi
+                : json_decode($lastRec->hasil_rekomendasi, true);
+            
+            // Validate hasil is array
+            if (!is_array($hasil)) {
+                $hasil = [];
+            }
+        }
+        
         $topJurusan = $hasil[0] ?? null;
         $top3 = array_slice($hasil ?? [], 0, 3);
 
-        // Hitung rata-rata dari kolom nilai
+        // Hitung rata-rata dari kolom nilai dengan safe access
         $nilaiCols = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
-        $validVals = array_filter(array_map(fn($c) => $lastRec->$c, $nilaiCols), fn($v) => $v !== null);
+        $validVals = [];
+        foreach ($nilaiCols as $col) {
+            $val = $lastRec->getAttribute($col);
+            if ($val !== null && is_numeric($val)) {
+                $validVals[] = $val;
+            }
+        }
         $rataRata = count($validVals) > 0 ? round(array_sum($validVals) / count($validVals), 1) : null;
 
-        // Kategorisasi
+        // Kategorisasi nilai
         $katNilai = 'Rendah';
-        if ($rataRata >= 85) $katNilai = 'Tinggi';
-        elseif ($rataRata >= 70) $katNilai = 'Sedang';
+        if ($rataRata !== null) {
+            if ($rataRata >= 85) {
+                $katNilai = 'Tinggi';
+            } elseif ($rataRata >= 70) {
+                $katNilai = 'Sedang';
+            }
+        }
 
         return [
             'jurusan'    => $topJurusan['jurusan'] ?? null,
             'skor'       => $topJurusan['skor'] ?? null,
-            'detail'     => $topJurusan['detail'] ?? [],
+            'detail'     => is_array($topJurusan['detail'] ?? null) ? $topJurusan['detail'] : [],
             'nilai'      => $katNilai,
             'rata_rata'  => $rataRata,
             'minat'      => $lastRec->minat,
@@ -278,8 +338,8 @@ class ChatbotController extends Controller
             'cita_cita'  => $lastRec->cita_cita,
             'prestasi'   => $lastRec->prestasi,
             'top3'       => array_map(fn($r) => [
-                'jurusan' => $r['jurusan'] ?? '',
-                'skor'    => $r['skor'] ?? 0,
+                'jurusan' => is_array($r) ? ($r['jurusan'] ?? '') : '',
+                'skor'    => is_array($r) ? ($r['skor'] ?? 0) : 0,
             ], $top3),
         ];
     }
