@@ -28,8 +28,7 @@ class Alumni extends Model
         'preferensi_studi',
         'prestasi',
         'major_masuk',
-        'ranking_saat_rekomendasi',
-        'success_status',
+        'tahun_lulus_polije',
         'catatan',
     ];
 
@@ -43,8 +42,6 @@ class Alumni extends Model
         'sosiologi' => 'float',
         'sejarah' => 'float',
         'nilai_rata_rata' => 'float',
-        'ipk_lulus' => 'float',
-        'predicted_score' => 'float',
     ];
 
     /**

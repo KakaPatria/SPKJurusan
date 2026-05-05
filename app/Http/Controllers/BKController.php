@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Alumni;
 use App\Models\PolijeMajor;
 use App\Models\Recommendation;
 use App\Models\ChatHistory;
@@ -304,7 +305,124 @@ class BKController extends Controller
     }
 
     // ============================================
-    // 6. PROFIL GURU BK
+    // 6. MANAJEMEN ALUMNI
+    // ============================================
+    public function alumni()
+    {
+        $alumni = Alumni::orderBy('tahun_masuk', 'desc')->paginate(20);
+        $summary = $this->getAlumniSummary();
+        
+        return view('bk.alumni.index', compact('alumni', 'summary'));
+    }
+
+    public function alumniCreate()
+    {
+        return view('bk.alumni.create');
+    }
+
+    public function alumniStore(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_alumni' => 'required|string|max:255',
+            'nis' => 'nullable|string|max:20',
+            'kelompok_asal' => 'required|in:IPA,IPS',
+            
+            // Nilai
+            'mtk' => 'nullable|numeric|min:0|max:100',
+            'fisika' => 'nullable|numeric|min:0|max:100',
+            'kimia' => 'nullable|numeric|min:0|max:100',
+            'biologi' => 'nullable|numeric|min:0|max:100',
+            'ekonomi' => 'nullable|numeric|min:0|max:100',
+            'geografi' => 'nullable|numeric|min:0|max:100',
+            'sosiologi' => 'nullable|numeric|min:0|max:100',
+            'sejarah' => 'nullable|numeric|min:0|max:100',
+            
+            // Non-akademik
+            'minat' => 'nullable|string|max:255',
+            'cita_cita' => 'nullable|string|max:255',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'prestasi' => 'nullable|string|max:255',
+            
+            // Major
+            'major_masuk' => 'required|string|max:255',
+            'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        Alumni::create($validated);
+
+        return redirect()->route('bk.alumni')->with('success', 'Alumni berhasil ditambahkan');
+    }
+
+    public function alumniShow(Alumni $alumni)
+    {
+        return view('bk.alumni.show', compact('alumni'));
+    }
+
+    public function alumniEdit(Alumni $alumni)
+    {
+        return view('bk.alumni.edit', compact('alumni'));
+    }
+
+    public function alumniUpdate(Request $request, Alumni $alumni)
+    {
+        $validated = $request->validate([
+            'nama_alumni' => 'required|string|max:255',
+            'nis' => 'nullable|string|max:20',
+            'kelompok_asal' => 'required|in:IPA,IPS',
+            
+            'mtk' => 'nullable|numeric|min:0|max:100',
+            'fisika' => 'nullable|numeric|min:0|max:100',
+            'kimia' => 'nullable|numeric|min:0|max:100',
+            'biologi' => 'nullable|numeric|min:0|max:100',
+            'ekonomi' => 'nullable|numeric|min:0|max:100',
+            'geografi' => 'nullable|numeric|min:0|max:100',
+            'sosiologi' => 'nullable|numeric|min:0|max:100',
+            'sejarah' => 'nullable|numeric|min:0|max:100',
+            
+            'minat' => 'nullable|string|max:255',
+            'cita_cita' => 'nullable|string|max:255',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'prestasi' => 'nullable|string|max:255',
+            
+            'major_masuk' => 'required|string|max:255',
+            'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        $alumni->update($validated);
+
+        return redirect()->route('bk.alumni')->with('success', 'Alumni berhasil diupdate');
+    }
+
+    public function alumniDestroy(Alumni $alumni)
+    {
+        $alumni->delete();
+        return redirect()->route('bk.alumni')->with('success', 'Alumni berhasil dihapus');
+    }
+
+    private function getAlumniSummary()
+    {
+        $totalAlumni = Alumni::count();
+        
+        $byMajor = Alumni::selectRaw('major_masuk, COUNT(*) as count')
+            ->groupBy('major_masuk')
+            ->get();
+        
+        // Statistics by kelompok asal (IPA/IPS)
+        $byKelompok = Alumni::selectRaw('kelompok_asal, COUNT(*) as count')
+            ->groupBy('kelompok_asal')
+            ->get();
+
+        return [
+            'total' => $totalAlumni,
+            'by_major' => $byMajor,
+            'by_kelompok' => $byKelompok,
+        ];
+    }
+
+    // ============================================
+    // 7. PROFIL GURU BK
     // ============================================
     public function profil()
     {

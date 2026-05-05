@@ -13,9 +13,8 @@ class AlumniController extends Controller
     public function index()
     {
         $alumni = Alumni::orderBy('tahun_masuk', 'desc')->paginate(20);
-        $summary = $this->getAlumniSummary();
         
-        return view('alumni.index', compact('alumni', 'summary'));
+        return view('admin.alumni.index', compact('alumni'));
     }
 
     /**
@@ -49,13 +48,12 @@ class AlumniController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
-            // Major & Outcome
+            // Major
             'major_masuk' => 'required|string|max:255',
-            'ranking_saat_rekomendasi' => 'nullable|integer|min:1|max:9',
-            'success_status' => 'nullable|in:sangat_sukses,sukses,cukup,kurang_sukses',
+            'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
 
@@ -69,7 +67,7 @@ class AlumniController extends Controller
      */
     public function show(Alumni $alumnus)
     {
-        return view('alumni.show', compact('alumnus'));
+        return view('admin.alumni.show', compact('alumnus'));
     }
 
     /**
@@ -101,12 +99,11 @@ class AlumniController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik_Langsung,DuDi,Project_Based,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|max:255',
-            'ranking_saat_rekomendasi' => 'nullable|integer|min:1|max:9',
-            'success_status' => 'nullable|in:sangat_sukses,sukses,cukup,kurang_sukses',
+            'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
 
@@ -135,53 +132,15 @@ class AlumniController extends Controller
             ->groupBy('major_masuk')
             ->get();
         
-        $bySuccess = Alumni::selectRaw('success_status, COUNT(*) as count')
-            ->groupBy('success_status')
+        // Statistics by kelompok asal (IPA/IPS)
+        $byKelompok = Alumni::selectRaw('kelompok_asal, COUNT(*) as count')
+            ->groupBy('kelompok_asal')
             ->get();
-        
-        $prediction_accuracy = $this->calculatePredictionAccuracy();
 
         return [
             'total' => $totalAlumni,
             'by_major' => $byMajor,
-            'by_success' => $bySuccess,
-            'prediction_accuracy' => $prediction_accuracy,
-        ];
-    }
-
-    /**
-     * Calculate how accurate was our algorithm prediction
-     * vs actual major the alumni entered
-     */
-    private function calculatePredictionAccuracy()
-    {
-        $alumni = Alumni::whereNotNull('ranking_saat_rekomendasi')->get();
-        
-        if ($alumni->isEmpty()) {
-            return null;
-        }
-
-        $correctTop1 = 0;
-        $correctTop3 = 0;
-        $correctTop5 = 0;
-
-        foreach ($alumni as $a) {
-            if ($a->ranking_saat_rekomendasi == 1) {
-                $correctTop1++;
-            }
-            if ($a->ranking_saat_rekomendasi <= 3) {
-                $correctTop3++;
-            }
-            if ($a->ranking_saat_rekomendasi <= 5) {
-                $correctTop5++;
-            }
-        }
-
-        return [
-            'top_1' => round(($correctTop1 / count($alumni)) * 100, 2),
-            'top_3' => round(($correctTop3 / count($alumni)) * 100, 2),
-            'top_5' => round(($correctTop5 / count($alumni)) * 100, 2),
-            'total_alumni_analyzed' => count($alumni),
+            'by_kelompok' => $byKelompok,
         ];
     }
 }

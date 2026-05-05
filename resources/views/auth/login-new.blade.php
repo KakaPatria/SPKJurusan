@@ -13,59 +13,70 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
         }
         .container-wrapper {
             display: flex;
-            height: 100vh;
+            flex-direction: column;
+            min-height: 100vh;
             width: 100%;
             background-color: #5B7B89;
         }
         .left-section {
-            width: 50%;
+            width: 100%;
             background-color: #5B7B89;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
+            min-height: 200px;
+            order: -1;
         }
         .image-placeholder {
             text-align: center;
         }
         .image-area {
-            width: 240px;
-            height: 300px;
+            width: 180px;
+            height: 240px;
             background-color: rgba(255, 255, 255, 0.1);
-            border: 3px dashed #FCD34D;
+            border: 2px dashed #FCD34D;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #FCD34D;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
+            line-height: 1.4;
+            overflow: hidden;
+        }
+        .image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
         .image-area span {
-            font-size: 48px;
+            font-size: 40px;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .brand-info h1 {
-            font-size: 50px;
+            font-size: 32px;
             font-weight: 900;
             color: #FFFFFF;
-            margin-bottom: 8px;
-            letter-spacing: 3px;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        .brand-info p {
-            font-size: 22px;
-            color: #FCD34D;
-            font-weight: 700;
-            letter-spacing: 1px;
+        }100%;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            flex: 1g: 0.5px;
         }
         .right-section {
             width: 50%;
@@ -80,18 +91,18 @@
             width: 100%;
             max-width: 420px;
         }
-        .form-title {
-            font-size: 48px;
+        .form-title {32px;
             font-weight: 800;
             color: #111827;
             text-align: center;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
         .form-subtitle {
             text-align: center;
             color: #6B7280;
-            font-size: 16px;
+            font-size: 14px;
+            margin-bottom: 1
             margin-bottom: 28px;
             font-weight: 500;
         }
@@ -179,12 +190,75 @@
             margin: 4px 0;
             line-height: 1.6;
         }
-        @media (max-width: 1024px) {
+        /* Tablet and Desktop */
+        @media (min-width: 768px) {
+            .container-wrapper {
+                flex-direction: row;
+            }
             .left-section {
-                display: none;
+                width: 50%;
+                min-height: auto;
+                padding: 40px;
+                order: 0;
+            }
+            .image-area {
+                width: 240px;
+                height: 300px;
+                font-size: 16px;
+                padding: 0;
+                margin-bottom: 30px;
+            }
+            .image-area span {
+                font-size: 48px;
+                margin-bottom: 10px;
+            }
+            .brand-info h1 {
+                font-size: 50px;
+                margin-bottom: 8px;
+                letter-spacing: 3px;
+            }
+            .brand-info p {
+                font-size: 22px;
+                letter-spacing: 1px;
             }
             .right-section {
-                width: 100%;
+                width: 50%;
+                padding: 40px;
+            }
+            .form-title {
+                font-size: 48px;
+                margin-bottom: 12px;
+                letter-spacing: -1px;
+            }
+            .form-subtitle {
+                font-size: 16px;
+                margin-bottom: 28px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+            .form-group input,
+            .form-group select {
+                padding: 13px 15px;
+                font-size: 15px;
+            }
+            .form-links {
+                margin: 18px 0 24px 0;
+                font-size: 15px;
+            }
+            .btn-submit {
+                padding: 15px 20px;
+                font-size: 16px;
+                letter-spacing: 1.5px;
+            }
+            .error-alert {
+                padding: 14px 16px;
+                font-size: 14px;
+                margin-bottom: 24px;
             }
         }
     </style>
@@ -195,8 +269,7 @@
         <div class="left-section">
             <div class="image-placeholder">
                 <div class="image-area">
-                    <span>🖼️</span>
-                    Ganti dengan Gambar Anda
+                    <img src="{{ asset('images/SMA%20BIMA.jpg') }}" alt="SMA BIMA" />
                 </div>
                 <div class="brand-info">
                     <h1>POLIJE</h1>
@@ -208,7 +281,7 @@
         <!-- RIGHT SECTION - LOGIN FORM -->
         <div class="right-section">
             <div class="form-wrapper">
-                <h2 class="form-title">WELCOME!</h2>
+                <h2 class="form-title">Selamat Datang</h2>
                 <p class="form-subtitle">Masuk untuk melanjutkan</p>
 
                 @if ($errors->any())

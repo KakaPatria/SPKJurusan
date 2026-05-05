@@ -170,8 +170,48 @@
         </div>
     </section>
 
-    <!-- 9 JURUSAN TERSEDIA -->
+    <!-- UNGGULAN FITUR -->
     <section class="py-8 sm:py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-maroon mb-3 sm:mb-4">Unggulan Fitur Sistem</h2>
+            <p class="text-center text-xs sm:text-sm md:text-base text-gray-700 mb-8 sm:mb-12 max-w-3xl mx-auto">Sistem ini dilengkapi dengan fitur-fitur canggih untuk memberikan pengalaman terbaik dalam memilih jurusan.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">🤖</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Algoritma Naive Bayes</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Menggunakan algoritma machine learning terkini untuk memberikan rekomendasi yang akurat dan terpercaya</p>
+                </div>
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">📊</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Analisis Multi-Faktor</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Menganalisis 5 aspek penting: nilai akademik, minat, preferensi studi, cita-cita, dan prestasi</p>
+                </div>
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">✨</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Rekomendasi Personal</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Setiap siswa mendapat rekomendasi ranking jurusan yang unik sesuai dengan profil individual mereka</p>
+                </div>
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">📝</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Riwayat Rekomendasi</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Lacak semua rekomendasi yang telah dilakukan sebelumnya dan lihat perubahan scoring dari waktu ke waktu</p>
+                </div>
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">💬</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Chatbot AI</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Dapatkan konsultasi dan bimbingan dari chatbot berbasis AI yang siap membantu 24/7</p>
+                </div>
+                <div class="bg-cream p-6 sm:p-8 rounded-lg border-2 border-maroon shadow-md hover:shadow-lg transition">
+                    <div class="text-4xl sm:text-5xl mb-4">👁️</div>
+                    <h3 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Monitoring Guru BK</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-700">Guru BK dapat memantau progress siswa dan memberikan bimbingan tambahan secara real-time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9 JURUSAN TERSEDIA -->
+    <section class="py-8 sm:py-12 md:py-16 bg-cream">
         <div class="container mx-auto px-4 sm:px-6">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-maroon mb-3 sm:mb-4">9 Kategori Jurusan yang Bisa Dipilih</h2>
             <p class="text-center text-xs sm:text-sm md:text-base text-gray-700 mb-8 sm:mb-12 max-w-3xl mx-auto">Tersedia banyak pilihan jurusan dari berbagai bidang. Sistem ini akan menganalisis profil Anda dan merekomendasikan jurusan yang paling sesuai berdasarkan nilai, minat, dan potensi.</p>

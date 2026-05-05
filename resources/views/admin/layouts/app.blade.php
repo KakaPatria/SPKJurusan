@@ -23,11 +23,12 @@
         .sidebar-link {
             transition: all 0.25s cubic-bezier(.4,0,.2,1);
             border-left: 3px solid transparent;
-            color: #94a3b8;
+            /* Higher contrast on dark sidebar */
+            color: #cbd5e1;
         }
         .sidebar-link:hover {
             background: rgba(91, 123, 137, 0.15);
-            color: #e2e8f0;
+            color: #ffffff;
             border-left-color: rgba(91, 123, 137, 0.5);
         }
         .sidebar-link.active {
@@ -59,7 +60,8 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             font-weight: 700;
-            color: #475569;
+            /* Keep section labels readable on dark background */
+            color: #94a3b8;
             padding: 0 1rem;
             margin-bottom: 0.5rem;
         }
@@ -160,6 +162,9 @@
                     <a href="{{ route('admin.guru-bk') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guru-bk*') ? 'active' : '' }}">
                         <span class="sidebar-icon">👨‍🏫</span> Akun Guru BK
                     </a>
+                    <a href="{{ route('admin.alumni.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('alumni*') ? 'active' : '' }}">
+                        <span class="sidebar-icon">🎓</span> Data Alumni
+                    </a>
 
                     <p class="sidebar-section-label mt-5">Riwayat</p>
 
@@ -195,7 +200,7 @@
                         <div class="sidebar-brand-icon" style="width:36px;height:36px;font-size:18px;">🎓</div>
                         <span class="font-bold text-white text-sm">SPK Jurusan</span>
                     </div>
-                    <button id="closeMobileMenu" class="text-slate-400 hover:text-white transition text-xl">✕</button>
+                    <button id="closeMobileMenu" class="text-gray-400 hover:text-white transition text-xl">✕</button>
                 </div>
                 <nav class="px-3 py-3 space-y-1">
                     <p class="sidebar-section-label mt-1">Menu Utama</p>
@@ -210,6 +215,9 @@
                     </a>
                     <a href="{{ route('admin.guru-bk') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guru-bk*') ? 'active' : '' }}">
                         <span class="sidebar-icon">👨‍🏫</span> Akun Guru BK
+                    </a>
+                    <a href="{{ route('admin.alumni.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('alumni*') ? 'active' : '' }}">
+                        <span class="sidebar-icon">🎓</span> Data Alumni
                     </a>
 
                     <p class="sidebar-section-label mt-5">Riwayat</p>

@@ -28,3 +28,29 @@
 2026-04-27 07:41:46,458 INFO  * Restarting with stat
 2026-04-27 07:41:47,441 WARNING  * Debugger is active!
 2026-04-27 07:41:47,445 INFO  * Debugger PIN: 531-826-879
+2026-04-27 11:18:31,510 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.43.22:5000
+2026-04-27 11:18:31,511 INFO [33mPress CTRL+C to quit[0m
+2026-04-27 11:18:31,517 INFO  * Restarting with stat
+2026-04-27 11:21:28,451 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.43.22:5000
+2026-04-27 11:21:28,452 INFO [33mPress CTRL+C to quit[0m
+2026-04-27 11:21:28,456 INFO  * Restarting with stat
+2026-04-27 11:21:29,336 WARNING  * Debugger is active!
+2026-04-27 11:21:29,347 INFO  * Debugger PIN: 786-713-650
+2026-04-27 11:21:37,456 INFO [PY-BACKEND] POST /api/chat
+2026-04-27 11:21:37,480 INFO [PY-BACKEND] Majors context loaded: 9 jurusan
+2026-04-27 11:21:47,011 INFO [PY-BACKEND] Success using model: gemini-2.5-flash
+2026-04-27 11:21:47,021 INFO 127.0.0.1 - - [27/Apr/2026 11:21:47] "POST /api/chat HTTP/1.1" 200 -
+2026-04-28 09:21:46,306 INFO [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.18.25:5000
+2026-04-28 09:21:46,322 INFO [33mPress CTRL+C to quit[0m
+2026-04-28 09:21:46,346 INFO  * Restarting with stat
+2026-04-28 09:21:47,094 WARNING  * Debugger is active!
+2026-04-28 09:21:47,099 INFO  * Debugger PIN: 786-713-650

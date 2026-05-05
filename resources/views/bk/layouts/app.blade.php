@@ -7,6 +7,12 @@
     <title>@yield('title', 'Panel Guru BK') - SPK Jurusan Polije</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        /* Keep BK theme, but also support admin-style utility classes used by Alumni pages */
+        .gradient-maroon { background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%); }
+        .text-maroon { color: #5B7B89; }
+        .border-maroon { border-color: #5B7B89; }
+        .bg-maroon { background-color: #5B7B89; }
+
         .gradient-bk { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); }
         .text-bk { color: #0f766e; }
         .border-bk { border-color: #0f766e; }
@@ -21,11 +27,12 @@
         .sidebar-link {
             transition: all 0.25s cubic-bezier(.4,0,.2,1);
             border-left: 3px solid transparent;
-            color: #94a3b8;
+            /* Higher contrast on dark sidebar */
+            color: #cbd5e1;
         }
         .sidebar-link:hover {
             background: rgba(20, 184, 166, 0.12);
-            color: #e2e8f0;
+            color: #ffffff;
             border-left-color: rgba(20, 184, 166, 0.5);
         }
         .sidebar-link.active {
@@ -57,7 +64,8 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             font-weight: 700;
-            color: #475569;
+            /* Keep section labels readable on dark background */
+            color: #94a3b8;
             padding: 0 1rem;
             margin-bottom: 0.5rem;
         }
@@ -136,7 +144,7 @@
                         <div class="sidebar-brand-icon">📋</div>
                         <div>
                             <p class="text-white font-bold text-sm leading-tight">SPK Jurusan</p>
-                            <p class="text-xs text-slate-400">Panel Guru BK</p>
+                            <p class="text-xs text-gray-300">Panel Guru BK</p>
                         </div>
                     </div>
                 </div>
@@ -159,6 +167,9 @@
 
                     <p class="sidebar-section-label mt-5">Kelola</p>
 
+                    <a href="{{ route('bk.alumni') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('bk.alumni*') ? 'active' : '' }}">
+                        <span class="sidebar-icon">🎓</span> Data Alumni
+                    </a>
                     <a href="{{ route('bk.jurusan') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('bk.jurusan*') ? 'active' : '' }}">
                         <span class="sidebar-icon">🏛️</span> Manajemen Jurusan
                     </a>
@@ -170,8 +181,8 @@
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-medium text-slate-300 truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-slate-500">Guru BK</p>
+                            <p class="text-xs font-medium text-gray-200 truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-gray-400">Guru BK</p>
                         </div>
                     </div>
                 </div>
@@ -187,7 +198,7 @@
                         <div class="sidebar-brand-icon" style="width:36px;height:36px;font-size:18px;">📋</div>
                         <span class="font-bold text-white text-sm">Panel Guru BK</span>
                     </div>
-                    <button id="closeMobileMenu" class="text-slate-400 hover:text-white transition text-xl">✕</button>
+                    <button id="closeMobileMenu" class="text-gray-400 hover:text-white transition text-xl">✕</button>
                 </div>
                 <nav class="px-3 py-3 space-y-1">
                     <p class="sidebar-section-label mt-1">Menu Utama</p>
@@ -205,6 +216,9 @@
                     </a>
 
                     <p class="sidebar-section-label mt-5">Kelola</p>
+                    <a href="{{ route('bk.alumni') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('bk.alumni*') ? 'active' : '' }}">
+                        <span class="sidebar-icon">🎓</span> Data Alumni
+                    </a>
                     <a href="{{ route('bk.jurusan') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('bk.jurusan*') ? 'active' : '' }}">
                         <span class="sidebar-icon">🏛️</span> Manajemen Jurusan
                     </a>

@@ -48,8 +48,15 @@
             color: #FCD34D;
             font-size: 14px;
             text-align: center;
-            padding: 15px;
+            padding: 0;
             line-height: 1.4;
+            overflow: hidden;
+        }
+        .image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
         .image-area span {
             font-size: 40px;
@@ -199,7 +206,7 @@
                 width: 240px;
                 height: 300px;
                 font-size: 16px;
-                padding: 20px;
+                padding: 0;
                 margin-bottom: 30px;
             }
             .image-area span {
@@ -266,8 +273,7 @@
         <div class="left-section">
             <div class="image-placeholder">
                 <div class="image-area">
-                    <span>🖼️</span>
-                    Sistem Pemilihan Jurusan
+                    <img src="{{ asset('images/SMA%20BIMA.jpg') }}" alt="SMA BIMA" />
                 </div>
                 <div class="brand-info">
                     <h1>POLIJE</h1>

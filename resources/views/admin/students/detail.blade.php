@@ -13,15 +13,15 @@
         </a>
     </div>
 
-    <!-- Profile Header Card - Horizontal Layout -->
-    <div class="bg-gradient-to-r from-maroon to-teal-600 rounded-lg shadow-lg p-8 mb-6 text-white">
-        <div class="flex gap-8 items-start">
+    <!-- Profile Header Card -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6 border-l-4 border-maroon">
+        <div class="flex flex-col md:flex-row gap-6 items-start">
             <!-- Avatar Section -->
             <div class="flex-shrink-0">
                 @if($student->foto)
-                    <img src="{{ Storage::url($student->foto) }}" alt="{{ $student->name }}" class="w-32 h-32 rounded-xl object-cover border-4 border-white shadow-lg">
+                    <img src="{{ Storage::url($student->foto) }}" alt="{{ $student->name }}" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover border-4 border-maroon shadow-md">
                 @else
-                    <div class="w-32 h-32 rounded-xl bg-white bg-opacity-20 flex items-center justify-center text-3xl font-bold">
+                    <div class="w-24 h-24 md:w-32 md:h-32 rounded-lg bg-gradient-to-br from-maroon to-teal-600 flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-md">
                         {{ strtoupper(substr($student->name, 0, 1)) }}
                     </div>
                 @endif
@@ -29,30 +29,30 @@
             
             <!-- Info Section -->
             <div class="flex-1">
-                <h3 class="text-3xl font-bold mb-4">{{ $student->name }}</h3>
+                <h3 class="text-2xl md:text-3xl font-bold text-maroon mb-4">{{ $student->name }}</h3>
                 
-                <div class="grid grid-cols-2 gap-4 md:gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-white text-opacity-80 text-sm font-semibold">NIS</p>
-                        <p class="text-lg font-bold">{{ $student->nis ?? '-' }}</p>
+                        <p class="text-xs font-semibold text-gray-500">NIS</p>
+                        <p class="text-lg font-bold text-gray-800">{{ $student->nis ?? '-' }}</p>
                     </div>
                     <div>
-                        <p class="text-white text-opacity-80 text-sm font-semibold">Kelompok</p>
+                        <p class="text-xs font-semibold text-gray-500">Kelompok</p>
                         @if($student->kelompok_asal)
-                            <span class="inline-block px-3 py-1 rounded-full text-sm font-bold bg-white text-maroon mt-1">
+                            <span class="inline-block px-3 py-1 rounded text-sm font-bold mt-1" style="{{ $student->kelompok_asal == 'IPA' ? 'background-color: #E0F2FE; color: #0369A1;' : 'background-color: #FEF3C7; color: #92400E;' }}">
                                 {{ $student->kelompok_asal }}
                             </span>
                         @else
-                            <p class="text-lg font-bold">-</p>
+                            <p class="text-lg font-bold text-gray-500">-</p>
                         @endif
                     </div>
                     <div>
-                        <p class="text-white text-opacity-80 text-sm font-semibold">Email</p>
-                        <p class="text-sm font-semibold break-all">{{ $student->email }}</p>
+                        <p class="text-xs font-semibold text-gray-500">Email</p>
+                        <p class="text-sm font-semibold text-gray-800 break-all">{{ $student->email }}</p>
                     </div>
                     <div>
-                        <p class="text-white text-opacity-80 text-sm font-semibold">Terdaftar</p>
-                        <p class="text-sm font-semibold">{{ $student->created_at->format('d M Y') }}</p>
+                        <p class="text-xs font-semibold text-gray-500">Terdaftar</p>
+                        <p class="text-sm font-semibold text-gray-800">{{ $student->created_at->format('d M Y') }}</p>
                     </div>
                 </div>
             </div>

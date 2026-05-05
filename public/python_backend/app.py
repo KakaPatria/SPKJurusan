@@ -20,14 +20,12 @@ BACKEND_TOKEN = os.getenv("BACKEND_TOKEN", "")
 GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/models")
 TIMEOUT_SECONDS = int(os.getenv("GEMINI_TIMEOUT", "30"))
 MAJORS_FILE_PATH = os.getenv("MAJORS_FILE_PATH", os.path.join(BASE_DIR, "majors_data.json"))
-LOG_FILE_PATH = os.getenv("PY_BACKEND_LOG_FILE", os.path.join(BASE_DIR, "backend.log"))
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(LOG_FILE_PATH, encoding="utf-8"),
     ],
 )
 logger = logging.getLogger("python_backend")

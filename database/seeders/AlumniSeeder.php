@@ -28,10 +28,9 @@ class AlumniSeeder extends Seeder
                 'cita_cita' => 'Software Developer',
                 'preferensi_studi' => 'Sains & Teknologi',
                 'prestasi' => 'Juara 1 Olimpiade Komputer Nasional',
-                'major_masuk' => 'Teknik Informatika', // Masuk jurusan ini
-                'ranking_saat_rekomendasi' => 1, // Rekomendasi ranking 1 = COCOK! ✓✓
-                'success_status' => 'sangat_sukses',
-                'catatan' => 'Rekomendasi akurat - ranking 1 cocok dengan pilihan',
+                'major_masuk' => 'Teknik Informatika',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023 - Rekomendasi akurat',
             ],
             [
                 'nama_alumni' => 'Siti Nurhaliza',
@@ -46,9 +45,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Kesehatan & Ilmu Hayat',
                 'prestasi' => 'Beasiswa Penuh Akademik',
                 'major_masuk' => 'Teknik Biomedis',
-                'ranking_saat_rekomendasi' => 2, // Cocok ✓
-                'success_status' => 'sangat_sukses',
-                'catatan' => 'Rekomendasi akurat - ranking 2 cocok',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023 - Rekomendasi akurat',
             ],
             [
                 'nama_alumni' => 'Ahmad Wijaya',
@@ -63,9 +61,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Sains & Teknologi',
                 'prestasi' => 'Sertifikat Kompetisi Robotika',
                 'major_masuk' => 'Teknik Mesin',
-                'ranking_saat_rekomendasi' => 3, // Cocok ✓
-                'success_status' => 'sukses',
-                'catatan' => 'Rekomendasi cukup akurat - ranking 3 cocok',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             [
                 'nama_alumni' => 'Lina Hartini',
@@ -80,9 +77,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Kesehatan & Ilmu Hayat',
                 'prestasi' => 'Publikasi Paper Research',
                 'major_masuk' => 'Teknik Biomedis',
-                'ranking_saat_rekomendasi' => 1, // Cocok ✓✓
-                'success_status' => 'sangat_sukses',
-                'catatan' => 'Rekomendasi sangat akurat',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023 - Rekomendasi sangat akurat',
             ],
             [
                 'nama_alumni' => 'Fajar Maulana',
@@ -96,10 +92,9 @@ class AlumniSeeder extends Seeder
                 'cita_cita' => 'Electrical Engineer',
                 'preferensi_studi' => 'Sains & Teknologi',
                 'prestasi' => '-',
-                'major_masuk' => 'Teknik Mesin', // BEDA dari rekomendasi ranking 1
-                'ranking_saat_rekomendasi' => 6, // Ranking 6 = kurang cocok
-                'success_status' => 'cukup',
-                'catatan' => 'Rekomendasi kurang akurat - pilih jurusan berbeda',
+                'major_masuk' => 'Teknik Mesin',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             
             // === IPS ===
@@ -116,9 +111,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Bisnis & Manajemen',
                 'prestasi' => 'Juara Debat Nasional',
                 'major_masuk' => 'Manajemen Bisnis',
-                'ranking_saat_rekomendasi' => 1, // Cocok ✓✓
-                'success_status' => 'sangat_sukses',
-                'catatan' => 'Rekomendasi sempurna',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             [
                 'nama_alumni' => 'Dewi Prasetya',
@@ -133,9 +127,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Bisnis & Manajemen',
                 'prestasi' => 'Sertifikasi ACCA',
                 'major_masuk' => 'Akuntansi',
-                'ranking_saat_rekomendasi' => 2, // Cocok ✓
-                'success_status' => 'sukses',
-                'catatan' => 'Rekomendasi akurat',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             [
                 'nama_alumni' => 'Rudi Hermawan',
@@ -149,10 +142,9 @@ class AlumniSeeder extends Seeder
                 'cita_cita' => 'PNS',
                 'preferensi_studi' => 'Sosial & Humaniora',
                 'prestasi' => '-',
-                'major_masuk' => 'Administrasi Publik', // RANKING JAUH dari pilihan
-                'ranking_saat_rekomendasi' => 7, // Ranking 7 = TIDAK COCOK ✗
-                'success_status' => 'kurang_sukses',
-                'catatan' => 'Rekomendasi salah - siswa pilih jurusan lain',
+                'major_masuk' => 'Administrasi Publik',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             [
                 'nama_alumni' => 'Indra Setiawan',
@@ -167,9 +159,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Bisnis & Manajemen',
                 'prestasi' => 'Kompetisi Business Plan',
                 'major_masuk' => 'Manajemen Bisnis',
-                'ranking_saat_rekomendasi' => 2, // Cocok ✓
-                'success_status' => 'sukses',
-                'catatan' => 'Rekomendasi akurat',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
             [
                 'nama_alumni' => 'Maya Suntari',
@@ -184,9 +175,8 @@ class AlumniSeeder extends Seeder
                 'preferensi_studi' => 'Bisnis & Manajemen',
                 'prestasi' => 'Buku Tahunan Finance Club',
                 'major_masuk' => 'Akuntansi',
-                'ranking_saat_rekomendasi' => 3, // Cocok ✓
-                'success_status' => 'sukses',
-                'catatan' => 'Rekomendasi cukup akurat - ranking 3',
+                'tahun_lulus_polije' => 2027,
+                'catatan' => 'Alumni 2023',
             ],
         ];
 

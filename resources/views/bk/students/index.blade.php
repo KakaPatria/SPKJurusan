@@ -1,25 +1,25 @@
 @extends('bk.layouts.app')
 
-@section('title', 'Data Siswa')
+@section('title', 'Manajemen Data Siswa')
 
 @section('content')
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-bk">👥 Data Siswa</h2>
+            <h2 class="text-2xl font-bold text-maroon">👥 Manajemen Data Siswa</h2>
             <p class="text-sm text-gray-500 mt-1">Total: {{ $students->total() }} Siswa</p>
         </div>
     </div>
 
     <!-- Search & Filter -->
-    <div class="bg-white rounded-lg shadow p-4 mb-6 border-l-4 border-teal-500">
+    <div class="bg-white rounded-lg shadow p-4 mb-6 border-l-4 border-maroon">
         <form method="GET" class="flex gap-3 flex-col sm:flex-row">
-            <input type="text" name="search" placeholder="Cari nama atau NIS..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400" value="{{ request('search') }}">
-            <select name="kelompok" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400">
+            <input type="text" name="search" placeholder="Cari nama atau NIS..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" value="{{ request('search') }}">
+            <select name="kelompok" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon">
                 <option value="">-- Semua Kelompok --</option>
                 <option value="IPA" {{ request('kelompok') == 'IPA' ? 'selected' : '' }}>IPA</option>
                 <option value="IPS" {{ request('kelompok') == 'IPS' ? 'selected' : '' }}>IPS</option>
             </select>
-            <button type="submit" class="gradient-bk text-white font-bold px-6 py-2 rounded-lg hover:opacity-90 transition">
+            <button type="submit" class="gradient-maroon text-white font-bold px-6 py-2 rounded-lg hover:opacity-90 transition">
                 🔍 Cari
             </button>
             @if(request('search') || request('kelompok'))
@@ -33,7 +33,7 @@
     <!-- Students Table -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
         <table class="w-full text-sm">
-            <thead class="gradient-bk text-white">
+            <thead class="gradient-maroon text-white">
                 <tr>
                     <th class="px-4 py-3 text-left">Nama</th>
                     <th class="px-4 py-3 text-left">Email</th>
@@ -70,7 +70,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <a href="{{ route('bk.student.detail', $student->id) }}" class="text-teal-600 hover:text-teal-800 font-semibold text-xs">👁 Lihat</a>
+                            <a href="{{ route('bk.student.detail', $student->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs">👁 Lihat</a>
                         </td>
                     </tr>
                 @empty
