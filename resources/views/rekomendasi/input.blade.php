@@ -234,7 +234,7 @@
                     <div class="p-4 sm:p-5 rounded-lg border-2 border-gray-200 bg-gray-50">
                         <h3 class="font-bold text-maroon text-base sm:text-lg mb-1 sm:mb-2">3. Preferensi Studi Lanjutan <span class="text-red-500">*</span></h3>
                         <p class="text-xs text-gray-600 mb-3 sm:mb-4">
-                            Bagian ini menanyakan arah lanjutan studi Anda setelah lulus SMA, yaitu ingin melanjutkan ke rumpun jurusan Politeknik Negeri Jember yang mana. Jadi fokusnya adalah tujuan jalur jurusan yang ingin dituju, bukan metode belajar.
+                            Pilih rumpun jurusan Politeknik Negeri Jember yang paling sesuai dengan minat studi lanjutan Anda.
                         </p>
                         <div class="input-wrapper">
                             <label for="pref_studi" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">Arah Rumpun Jurusan Tujuan</label>

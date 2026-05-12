@@ -31,7 +31,7 @@ class AlumniController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_alumni' => 'required|string|max:255',
+            'nama_alumni' => 'required|string|min:3|max:255',
             'nis' => 'nullable|string|max:20',
             'kelompok_asal' => 'required|in:IPA,IPS',
             
@@ -52,7 +52,7 @@ class AlumniController extends Controller
             'prestasi' => 'nullable|string|max:255',
             
             // Major
-            'major_masuk' => 'required|string|max:255',
+            'major_masuk' => 'required|string|min:3|max:255',
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
@@ -84,7 +84,7 @@ class AlumniController extends Controller
     public function update(Request $request, Alumni $alumni)
     {
         $validated = $request->validate([
-            'nama_alumni' => 'required|string|max:255',
+            'nama_alumni' => 'required|string|min:3|max:255',
             'nis' => 'nullable|string|max:20',
             'kelompok_asal' => 'required|in:IPA,IPS',
             
@@ -102,7 +102,7 @@ class AlumniController extends Controller
             'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
-            'major_masuk' => 'required|string|max:255',
+            'major_masuk' => 'required|string|min:3|max:255',
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);

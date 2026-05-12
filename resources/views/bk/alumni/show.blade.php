@@ -43,41 +43,56 @@
     <div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-yellow-400">
         <h3 class="text-lg font-bold text-maroon mb-4">📊 Nilai Saat Entry (Rapor SMA)</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            @if($alumni->mtk)
-                <div class="p-3 bg-blue-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Matematika</p>
-                    <p class="text-xl font-bold text-blue-600">{{ $alumni->mtk }}</p>
-                </div>
-            @endif
-            @if($alumni->fisika)
-                <div class="p-3 bg-green-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Fisika</p>
-                    <p class="text-xl font-bold text-green-600">{{ $alumni->fisika }}</p>
-                </div>
-            @endif
-            @if($alumni->kimia)
-                <div class="p-3 bg-purple-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Kimia</p>
-                    <p class="text-xl font-bold text-purple-600">{{ $alumni->kimia }}</p>
-                </div>
-            @endif
-            @if($alumni->biologi)
-                <div class="p-3 bg-red-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Biologi</p>
-                    <p class="text-xl font-bold text-red-600">{{ $alumni->biologi }}</p>
-                </div>
-            @endif
-            @if($alumni->ekonomi)
-                <div class="p-3 bg-orange-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Ekonomi</p>
-                    <p class="text-xl font-bold text-orange-600">{{ $alumni->ekonomi }}</p>
-                </div>
-            @endif
-            @if($alumni->geografi)
-                <div class="p-3 bg-indigo-50 rounded-lg">
-                    <p class="text-xs text-gray-600">Geografi</p>
-                    <p class="text-xl font-bold text-indigo-600">{{ $alumni->geografi }}</p>
-                </div>
+            @if($alumni->kelompok_asal === 'IPA')
+                @if($alumni->mtk)
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Matematika</p>
+                        <p class="text-xl font-bold text-blue-600">{{ $alumni->mtk }}</p>
+                    </div>
+                @endif
+                @if($alumni->fisika)
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Fisika</p>
+                        <p class="text-xl font-bold text-green-600">{{ $alumni->fisika }}</p>
+                    </div>
+                @endif
+                @if($alumni->kimia)
+                    <div class="p-3 bg-purple-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Kimia</p>
+                        <p class="text-xl font-bold text-purple-600">{{ $alumni->kimia }}</p>
+                    </div>
+                @endif
+                @if($alumni->biologi)
+                    <div class="p-3 bg-red-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Biologi</p>
+                        <p class="text-xl font-bold text-red-600">{{ $alumni->biologi }}</p>
+                    </div>
+                @endif
+            @else
+                @if($alumni->ekonomi)
+                    <div class="p-3 bg-orange-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Ekonomi</p>
+                        <p class="text-xl font-bold text-orange-600">{{ $alumni->ekonomi }}</p>
+                    </div>
+                @endif
+                @if($alumni->geografi)
+                    <div class="p-3 bg-indigo-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Geografi</p>
+                        <p class="text-xl font-bold text-indigo-600">{{ $alumni->geografi }}</p>
+                    </div>
+                @endif
+                @if($alumni->sosiologi)
+                    <div class="p-3 bg-teal-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Sosiologi</p>
+                        <p class="text-xl font-bold text-teal-600">{{ $alumni->sosiologi }}</p>
+                    </div>
+                @endif
+                @if($alumni->sejarah)
+                    <div class="p-3 bg-amber-50 rounded-lg">
+                        <p class="text-xs text-gray-600">Sejarah</p>
+                        <p class="text-xl font-bold text-amber-600">{{ $alumni->sejarah }}</p>
+                    </div>
+                @endif
             @endif
         </div>
     </div>
@@ -91,7 +106,7 @@
                 <p class="text-lg font-bold text-gray-800">{{ $alumni->major_masuk }}</p>
             </div>
             <div>
-                <p class="text-xs text-gray-600 font-semibold">Tahun Lulus Polije</p>
+                <p class="text-xs text-gray-600 font-semibold">Tahun Lulus SMA Bima Ambulu</p>
                 <p class="text-lg font-bold text-gray-800">{{ $alumni->tahun_lulus_polije ?? '-' }}</p>
             </div>
             @if($alumni->catatan)

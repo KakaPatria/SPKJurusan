@@ -65,11 +65,11 @@ class RekomendasiController extends Controller
         // 3. Penjelasan Preferensi Studi (Kriteria 3)
         $skorPref = $detail['pref'] ?? 0;
         if ($skorPref >= 0.8) {
-            $explanations['pref'] = "✅ Metode pembelajaran \"$prefStudi\" yang Anda pilih sangat sesuai dengan pendekatan pembelajaran $jurusanNama.";
+            $explanations['pref'] = "✅ Preferensi studi \"$prefStudi\" Anda sangat sesuai dengan karakter jurusan $jurusanNama.";
         } elseif ($skorPref >= 0.6) {
-            $explanations['pref'] = "✓ Preferensi studi \"$prefStudi\" Anda cocok dengan sistem pembelajaran yang diterapkan.";
+            $explanations['pref'] = "✓ Preferensi studi \"$prefStudi\" Anda cukup relevan dengan jurusan ini.";
         } else {
-            $explanations['pref'] = "ℹ️ Jurusan ini menawarkan elemen pembelajaran \"$prefStudi\" yang relevan dengan preferensi Anda.";
+            $explanations['pref'] = "ℹ️ Jurusan ini masih memiliki keterkaitan dengan preferensi studi \"$prefStudi\" Anda.";
         }
 
         // 4. Penjelasan Cita-cita (Kriteria 4) - IMPROVED with more detail
@@ -196,7 +196,6 @@ class RekomendasiController extends Controller
 
         // --- 3. PREFERENSI STUDI LANJUTAN (Kriteria 3) ---
         $prefStudi = $validated['pref_studi'];
-        $prefMapping = config('polije.pref_mapping', []);
 
         // --- 4. ANALISIS CITA-CITA (Kriteria 4) ---
         $citaInput = trim((string) ($validated['cita_cita'] ?? ''));
@@ -257,35 +256,34 @@ class RekomendasiController extends Controller
             $logPrior = log(max($prior, $epsilon));
 
             // Weights dan match probabilities dengan defaults
-            $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
+            $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'cita_cita' => 0.15, 'prestasi' => 0.10];
             
             // Ensure weights is array
             if (!is_array($weights)) {
-                $weights = ['nilai' => 0.40, 'minat' => 0.35, 'pref' => 0.15, 'prestasi' => 0.05, 'cita_cita' => 0.05];
+                $weights = ['nilai' => 0.40, 'minat' => 0.35, 'cita_cita' => 0.15, 'prestasi' => 0.10];
             }
 
             // Jika prestasi kosong, atribut prestasi tidak dihitung dengan normalisasi ulang
             if (!$isPrestasiFilled) {
                 $weights['prestasi'] = 0.0;
-                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['pref'] ?? 0) + ($weights['cita_cita'] ?? 0);
+                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['cita_cita'] ?? 0);
                 
                 // Normalize weights dengan safety check
                 if ($sumNonPrestasi > $epsilon) {
                     $weights['nilai'] = ($weights['nilai'] ?? 0) / $sumNonPrestasi;
                     $weights['minat'] = ($weights['minat'] ?? 0) / $sumNonPrestasi;
-                    $weights['pref'] = ($weights['pref'] ?? 0) / $sumNonPrestasi;
                     $weights['cita_cita'] = ($weights['cita_cita'] ?? 0) / $sumNonPrestasi;
                 } else {
                     // Fallback weights jika semua weight adalah 0
-                    $weights = ['nilai' => 0.4, 'minat' => 0.35, 'pref' => 0.15, 'cita_cita' => 0.1];
+                    $weights = ['nilai' => 0.45, 'minat' => 0.35, 'cita_cita' => 0.20];
                 }
             }
             
-            $matchProb = $c['match_prob'] ?? ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
+            $matchProb = $c['match_prob'] ?? ['nilai' => 0.80, 'minat' => 0.90, 'prestasi' => 0.65, 'cita_cita' => 0.85];
             
             // Ensure matchProb is array
             if (!is_array($matchProb)) {
-                $matchProb = ['nilai' => 0.80, 'minat' => 0.90, 'pref' => 0.85, 'prestasi' => 0.65, 'cita_cita' => 0.85];
+                $matchProb = ['nilai' => 0.80, 'minat' => 0.90, 'prestasi' => 0.65, 'cita_cita' => 0.85];
             }
 
             // 1. Likelihood untuk Nilai
@@ -295,7 +293,7 @@ class RekomendasiController extends Controller
             
             // Safe access to majorMap with null check
             $majorRecord = $majorMap[$jurusan] ?? null;
-            $bobotMapel = $majorRecord ? ($majorRecord->bobot_mapel ?? []) : [];
+            $bobotMapel = $majorRecord ? $this->getBobotMapelForKelompok($majorRecord->bobot_mapel ?? [], $kelompokAsal) : [];
             
             $p_nilai_subject = $this->scoreSubjectFitLikelihood(
                 $bobotMapel,
@@ -733,6 +731,35 @@ class RekomendasiController extends Controller
 
         // Map ke likelihood agar tidak terlalu ekstrem.
         return max(0.05, min(0.98, 0.25 + (0.70 * $fitScore)));
+    }
+
+    private function getBobotMapelForKelompok(array $bobotMapel, string $kelompokAsal): array
+    {
+        $kelompokKey = strtoupper($kelompokAsal) === 'IPS' ? 'ips' : 'ipa';
+        $subjects = $kelompokKey === 'ipa'
+            ? ['mtk', 'fisika', 'kimia', 'biologi']
+            : ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+        if (isset($bobotMapel['ipa']) || isset($bobotMapel['ips'])) {
+            $groupValues = $bobotMapel[$kelompokKey] ?? [];
+            return $this->normalizeBobotGroup(is_array($groupValues) ? $groupValues : [], $subjects);
+        }
+
+        $legacyValues = array_intersect_key($bobotMapel, array_flip($subjects));
+
+        return $this->normalizeBobotGroup($legacyValues, $subjects);
+    }
+
+    private function normalizeBobotGroup(array $values, array $subjects): array
+    {
+        $normalized = [];
+
+        foreach ($subjects as $subject) {
+            $value = $values[$subject] ?? null;
+            $normalized[$subject] = is_numeric($value) ? (float) $value : 0.0;
+        }
+
+        return $normalized;
     }
 
     /**

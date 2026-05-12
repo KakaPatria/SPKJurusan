@@ -154,7 +154,7 @@ class AdminController extends Controller
     public function jurusanStore(Request $request)
     {
         $request->validate([
-            'nama_jurusan' => 'required|string|max:255|unique:jurusan_polije,nama_jurusan',
+            'nama_jurusan' => 'required|string|min:3|max:255|unique:jurusan_polije,nama_jurusan',
             'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
@@ -192,7 +192,7 @@ class AdminController extends Controller
         $jurusan = PolijeMajor::findOrFail($id);
 
         $request->validate([
-            'nama_jurusan' => ['required', 'string', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
+            'nama_jurusan' => ['required', 'string', 'min:3', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
             'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
@@ -273,7 +273,7 @@ class AdminController extends Controller
     public function guruBKStore(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:3|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -299,7 +299,7 @@ class AdminController extends Controller
         $guruBK = User::where('role', 'bk')->findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:3|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($guruBK->id)],
             'password' => 'nullable|string|min:8|confirmed',
         ]);
@@ -396,7 +396,7 @@ class AdminController extends Controller
         $admin = Auth::user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:3|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($admin->id)],
         ]);
 

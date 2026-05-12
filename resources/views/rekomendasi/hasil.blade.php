@@ -60,7 +60,7 @@
                 </div>
                 <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Preferensi Studi</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $prefStudi }}</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $prefStudi ?? '-' }}</p>
                 </div>
                 <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Prestasi</p>
@@ -81,6 +81,14 @@
                 <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Skor Nilai</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">{{ number_format($average, 1) }}%</p>
+                </div>
+                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Minat</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $minatMapped ?? '-' }}</p>
+                </div>
+                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-600">Cita-cita</p>
+                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $citaMapped ?? '-' }}</p>
                 </div>
             </div>
         </div>
@@ -198,7 +206,9 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita — P(cita|H) &times; w=0.05</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%</span>
+                                <span class="text-xs sm:text-sm font-bold text-maroon">
+                                    {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%
+                                </span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
                                 <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%"></div>
@@ -270,7 +280,7 @@
                     <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">📋 Kesimpulan:</h4>
                     <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
                         Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }} (rata-rata {{ number_format($average, 1) }})</strong> 
-                        dan <strong>preferensi studi {{ $prefStudi }}</strong>, 
+                        dan <strong>preferensi studi {{ $prefStudi ?? '-' }}</strong>, 
                         sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] ?? '-' }}</strong> 
                         adalah pilihan yang paling sesuai dengan skor {{ number_format(($topRecommendation['skor'] ?? 0) * 100, 1) }}%.
                     </p>
@@ -341,7 +351,13 @@
 
                                             <div class="flex justify-between items-center text-xs mt-2">
                                                 <span class="text-gray-600">🎯 Cita-cita (5%)</span>
-                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%</span>
+                                                <span class="font-semibold text-maroon">
+                                                    @if(!($isPrestasiFilled ?? true))
+                                                        Tidak dihitung
+                                                    @else
+                                                        {{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%
+                                                    @endif
+                                                </span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded h-1.5">
                                                 <div class="bg-blue-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%"></div>
@@ -429,7 +445,7 @@
         <!-- Info Metode -->
         <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Preferensi Studi (w=0.15), Cita-cita (w=0.05), Prestasi (w=0.05). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
+                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 4 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Cita-cita (w=0.15), Prestasi (w=0.10). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
             </p>
         </div>
     </div>
