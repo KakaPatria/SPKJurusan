@@ -255,27 +255,28 @@ class RekomendasiController extends Controller
             $prior = 1 / $cfgCount;
             $logPrior = log(max($prior, $epsilon));
 
-            // Weights dan match probabilities dengan defaults
-            $weights = $c['weights'] ?? ['nilai' => 0.40, 'minat' => 0.35, 'cita_cita' => 0.15, 'prestasi' => 0.10];
+            // Weights dan match probabilities dengan defaults (berdasarkan ROC dari analisis)
+            $weights = $c['weights'] ?? ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
             
             // Ensure weights is array
             if (!is_array($weights)) {
-                $weights = ['nilai' => 0.40, 'minat' => 0.35, 'cita_cita' => 0.15, 'prestasi' => 0.10];
+                $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
             }
 
             // Jika prestasi kosong, atribut prestasi tidak dihitung dengan normalisasi ulang
             if (!$isPrestasiFilled) {
                 $weights['prestasi'] = 0.0;
-                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['cita_cita'] ?? 0);
+                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['pref'] ?? 0) + ($weights['cita_cita'] ?? 0);
                 
                 // Normalize weights dengan safety check
                 if ($sumNonPrestasi > $epsilon) {
                     $weights['nilai'] = ($weights['nilai'] ?? 0) / $sumNonPrestasi;
                     $weights['minat'] = ($weights['minat'] ?? 0) / $sumNonPrestasi;
+                    $weights['pref'] = ($weights['pref'] ?? 0) / $sumNonPrestasi;
                     $weights['cita_cita'] = ($weights['cita_cita'] ?? 0) / $sumNonPrestasi;
                 } else {
                     // Fallback weights jika semua weight adalah 0
-                    $weights = ['nilai' => 0.45, 'minat' => 0.35, 'cita_cita' => 0.20];
+                    $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.238];
                 }
             }
             
