@@ -155,18 +155,21 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama_jurusan' => 'required|string|min:3|max:255|unique:jurusan_polije,nama_jurusan',
-            'deskripsi' => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:10000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel' => 'nullable|array',
+            'bobot_mapel.ipa' => 'nullable|array',
+            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips' => 'nullable|array',
+            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         PolijeMajor::create([
@@ -193,18 +196,21 @@ class AdminController extends Controller
 
         $request->validate([
             'nama_jurusan' => ['required', 'string', 'min:3', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
-            'deskripsi' => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:10000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel' => 'nullable|array',
+            'bobot_mapel.ipa' => 'nullable|array',
+            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips' => 'nullable|array',
+            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $jurusan->update([
@@ -243,17 +249,45 @@ class AdminController extends Controller
      */
     private function parseBobotMapel(Request $request): array
     {
-        $mapelList = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
-        $bobot = [];
+        $ipaSubjects = ['mtk', 'fisika', 'kimia', 'biologi'];
+        $ipsSubjects = ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
 
-        foreach ($mapelList as $mapel) {
-            $value = $request->input("bobot_{$mapel}");
-            if (!is_null($value) && $value !== '') {
-                $bobot[$mapel] = floatval($value);
-            }
+        $ipaInput = $request->input('bobot_mapel.ipa');
+        $ipsInput = $request->input('bobot_mapel.ips');
+
+        if (is_array($ipaInput) || is_array($ipsInput)) {
+            return [
+                'ipa' => $this->normalizeBobotGroup(is_array($ipaInput) ? $ipaInput : [], $ipaSubjects),
+                'ips' => $this->normalizeBobotGroup(is_array($ipsInput) ? $ipsInput : [], $ipsSubjects),
+            ];
         }
 
-        return $bobot;
+        return [
+            'ipa' => $this->normalizeBobotGroup([
+                'mtk' => $request->input('bobot_mtk'),
+                'fisika' => $request->input('bobot_fisika'),
+                'kimia' => $request->input('bobot_kimia'),
+                'biologi' => $request->input('bobot_biologi'),
+            ], $ipaSubjects),
+            'ips' => $this->normalizeBobotGroup([
+                'ekonomi' => $request->input('bobot_ekonomi'),
+                'geografi' => $request->input('bobot_geografi'),
+                'sosiologi' => $request->input('bobot_sosiologi'),
+                'sejarah' => $request->input('bobot_sejarah'),
+            ], $ipsSubjects),
+        ];
+    }
+
+    private function normalizeBobotGroup(array $values, array $subjects): array
+    {
+        $normalized = [];
+
+        foreach ($subjects as $subject) {
+            $value = $values[$subject] ?? null;
+            $normalized[$subject] = is_numeric($value) ? (float) $value : 0.0;
+        }
+
+        return $normalized;
     }
 
     // ============================================

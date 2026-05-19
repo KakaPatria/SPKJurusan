@@ -14,6 +14,37 @@ use Illuminate\Validation\Rule;
 
 class BKController extends Controller
 {
+    private const IPA_SUBJECTS = ['mtk', 'fisika', 'kimia', 'biologi'];
+    private const IPS_SUBJECTS = ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+    private const ALL_SUBJECTS = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+    private function normalizeScoreFields(array $validated, string $kelompokAsal): array
+    {
+        $activeSubjects = $kelompokAsal === 'IPA' ? self::IPA_SUBJECTS : self::IPS_SUBJECTS;
+
+        foreach (self::ALL_SUBJECTS as $subject) {
+            if (!in_array($subject, $activeSubjects, true)) {
+                $validated[$subject] = null;
+            }
+        }
+
+        return $validated;
+    }
+
+    private function validateScoreByKelompok(Request $request): void
+    {
+        $requiredSubjects = $request->input('kelompok_asal') === 'IPA'
+            ? self::IPA_SUBJECTS
+            : self::IPS_SUBJECTS;
+
+        foreach ($requiredSubjects as $subject) {
+            $request->validate([
+                $subject => 'required|numeric|min:0|max:100',
+            ]);
+        }
+    }
+
     // ============================================
     // 1. DASHBOARD
     // ============================================
@@ -213,18 +244,21 @@ class BKController extends Controller
     {
         $request->validate([
             'nama_jurusan' => 'required|string|min:3|max:255|unique:jurusan_polije,nama_jurusan',
-            'deskripsi' => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:10000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel' => 'nullable|array',
+            'bobot_mapel.ipa' => 'nullable|array',
+            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips' => 'nullable|array',
+            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         PolijeMajor::create([
@@ -251,18 +285,21 @@ class BKController extends Controller
 
         $request->validate([
             'nama_jurusan' => ['required', 'string', 'min:3', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
-            'deskripsi' => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:10000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel' => 'nullable|array',
+            'bobot_mapel.ipa' => 'nullable|array',
+            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips' => 'nullable|array',
+            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $jurusan->update([
@@ -293,15 +330,45 @@ class BKController extends Controller
 
     private function parseBobotMapel(Request $request): array
     {
-        $mapelList = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
-        $bobot = [];
-        foreach ($mapelList as $mapel) {
-            $value = $request->input("bobot_{$mapel}");
-            if (!is_null($value) && $value !== '') {
-                $bobot[$mapel] = floatval($value);
-            }
+        $ipaSubjects = ['mtk', 'fisika', 'kimia', 'biologi'];
+        $ipsSubjects = ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+        $ipaInput = $request->input('bobot_mapel.ipa');
+        $ipsInput = $request->input('bobot_mapel.ips');
+
+        if (is_array($ipaInput) || is_array($ipsInput)) {
+            return [
+                'ipa' => $this->normalizeBobotGroup(is_array($ipaInput) ? $ipaInput : [], $ipaSubjects),
+                'ips' => $this->normalizeBobotGroup(is_array($ipsInput) ? $ipsInput : [], $ipsSubjects),
+            ];
         }
-        return $bobot;
+
+        return [
+            'ipa' => $this->normalizeBobotGroup([
+                'mtk' => $request->input('bobot_mtk'),
+                'fisika' => $request->input('bobot_fisika'),
+                'kimia' => $request->input('bobot_kimia'),
+                'biologi' => $request->input('bobot_biologi'),
+            ], $ipaSubjects),
+            'ips' => $this->normalizeBobotGroup([
+                'ekonomi' => $request->input('bobot_ekonomi'),
+                'geografi' => $request->input('bobot_geografi'),
+                'sosiologi' => $request->input('bobot_sosiologi'),
+                'sejarah' => $request->input('bobot_sejarah'),
+            ], $ipsSubjects),
+        ];
+    }
+
+    private function normalizeBobotGroup(array $values, array $subjects): array
+    {
+        $normalized = [];
+
+        foreach ($subjects as $subject) {
+            $value = $values[$subject] ?? null;
+            $normalized[$subject] = is_numeric($value) ? (float) $value : 0.0;
+        }
+
+        return $normalized;
     }
 
     // ============================================
@@ -340,7 +407,7 @@ class BKController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
             'prestasi' => 'nullable|string|max:255',
             
             // Major
@@ -348,6 +415,9 @@ class BKController extends Controller
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        $this->validateScoreByKelompok($request);
+        $validated = $this->normalizeScoreFields($validated, $validated['kelompok_asal']);
 
         Alumni::create($validated);
 
@@ -382,13 +452,16 @@ class BKController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|min:3|max:255',
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        $this->validateScoreByKelompok($request);
+        $validated = $this->normalizeScoreFields($validated, $validated['kelompok_asal']);
 
         $alumni->update($validated);
 

@@ -30,10 +30,18 @@ class ChatbotController extends Controller
         $user = Auth::user();
         $sessionId = $request->query('session');
         $recId = $request->query('rec');
+        $isNew = $request->query('new'); // Deteksi jika langsung buka chatbot tanpa rekomendasi
         $previousMessages = [];
         $recommendationId = null;
 
-        if ($sessionId) {
+        // Jika ?new=1, abaikan session dan rekomendasi lama - buat fresh session
+        if ($isNew) {
+            $sessionId = Str::uuid()->toString();
+            $recommendationId = null;
+            $previousMessages = [];
+            // Clear session lama
+            session()->forget('recomendation_data');
+        } else if ($sessionId) {
             // Lanjutkan sesi lama — ambil semua chat dari sesi ini
             $chats = ChatHistory::where('user_id', $user->id)
                 ->where('id_sesi', $sessionId)
@@ -63,63 +71,28 @@ class ChatbotController extends Controller
             $sessionId = Str::uuid()->toString();
         }
 
-        // Tentukan recommendation_id:
-        // 1. Dari sesi lama (sudah diset di atas)
-        // 2. Dari parameter ?rec= (klik dari hasil rekomendasi)
-        // JANGAN fallback ke rekomendasi terbaru - biarkan null jika tidak ada
+        // Tentukan recommendation_id (kecuali sudah diset oleh ?new=1 atau session lama):
         if (!$recommendationId && $recId) {
             $rec = Recommendation::where('id', $recId)
                 ->where('user_id', $user->id)
                 ->first();
             $recommendationId = $rec ? $rec->id : null;
         }
-        // Jika tidak ada recommendation_id dari session atau ?rec param, biarkan null
 
-        // Ambil konteks rekomendasi berdasarkan ID spesifik
-        $recentRecommendation = $this->getRecommendationContext($user, $recommendationId) ?? [];
-
-        // Ambil 10 session terakhir yang unik untuk user
-        // Strategy: ambil last chat per session, sort by created_at, limit 10
-        $chatHistories = collect();
-        
-        $sessions = ChatHistory::where('user_id', $user->id)
-            ->select('id_sesi')
-            ->distinct('id_sesi')
-            ->get()
-            ->pluck('id_sesi');
-
-        foreach ($sessions as $session_id) {
-            $lastChat = ChatHistory::where('user_id', $user->id)
-                ->where('id_sesi', $session_id)
-                ->latest('created_at')
-                ->first();
-            
-            $firstChat = ChatHistory::where('user_id', $user->id)
-                ->where('id_sesi', $session_id)
-                ->oldest('created_at')
-                ->first();
-
-            if ($lastChat && $firstChat) {
-                $chatHistories->push((object)[
-                    'id_sesi' => $session_id,
-                    'created_at' => $lastChat->created_at,
-                    'prompt' => $firstChat->prompt ?? 'Tidak ada pesan',
-                ]);
-            }
+        // Load rekomendasi terbaru jika tidak ada kondisi di atas
+        if (!$recommendationId && !$isNew) {
+            $latestRec = Recommendation::where('user_id', $user->id)->latest()->first();
+            $recommendationId = $latestRec ? $latestRec->id : null;
         }
 
-        // Sort by created_at desc dan ambil 10
-        $chatHistories = $chatHistories->sortByDesc('created_at')
-            ->take(10)
-            ->values()
-            ->toArray();
+        // Ambil konteks rekomendasi berdasarkan ID spesifik
+        $recentRecommendation = $this->getRecommendationContext($user, $recommendationId, $isNew);
 
         return view('chatbot.index', [
             'recommendation' => $recentRecommendation,
             'sessionId' => $sessionId,
             'previousMessages' => $previousMessages,
             'recommendationId' => $recommendationId,
-            'chatHistories' => $chatHistories,
         ]);
     }
 
@@ -264,30 +237,36 @@ class ChatbotController extends Controller
      * Ambil konteks rekomendasi berdasarkan ID spesifik.
      * Jika ID tidak ada, coba dari session, lalu dari DB (terbaru).
      */
-    private function getRecommendationContext($user, $recommendationId = null)
+    private function getRecommendationContext($user, $recommendationId = null, $isNew = false)
     {
-        // Jika ada recommendation_id spesifik, ambil langsung dari DB
-        $lastRec = null;
-
+        // Jika ada recommendation_id spesifik, ambil langsung dari DB dan JANGAN fallback
         if ($recommendationId) {
             $lastRec = Recommendation::where('id', $recommendationId)
                 ->where('user_id', $user->id)
                 ->first();
-        }
-
-        // ONLY fallback: dari session (saat baru selesai rekomendasi)
-        // Jangan ambil rekomendasi terbaru dari DB jika tidak ada recommendation_id
-        if (!$lastRec) {
+            
+            if (!$lastRec) {
+                // Jika rec ID tidak ditemukan, jangan fallback - return null
+                return null;
+            }
+        } else if ($isNew) {
+            // Jika ?new=1, jangan load apapun dari session atau DB
+            return null;
+        } else {
+            // Fallback: dari session (saat baru selesai rekomendasi)
             $sessionData = session('recomendation_data', null);
             if ($sessionData) {
                 return $sessionData;
             }
-            // Jika tidak ada di session dan tidak ada recommendation_id, return null
-            return null;
-        }
 
-        if (!$lastRec) {
-            return null;
+            // Fallback: rekomendasi terbaru dari DB
+            $lastRec = Recommendation::where('user_id', $user->id)
+                ->latest()
+                ->first();
+
+            if (!$lastRec) {
+                return null;
+            }
         }
 
         // Safely decode hasil_rekomendasi

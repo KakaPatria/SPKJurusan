@@ -19,11 +19,11 @@
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
-            background-color: #5B7B89;
+            background-color: #6B7280;
         }
         .left-section {
             width: 100%;
-            background-color: #5B7B89;
+            background-color: #6B7280;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -38,14 +38,14 @@
             width: 180px;
             height: 240px;
             background-color: rgba(255, 255, 255, 0.1);
-            border: 2px dashed #FCD34D;
+            border: 2px dashed #C9A961;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            color: #FCD34D;
+            color: #C9A961;
             font-size: 14px;
             text-align: center;
             padding: 0;
@@ -73,7 +73,7 @@
         }
         .brand-info p {
             font-size: 16px;
-            color: #FCD34D;
+            color: #C9A961;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
@@ -191,6 +191,78 @@
             margin: 3px 0;
             line-height: 1.6;
         }
+        /* Forgot Password Lock Alert */
+        .forgot-password-alert {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        .forgot-password-alert .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .forgot-password-alert .alert-header span {
+            font-size: 24px;
+        }
+        .forgot-password-alert .alert-header h3 {
+            color: #7f1d1d;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .forgot-password-alert .alert-message {
+            color: #991b1b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .forgot-password-alert .alert-buttons {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+        .forgot-password-alert .btn-forgot {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .forgot-password-alert .btn-forgot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+        .forgot-password-alert .btn-retry {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 10px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .forgot-password-alert .btn-retry:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+        }
         /* Tablet and Desktop */
         @media (min-width: 768px) {
             .container-wrapper {
@@ -264,6 +336,23 @@
                 font-size: 14px;
                 margin-bottom: 24px;
             }
+            .forgot-password-alert {
+                padding: 20px;
+                margin-bottom: 24px;
+                border: 3px solid #dc2626;
+            }
+            .forgot-password-alert .alert-header h3 {
+                font-size: 18px;
+            }
+            .forgot-password-alert .alert-message {
+                font-size: 15px;
+                margin-bottom: 16px;
+            }
+            .forgot-password-alert .btn-forgot,
+            .forgot-password-alert .btn-retry {
+                padding: 12px 18px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
@@ -288,7 +377,27 @@
                 <h2 class="form-title">Selamat Datang</h2>
                 <p class="form-subtitle">Masuk untuk melanjutkan</p>
 
-                @if ($errors->any())
+                {{-- Special Alert: Siswa Forgot Password Lock --}}
+                @if ($errors->has('forgot_password') && $errors->has('email'))
+                    <div class="forgot-password-alert">
+                        <div class="alert-header">
+                            <span>🔒</span>
+                            <h3>Akun Terkunci Sementara</h3>
+                        </div>
+                        <div class="alert-message">
+                            {{ $errors->first('email') }}
+                        </div>
+                        <div class="alert-buttons">
+                            <a href="{{ route('password.request') }}?email={{ old('email') }}" class="btn-forgot">
+                                🔑 Reset Password Sekarang
+                            </a>
+                            <button type="reset" class="btn-retry" onclick="document.getElementById('email').value=''; document.getElementById('password').value=''; document.getElementById('email').focus();">
+                                ← Coba Email Lain
+                            </button>
+                        </div>
+                    </div>
+                @elseif ($errors->any())
+                    {{-- Regular Error Messages --}}
                     <div class="error-alert">
                         @foreach ($errors->all() as $error)
                             <p>• {{ $error }}</p>

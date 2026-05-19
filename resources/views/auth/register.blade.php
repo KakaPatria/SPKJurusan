@@ -19,11 +19,11 @@
             flex-direction: column;
             min-height: 100vh;
             width: 100%;
-            background-color: #5B7B89;
+            background-color: #6B7280;
         }
         .left-section {
             width: 100%;
-            background-color: #5B7B89;
+            background-color: #6B7280;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -38,14 +38,14 @@
             width: 180px;
             height: 240px;
             background-color: rgba(255, 255, 255, 0.1);
-            border: 2px dashed #FCD34D;
+            border: 2px dashed #C9A961;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            color: #FCD34D;
+            color: #C9A961;
             font-size: 14px;
             text-align: center;
             padding: 0;
@@ -73,7 +73,7 @@
         }
         .brand-info p {
             font-size: 16px;
-            color: #FCD34D;
+            color: #C9A961;
             font-weight: 700;
             letter-spacing: 0.5px;
         }

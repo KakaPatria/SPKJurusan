@@ -46,11 +46,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi <span class="text-gray-400 text-xs">(maksimal 500 karakter)</span></label>
-                    <textarea name="deskripsi" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="Jelaskan singkat tentang jurusan ini" maxlength="500" oninput="updateCharCount()">{{ old('deskripsi', $jurusan->deskripsi) }}</textarea>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi <span class="text-gray-400 text-xs">(disarankan detail untuk kebutuhan chatbot)</span></label>
+                    <textarea name="deskripsi" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="Jelaskan detail tentang jurusan ini" oninput="updateCharCount()">{{ old('deskripsi', $jurusan->deskripsi) }}</textarea>
                     <div class="flex justify-between items-center mt-1">
                         <span class="text-gray-400 text-xs">Karakter:</span>
-                        <span id="charCount" class="text-gray-600 text-xs font-medium">0/500</span>
+                        <span id="charCount" class="text-gray-600 text-xs font-medium">0</span>
                     </div>
                 </div>
 
@@ -72,9 +72,9 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Preferensi Studi</label>
-                    <textarea name="preferensi_studi" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="Pisahkan dengan koma, contoh: Sains & Teknologi, Pertanian & Lingkungan" maxlength="500" oninput="updateCharCount('preferensiCount')">{{ old('preferensi_studi', implode(', ', $jurusan->preferensi_studi ?? [])) }}</textarea>
+                    <textarea name="preferensi_studi" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="Pisahkan dengan koma, contoh: Praktik Langsung, DuDi, Project Based, Blended Learning" maxlength="500" oninput="updateCharCount('preferensiCount')">{{ old('preferensi_studi', implode(', ', $jurusan->preferensi_studi ?? [])) }}</textarea>
                     <div class="flex justify-between items-center mt-1">
-                        <p class="text-xs text-gray-500">Rumpun bidang studi yang cocok: Sains & Teknologi, Pertanian & Lingkungan, Kesehatan & Ilmu Hayat, Bisnis & Manajemen, Sosial & Humaniora</p>
+                        <p class="text-xs text-gray-500">Pilihan preferensi studi: Praktik Langsung, DuDi, Project Based, Blended Learning</p>
                         <span id="preferensiCount" class="text-gray-600 text-xs font-medium">0/500</span>
                     </div>
                 </div>
@@ -93,6 +93,8 @@
         <!-- Bobot Mata Pelajaran -->
         @php
             $bobot = $jurusan->bobot_mapel ?? [];
+            $bobotIpa = data_get($bobot, 'ipa', $bobot);
+            $bobotIps = data_get($bobot, 'ips', $bobot);
         @endphp
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-bold text-maroon mb-4">⚖️ Bobot Mata Pelajaran</h3>
@@ -104,19 +106,19 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Matematika</label>
-                            <input type="number" name="bobot_mtk" value="{{ old('bobot_mtk', $bobot['mtk'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ipa][mtk]" value="{{ old('bobot_mapel.ipa.mtk', data_get($bobotIpa, 'mtk', data_get($bobot, 'mtk', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Fisika</label>
-                            <input type="number" name="bobot_fisika" value="{{ old('bobot_fisika', $bobot['fisika'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ipa][fisika]" value="{{ old('bobot_mapel.ipa.fisika', data_get($bobotIpa, 'fisika', data_get($bobot, 'fisika', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Kimia</label>
-                            <input type="number" name="bobot_kimia" value="{{ old('bobot_kimia', $bobot['kimia'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ipa][kimia]" value="{{ old('bobot_mapel.ipa.kimia', data_get($bobotIpa, 'kimia', data_get($bobot, 'kimia', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Biologi</label>
-                            <input type="number" name="bobot_biologi" value="{{ old('bobot_biologi', $bobot['biologi'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ipa][biologi]" value="{{ old('bobot_mapel.ipa.biologi', data_get($bobotIpa, 'biologi', data_get($bobot, 'biologi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                     </div>
                 </div>
@@ -125,19 +127,19 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Ekonomi</label>
-                            <input type="number" name="bobot_ekonomi" value="{{ old('bobot_ekonomi', $bobot['ekonomi'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ips][ekonomi]" value="{{ old('bobot_mapel.ips.ekonomi', data_get($bobotIps, 'ekonomi', data_get($bobot, 'ekonomi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Geografi</label>
-                            <input type="number" name="bobot_geografi" value="{{ old('bobot_geografi', $bobot['geografi'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ips][geografi]" value="{{ old('bobot_mapel.ips.geografi', data_get($bobotIps, 'geografi', data_get($bobot, 'geografi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Sosiologi</label>
-                            <input type="number" name="bobot_sosiologi" value="{{ old('bobot_sosiologi', $bobot['sosiologi'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ips][sosiologi]" value="{{ old('bobot_mapel.ips.sosiologi', data_get($bobotIps, 'sosiologi', data_get($bobot, 'sosiologi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Sejarah</label>
-                            <input type="number" name="bobot_sejarah" value="{{ old('bobot_sejarah', $bobot['sejarah'] ?? '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
+                            <input type="number" name="bobot_mapel[ips][sejarah]" value="{{ old('bobot_mapel.ips.sejarah', data_get($bobotIps, 'sejarah', data_get($bobot, 'sejarah', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
                         </div>
                     </div>
                 </div>
@@ -159,8 +161,8 @@
             function updateCharCount(elementId = 'charCount') {
                 const textarea = event.target;
                 const count = textarea.value.length;
-                const maxLength = parseInt(textarea.maxLength) || 500;
-                document.getElementById(elementId).textContent = `${count}/${maxLength}`;
+                const maxLength = parseInt(textarea.maxLength);
+                document.getElementById(elementId).textContent = maxLength > 0 ? `${count}/${maxLength}` : `${count}`;
                 validateJurusanForm();
             }
 
@@ -195,11 +197,16 @@
                                textarea.name === 'preferensi_studi' ? 'preferensiCount' :
                                'prospekCount';
                     const count = textarea.value.length;
-                    const maxLength = parseInt(textarea.maxLength) || 500;
+                    const maxLength = parseInt(textarea.maxLength);
                     if (document.getElementById(id)) {
-                        document.getElementById(id).textContent = `${count}/${maxLength}`;
+                        document.getElementById(id).textContent = maxLength > 0 ? `${count}/${maxLength}` : `${count}`;
                     }
                 });
+
+                const desc = document.querySelector('textarea[name="deskripsi"]');
+                if (desc && document.getElementById('charCount')) {
+                    document.getElementById('charCount').textContent = `${desc.value.length}`;
+                }
                 validateJurusanForm();
             });
         </script>

@@ -45,11 +45,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi <span class="text-gray-400 text-xs">(maks 500 karakter)</span></label>
-                    <textarea name="deskripsi" rows="3" maxlength="500" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Jelaskan singkat tentang jurusan ini" oninput="updateCharCount('deskripsi', 500); validateJurusanForm()">{{ old('deskripsi') }}</textarea>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi <span class="text-gray-400 text-xs">(disarankan detail untuk kebutuhan chatbot)</span></label>
+                    <textarea name="deskripsi" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Jelaskan detail tentang jurusan ini" oninput="updateCharCount('deskripsi'); validateJurusanForm()">{{ old('deskripsi') }}</textarea>
                     <div class="flex justify-between items-center mt-1">
                         <p class="text-xs text-gray-500">Jelaskan tentang program, fasilitas, dan prospek</p>
-                        <span id="descCount" class="text-gray-400 text-xs">0/500</span>
+                        <span id="descCount" class="text-gray-400 text-xs">0</span>
                     </div>
                 </div>
 
@@ -61,8 +61,8 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Preferensi Studi <span class="text-gray-400 text-xs">(pisahkan dengan koma)</span></label>
-                    <textarea name="preferensi_studi" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Contoh: Sains & Teknologi, Bisnis & Manajemen" oninput="validateJurusanForm()">{{ old('preferensi_studi') }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Pilihan: Sains & Teknologi | Pertanian & Lingkungan | Kesehatan & Ilmu Hayat | Bisnis & Manajemen | Sosial & Humaniora</p>
+                    <textarea name="preferensi_studi" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Contoh: Praktik Langsung, DuDi, Project Based, Blended Learning" oninput="validateJurusanForm()">{{ old('preferensi_studi') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Pilihan preferensi studi: Praktik Langsung, DuDi, Project Based, Blended Learning</p>
                 </div>
 
                 <div>
@@ -83,19 +83,19 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Matematika</label>
-                            <input type="number" name="bobot_mtk" value="{{ old('bobot_mtk', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ipa][mtk]" value="{{ old('bobot_mapel.ipa.mtk', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Fisika</label>
-                            <input type="number" name="bobot_fisika" value="{{ old('bobot_fisika', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ipa][fisika]" value="{{ old('bobot_mapel.ipa.fisika', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Kimia</label>
-                            <input type="number" name="bobot_kimia" value="{{ old('bobot_kimia', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ipa][kimia]" value="{{ old('bobot_mapel.ipa.kimia', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Biologi</label>
-                            <input type="number" name="bobot_biologi" value="{{ old('bobot_biologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ipa][biologi]" value="{{ old('bobot_mapel.ipa.biologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                     </div>
                 </div>
@@ -104,19 +104,19 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Ekonomi</label>
-                            <input type="number" name="bobot_ekonomi" value="{{ old('bobot_ekonomi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ips][ekonomi]" value="{{ old('bobot_mapel.ips.ekonomi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Geografi</label>
-                            <input type="number" name="bobot_geografi" value="{{ old('bobot_geografi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ips][geografi]" value="{{ old('bobot_mapel.ips.geografi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Sosiologi</label>
-                            <input type="number" name="bobot_sosiologi" value="{{ old('bobot_sosiologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ips][sosiologi]" value="{{ old('bobot_mapel.ips.sosiologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Sejarah</label>
-                            <input type="number" name="bobot_sejarah" value="{{ old('bobot_sejarah', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
+                            <input type="number" name="bobot_mapel[ips][sejarah]" value="{{ old('bobot_mapel.ips.sejarah', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
                         </div>
                     </div>
                 </div>
@@ -139,10 +139,11 @@
 
 @section('scripts')
 <script>
-    function updateCharCount(textareaName, max) {
+    function updateCharCount(textareaName) {
         const textarea = document.querySelector(`textarea[name="${textareaName}"]`);
         const countSpan = document.getElementById('descCount');
-        countSpan.textContent = `${textarea.value.length}/${max}`;
+        const maxLength = parseInt(textarea.maxLength);
+        countSpan.textContent = maxLength > 0 ? `${textarea.value.length}/${maxLength}` : `${textarea.value.length}`;
     }
 
     function validateJurusanForm() {
@@ -197,7 +198,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         validateJurusanForm();
         validateBobot();
-        updateCharCount('deskripsi', 500);
+        updateCharCount('deskripsi');
     });
 </script>
 @endsection

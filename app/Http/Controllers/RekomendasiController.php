@@ -255,7 +255,7 @@ class RekomendasiController extends Controller
             $prior = 1 / $cfgCount;
             $logPrior = log(max($prior, $epsilon));
 
-            // Weights dan match probabilities dengan defaults (berdasarkan ROC dari analisis)
+            // Weights dan match probabilities dengan defaults (ROC-based: nilai 15.6%, minat 45.6%, pref 25.6%, cita 9%, prestasi 4%)
             $weights = $c['weights'] ?? ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
             
             // Ensure weights is array
@@ -266,17 +266,16 @@ class RekomendasiController extends Controller
             // Jika prestasi kosong, atribut prestasi tidak dihitung dengan normalisasi ulang
             if (!$isPrestasiFilled) {
                 $weights['prestasi'] = 0.0;
-                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['pref'] ?? 0) + ($weights['cita_cita'] ?? 0);
+                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['cita_cita'] ?? 0);
                 
                 // Normalize weights dengan safety check
                 if ($sumNonPrestasi > $epsilon) {
                     $weights['nilai'] = ($weights['nilai'] ?? 0) / $sumNonPrestasi;
                     $weights['minat'] = ($weights['minat'] ?? 0) / $sumNonPrestasi;
-                    $weights['pref'] = ($weights['pref'] ?? 0) / $sumNonPrestasi;
                     $weights['cita_cita'] = ($weights['cita_cita'] ?? 0) / $sumNonPrestasi;
                 } else {
                     // Fallback weights jika semua weight adalah 0
-                    $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.238];
+                    $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
                 }
             }
             
@@ -390,8 +389,9 @@ class RekomendasiController extends Controller
 
         // Simpan data rekomendasi ke database
         $user = Auth::user();
+        $recommendationId = null;
         if ($user) {
-            Recommendation::create([
+            $recommendation = Recommendation::create([
                 'user_id' => $user->id,
                 'mtk' => $request->mtk ?? null,
                 'fisika' => $request->fisika ?? null,
@@ -408,6 +408,7 @@ class RekomendasiController extends Controller
                 'prestasi' => $prestasiInput,
                 'hasil_rekomendasi' => $hasilAkhir,
             ]);
+            $recommendationId = $recommendation->id;
         }
 
         // Simpan data rekomendasi ke session untuk chatbot
@@ -430,7 +431,7 @@ class RekomendasiController extends Controller
             $topJurusan = PolijeMajor::where('nama_jurusan', $hasilAkhir[0]['jurusan'] ?? '')->first();
         }
 
-        return view('rekomendasi.hasil', compact('hasilAkhir', 'katNilai', 'average', 'minatMapped', 'citaMapped', 'prefStudi', 'prestasiScore', 'topJurusan', 'isPrestasiFilled'));
+        return view('rekomendasi.hasil', compact('hasilAkhir', 'katNilai', 'average', 'minatRaw', 'minatMapped', 'citaRaw', 'citaMapped', 'prefStudi', 'prestasiScore', 'topJurusan', 'isPrestasiFilled', 'recommendationId'));
     }
 
     /**
@@ -482,11 +483,11 @@ class RekomendasiController extends Controller
         
         // Use coverage-based scoring untuk handle ambiguous inputs
         $categoryKeywords = [
-            'Logika & Komputer' => ['coding', 'komputer', 'laptop', 'web', 'aplikasi', 'logika', 'programming', 'software', 'development', 'developer', 'it', 'data', 'ai'],
-            'Alam & Tanaman' => ['tanam', 'kebun', 'sawah', 'hewan', 'ternak', 'alam', 'pertanian', 'agri', 'panen', 'tani', 'hortikultura'],
-            'Pelayanan & Kesehatan' => ['obat', 'sakit', 'rawat', 'medis', 'gizi', 'sehat', 'kesehatan', 'perawat', 'dokter', 'rumah sakit', 'klinik'],
-            'Manajemen & Bisnis' => ['bisnis', 'uang', 'jual', 'kantor', 'hitung', 'ekonomi', 'dagang', 'usaha', 'entrepreneur', 'manager', 'marketing', 'akuntan'],
-            'Mesin & Listrik' => ['mesin', 'bengkel', 'listrik', 'las', 'robot', 'motor', 'teknik', 'otomasi', 'elektronik', 'maintenance'],
+            'Logika & Komputer' => ['coding', 'komputer', 'laptop', 'web', 'aplikasi', 'logika', 'programming', 'software', 'development', 'developer', 'it', 'data', 'ai', 'teknologi', 'sistem', 'cloud', 'database', 'network', 'cybersecurity', 'analyst', 'scientist', 'algorithm', 'machine learning', 'app', 'digital'],
+            'Alam & Tanaman' => ['tanam', 'kebun', 'sawah', 'hewan', 'ternak', 'alam', 'pertanian', 'agri', 'panen', 'tani', 'hortikultura', 'lingkungan', 'berkelanjutan', 'farm', 'farming', 'plantation', 'crops', 'conservation', 'breeding', 'agribusiness', 'agroforestry', 'horticulture', 'cultivate', 'harvest', 'livestock management', 'animal husbandry', 'sustainable agriculture', 'crop science', 'soil', 'botanical'],
+            'Pelayanan & Kesehatan' => ['obat', 'sakit', 'rawat', 'medis', 'gizi', 'sehat', 'kesehatan', 'perawat', 'dokter', 'rumah sakit', 'klinik', 'farmasi', 'keperawatan', 'terapis', 'nursing', 'therapy', 'wellness', 'nutrition', 'healing', 'caring', 'clinical', 'patient care', 'rehabilitation', 'surgery', 'diagnostic', 'laboratory', 'medical technician', 'health educator', 'public health', 'epidemiology', 'preventive care'],
+            'Manajemen & Bisnis' => ['bisnis', 'uang', 'jual', 'kantor', 'hitung', 'ekonomi', 'dagang', 'usaha', 'entrepreneur', 'manager', 'marketing', 'akuntan', 'finance', 'keuangan', 'sales', 'trading', 'commerce', 'leadership', 'startup', 'corporate', 'organization', 'administration', 'strategic planning', 'operations', 'budget', 'investment', 'capital', 'supply chain', 'logistics', 'human resources'],
+            'Mesin & Listrik' => ['mesin', 'bengkel', 'listrik', 'las', 'robot', 'motor', 'teknik', 'otomasi', 'elektronik', 'maintenance', 'industri', 'manufaktur', 'mechanical', 'electrical', 'automation', 'construction', 'repair', 'welding', 'hydraulic', 'pneumatic', 'power generation', 'circuit', 'transformer', 'machinery operation', 'fabrication', 'installation', 'troubleshooting'],
         ];
         
         // Score setiap kategori berdasarkan keyword coverage
@@ -520,12 +521,12 @@ class RekomendasiController extends Controller
         
         // Map cita-cita ke category berdasarkan keywords
         $careerCategories = [
-            'IT & Software' => ['programmer', 'developer', 'software', 'coding', 'hacker', 'web', 'database', 'it', 'engineer'],
-            'Agriculture' => ['petani', 'pertanian', 'agribisnis', 'kebun', 'ternak', 'peternak', 'agronomi'],
-            'Healthcare' => ['dokter', 'perawat', 'medis', 'gizi', 'terapis', 'farmasi', 'kesehatan'],
-            'Business' => ['entrepreneur', 'manager', 'marketing', 'sales', 'akuntan', 'keuangan', 'bisnis'],
-            'Engineering' => ['teknik', 'engineer', 'mesin', 'listrik', 'bengkel', 'maintenance', 'industri'],
-            'Communication' => ['jurnalis', 'komunikator', 'presenter', 'content', 'pariwisata', 'hospitality'],
+            'IT & Software' => ['programmer', 'developer', 'software', 'coding', 'web', 'database', 'it', 'scientist', 'analyst', 'data', 'cloud', 'architect', 'cybersecurity', 'security', 'devops', 'backend', 'frontend', 'fullstack', 'sysadmin', 'network admin', 'cto', 'tech lead', 'ai', 'machine learning'],
+            'Agriculture' => ['petani', 'pertanian', 'agribisnis', 'kebun', 'ternak', 'peternak', 'agronomi', 'farming', 'livestock', 'agronomist', 'farmer', 'farm manager', 'plantation', 'crops specialist', 'agritech', 'horticultural', 'agricultural scientist', 'soil scientist', 'breeding specialist', 'extension officer', 'crop consultant', 'forestry', 'fishery manager'],
+            'Healthcare' => ['dokter', 'perawat', 'medis', 'gizi', 'terapis', 'farmasi', 'kesehatan', 'nursing', 'therapist', 'pharmacist', 'nutritionist', 'clinician', 'public health', 'midwife', 'radiologist', 'dentist', 'nurse', 'surgeon', 'diagnostician', 'laboratory technician', 'paramedic', 'health educator', 'epidemiologist', 'wellness coach'],
+            'Business' => ['entrepreneur', 'manager', 'marketing', 'sales', 'akuntan', 'keuangan', 'bisnis', 'accountant', 'consultant', 'finance', 'cfo', 'ceo', 'director', 'treasurer', 'auditor', 'trader', 'investor', 'controller', 'operations manager', 'strategic planner', 'business analyst', 'supply chain manager', 'hr manager', 'corporate executive'],
+            'Engineering' => ['teknik', 'engineer', 'mesin', 'listrik', 'bengkel', 'maintenance', 'industri', 'technician', 'constructor', 'mechanical engineer', 'electrical engineer', 'automation', 'supervisor', 'foreman', 'technologist', 'specialist', 'civil engineer', 'welding specialist', 'hydraulics engineer', 'power engineer', 'manufacturing engineer', 'maintenance supervisor'],
+            'Communication' => ['jurnalis', 'komunikator', 'presenter', 'content', 'pariwisata', 'hospitality', 'tour', 'guide', 'public relations', 'ambassador', 'interpreter', 'diplomat', 'broadcaster', 'event organizer', 'marketing specialist', 'pr specialist', 'copywriter', 'social media manager', 'travel consultant', 'hospitality manager', 'cultural ambassador', 'media producer'],
         ];
         
         // Score setiap kategori

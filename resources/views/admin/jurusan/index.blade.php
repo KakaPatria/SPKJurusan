@@ -97,23 +97,23 @@
         <p class="text-gray-700 text-sm mb-4">Sistem menggunakan 5 kriteria utama untuk memberikan rekomendasi jurusan yang tepat:</p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                <p class="font-bold text-blue-800 text-sm">📝 Nilai Akademik (40%)</p>
+                <p class="font-bold text-blue-800 text-sm">📝 Nilai Akademik (15.6%)</p>
                 <p class="text-xs text-blue-700 mt-1">IPA: MTK, Fisika, Kimia, Biologi<br>IPS: Ekonomi, Geografi, Sosiologi, Sejarah</p>
             </div>
             <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
-                <p class="font-bold text-green-800 text-sm">💡 Minat & Bakat (35%)</p>
+                <p class="font-bold text-green-800 text-sm">💡 Minat & Bakat (45.6%)</p>
                 <p class="text-xs text-green-700 mt-1">Dicocokkan dengan keywords jurusan secara graduated</p>
             </div>
             <div class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                <p class="font-bold text-yellow-800 text-sm">🎯 Preferensi Studi (15%)</p>
+                <p class="font-bold text-yellow-800 text-sm">🎯 Preferensi Studi (25.6%)</p>
                 <p class="text-xs text-yellow-700 mt-1">Praktik Langsung, DuDi, Project Based, Blended Learning</p>
             </div>
             <div class="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400">
-                <p class="font-bold text-purple-800 text-sm">🏆 Prestasi (5%)</p>
+                <p class="font-bold text-purple-800 text-sm">🏆 Prestasi (4%)</p>
                 <p class="text-xs text-purple-700 mt-1">Prestasi akademik dan non-akademik siswa</p>
             </div>
             <div class="p-4 bg-red-50 rounded-lg border-l-4 border-red-400">
-                <p class="font-bold text-red-800 text-sm">💼 Cita-cita (5%)</p>
+                <p class="font-bold text-red-800 text-sm">💼 Cita-cita (9%)</p>
                 <p class="text-xs text-red-700 mt-1">Dicocokkan dengan keywords jurusan secara graduated</p>
             </div>
         </div>

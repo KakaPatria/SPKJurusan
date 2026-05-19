@@ -7,14 +7,14 @@
     <title>@yield('title', 'Admin Panel') - SPK Jurusan Polije</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .gradient-maroon { background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%); }
-        .text-maroon { color: #5B7B89; }
-        .border-maroon { border-color: #5B7B89; }
+        .gradient-maroon { background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%); }
+        .text-maroon { color: #6B7280; }
+        .border-maroon { border-color: #6B7280; }
         .bg-cream { background-color: #F8FAFC; }
-        .bg-maroon { background-color: #5B7B89; }
-        .hover\:bg-maroon:hover { background-color: #7B9BA5; }
+        .bg-maroon { background-color: #6B7280; }
+        .hover\:bg-maroon:hover { background-color: #8B95A5; }
         .stat-card { transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(91, 123, 137, 0.1); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(107, 114, 128, 0.1); }
 
         /* Sidebar */
         .sidebar-dark {
@@ -27,14 +27,14 @@
             color: #cbd5e1;
         }
         .sidebar-link:hover {
-            background: rgba(91, 123, 137, 0.15);
+            background: rgba(107, 114, 128, 0.12);
             color: #ffffff;
-            border-left-color: rgba(91, 123, 137, 0.5);
+            border-left-color: rgba(107, 114, 128, 0.5);
         }
         .sidebar-link.active {
-            background: linear-gradient(90deg, rgba(91,123,137,0.25) 0%, rgba(91,123,137,0.05) 100%);
-            color: #7dd3fc !important;
-            border-left-color: #7dd3fc;
+            background: linear-gradient(90deg, rgba(107,114,128,0.2) 0%, rgba(107,114,128,0.03) 100%);
+            color: #b0b9c8 !important;
+            border-left-color: #b0b9c8;
         }
         .sidebar-link .sidebar-icon {
             display: inline-flex;
@@ -49,11 +49,11 @@
             transition: all 0.25s ease;
         }
         .sidebar-link:hover .sidebar-icon {
-            background: rgba(91, 123, 137, 0.3);
+            background: rgba(107, 114, 128, 0.25);
             transform: scale(1.05);
         }
         .sidebar-link.active .sidebar-icon {
-            background: rgba(125, 211, 252, 0.15);
+            background: rgba(107, 114, 128, 0.15);
         }
         .sidebar-section-label {
             font-size: 10px;
@@ -73,13 +73,13 @@
         .sidebar-brand-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
+            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            box-shadow: 0 4px 12px rgba(91, 123, 137, 0.3);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
         }
         .sidebar-footer {
             border-top: 1px solid rgba(255,255,255,0.06);

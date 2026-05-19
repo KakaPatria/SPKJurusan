@@ -7,13 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
+            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
         }
         .text-maroon {
-            color: #5B7B89;
+            color: #6B7280;
         }
         .border-maroon {
-            border-color: #5B7B89;
+            border-color: #6B7280;
         }
         .bg-cream {
             background-color: #F8FAFC;
@@ -26,7 +26,7 @@
             .chat-container {
                 height: 500px;
             }
-        }
+        }}
         @media (min-width: 1024px) {
             .chat-container {
                 height: 600px;
@@ -110,7 +110,7 @@
                 <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Konseling Pemilihan Jurusan Politeknik Negeri Jember</p>
             </div>
             <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <a href="{{ route('chatbot.index') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-white text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm">
+                <a href="{{ url('/chatbot?new=1') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-white text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm">
                     Sesi Baru
                 </a>
                 <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">

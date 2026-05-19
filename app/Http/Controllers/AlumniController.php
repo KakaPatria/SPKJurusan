@@ -7,6 +7,37 @@ use Illuminate\Http\Request;
 
 class AlumniController extends Controller
 {
+    private const IPA_SUBJECTS = ['mtk', 'fisika', 'kimia', 'biologi'];
+    private const IPS_SUBJECTS = ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+    private const ALL_SUBJECTS = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+
+    private function normalizeScoreFields(array $validated, string $kelompokAsal): array
+    {
+        $activeSubjects = $kelompokAsal === 'IPA' ? self::IPA_SUBJECTS : self::IPS_SUBJECTS;
+
+        foreach (self::ALL_SUBJECTS as $subject) {
+            if (!in_array($subject, $activeSubjects, true)) {
+                $validated[$subject] = null;
+            }
+        }
+
+        return $validated;
+    }
+
+    private function validateScoreByKelompok(Request $request): void
+    {
+        $requiredSubjects = $request->input('kelompok_asal') === 'IPA'
+            ? self::IPA_SUBJECTS
+            : self::IPS_SUBJECTS;
+
+        foreach ($requiredSubjects as $subject) {
+            $request->validate([
+                $subject => 'required|numeric|min:0|max:100',
+            ]);
+        }
+    }
+
     /**
      * Display alumni data list
      */
@@ -48,7 +79,7 @@ class AlumniController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
             'prestasi' => 'nullable|string|max:255',
             
             // Major
@@ -56,6 +87,9 @@ class AlumniController extends Controller
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        $this->validateScoreByKelompok($request);
+        $validated = $this->normalizeScoreFields($validated, $validated['kelompok_asal']);
 
         Alumni::create($validated);
 
@@ -99,13 +133,16 @@ class AlumniController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
+            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|min:3|max:255',
             'tahun_lulus_polije' => 'nullable|integer|min:2020|max:' . date('Y'),
             'catatan' => 'nullable|string|max:500',
         ]);
+
+        $this->validateScoreByKelompok($request);
+        $validated = $this->normalizeScoreFields($validated, $validated['kelompok_asal']);
 
         $alumni->update($validated);
 

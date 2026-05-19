@@ -14,7 +14,14 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = Auth::user();
+    $recommendationCount = $user ? \App\Models\Recommendation::where('user_id', $user->id)->count() : 0;
+    $chatCount = $user ? \App\Models\ChatHistory::where('user_id', $user->id)->count() : 0;
+    
+    return view('dashboard', [
+        'recommendationCount' => $recommendationCount,
+        'chatCount' => $chatCount
+    ]);
 })->middleware(['auth', 'verified', 'roleRedirect'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

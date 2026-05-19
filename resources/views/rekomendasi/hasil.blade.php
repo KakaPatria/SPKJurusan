@@ -7,19 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
+            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
         }
         .text-maroon {
-            color: #5B7B89;
+            color: #6B7280;
         }
         .border-maroon {
-            border-color: #5B7B89;
+            border-color: #6B7280;
         }
         .bg-cream {
             background-color: #F8FAFC;
         }
         .bg-maroon-light {
-            background-color: rgba(91, 123, 137, 0.1);
+            background-color: rgba(107, 114, 128, 0.1);
         }
     </style>
 </head>
@@ -40,33 +40,42 @@
     </header>
 
     <!-- Main Content -->
-    <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
-        <!-- Info Box -->
-        <div class="bg-white border-2 border-maroon rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-md">
-            <h2 class="text-lg sm:text-xl font-bold text-maroon mb-2 sm:mb-3">Hasil Analisis</h2>
-            <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                Berikut adalah hasil analisis sistem terhadap profil Anda. Jurusan diurutkan berdasarkan skor kesesuaian dari yang tertinggi.
-            </p>
+    <div class="w-full px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Selamat Section -->
+        <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-lg p-8 text-white mb-8">
+            <div class="flex gap-4 items-start">
+                <div class="text-5xl">🎉</div>
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Hasil Analisis Siap!</h2>
+                    <p class="text-lg text-green-100 mb-4">
+                        Sistem AI kami telah menganalisis profil kamu secara menyeluruh. Berikut adalah 9 program studi yang kami rekomendasikan, diurutkan dari yang paling sesuai dengan potensi dan minat kamu. Setiap jurusan memiliki skor kesesuaian yang menunjukkan tingkat kecocokan dengan profil kamu.
+                    </p>
+                    <div class="inline-block bg-white bg-opacity-20 rounded-lg px-4 py-2 backdrop-blur-sm">
+                        <p class="text-sm font-semibold">💡 Tip: Cek beberapa program teratas dan diskusikan dengan konselor atau orang tua untuk memastikan pilihan terbaik untuk masa depanmu</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Ringkasan Input -->
-        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6 sm:mb-8 border-l-4 border-maroon">
-            <h3 class="text-base sm:text-lg font-bold text-maroon mb-3 sm:mb-4">Data Profil Anda</h3>
-            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Nilai Akademik</p>
-                    <p class="text-lg sm:text-xl font-bold text-maroon">{{ $katNilai }}</p>
-                    <p class="text-xs text-gray-500">Rata-rata: {{ number_format($average, 1) }}</p>
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border-t-4 border-purple-600">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">📊 Profil Analisismu</h3>
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-lg border border-purple-200">
+                    <p class="text-xs font-semibold text-purple-600 mb-2">📚 Nilai Akademik</p>
+                    <p class="text-2xl font-bold text-purple-900">{{ number_format($average, 1) }}</p>
+                    <p class="text-xs text-purple-700 mt-1">Rata-rata Rapor</p>
                 </div>
-                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Preferensi Studi</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $prefStudi ?? '-' }}</p>
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200">
+                    <p class="text-xs font-semibold text-blue-600 mb-2">🎯 Preferensi Studi</p>
+                    <p class="text-lg font-bold text-blue-900">{{ $prefStudi ?? '-' }}</p>
+                    <p class="text-xs text-blue-700 mt-1">Gaya Belajar</p>
                 </div>
-                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Prestasi</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-lg border border-amber-200">
+                    <p class="text-xs font-semibold text-amber-600 mb-2">🏆 Prestasi</p>
+                    <p class="text-lg font-bold text-amber-900">
                         @if(!($isPrestasiFilled ?? true))
-                            Tidak Dihitung
+                            Belum Ada
                         @elseif($prestasiScore >= 0.8)
                             Tinggi
                         @elseif($prestasiScore >= 0.6)
@@ -77,18 +86,22 @@
                             Belum Ada
                         @endif
                     </p>
+                    <p class="text-xs text-amber-700 mt-1">Pencapaian</p>
                 </div>
-                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Skor Nilai</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ number_format($average, 1) }}%</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-lg border border-green-200">
+                    <p class="text-xs font-semibold text-green-600 mb-2">💯 Skor Nilai</p>
+                    <p class="text-2xl font-bold text-green-900">{{ number_format($average, 1) }}%</p>
+                    <p class="text-xs text-green-700 mt-1">Nilai Rata-rata</p>
                 </div>
-                <div class="bg-maroon-light p-3 sm:p-4 rounded-lg">
+            </div>
                     <p class="text-xs sm:text-sm text-gray-600">Minat</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">{{ $minatMapped ?? '-' }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Input: {{ ucfirst($minatRaw ?? '-') }}</p>
                 </div>
                 <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
                     <p class="text-xs sm:text-sm text-gray-600">Cita-cita</p>
                     <p class="text-sm sm:text-lg font-bold text-maroon">{{ $citaMapped ?? '-' }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Input: {{ ucfirst($citaRaw ?? '-') }}</p>
                 </div>
             </div>
         </div>
@@ -175,7 +188,7 @@
                     <div class="space-y-2 sm:space-y-3">
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik — P(nilai|H) &times; w=0.40</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik — P(nilai|H) &times; w=0.156</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -185,7 +198,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat — P(minat|H) &times; w=0.35</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat — P(minat|H) &times; w=0.456</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -195,7 +208,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi — P(pref|H) &times; w=0.15</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi — P(pref|H) &times; w=0.256</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%</span>
                             </div>
                             <div class="w-full bg-gray-300 rounded-full h-2">
@@ -205,7 +218,7 @@
 
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita — P(cita|H) &times; w=0.05</p>
+                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita — P(cita|H) &times; w=0.090</p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">
                                     {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%
                                 </span>
@@ -218,7 +231,7 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <p class="text-xs sm:text-sm font-semibold text-gray-700">
-                                    Prestasi — P(prestasi|H) &times; w={{ ($isPrestasiFilled ?? true) ? '0.05' : '0.00' }}
+                                    Prestasi — P(prestasi|H) &times; w={{ ($isPrestasiFilled ?? true) ? '0.040' : '0.00' }}
                                 </p>
                                 <span class="text-xs sm:text-sm font-bold text-maroon">
                                     @if(!($isPrestasiFilled ?? true))
@@ -326,7 +339,7 @@
                                         <p class="text-xs sm:text-sm font-bold text-gray-700 mb-3">Scoring per Kriteria:</p>
                                         <div class="space-y-2">
                                             <div class="flex justify-between items-center text-xs">
-                                                <span class="text-gray-600">📊 Nilai (40%)</span>
+                                                <span class="text-gray-600">📊 Nilai (15.6%)</span>
                                                 <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['nilai'] ?? 0) * 100, 1) }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded h-1.5">
@@ -334,7 +347,7 @@
                                             </div>
 
                                             <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">❤️ Minat (35%)</span>
+                                                <span class="text-gray-600">❤️ Minat (45.6%)</span>
                                                 <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['minat'] ?? 0) * 100, 1) }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded h-1.5">
@@ -342,7 +355,7 @@
                                             </div>
 
                                             <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">🎓 Preferensi (15%)</span>
+                                                <span class="text-gray-600">🎓 Preferensi (25.6%)</span>
                                                 <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['pref'] ?? 0) * 100, 1) }}%</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded h-1.5">
@@ -425,7 +438,7 @@
                         Ingin tahu mengapa jurusan <strong>{{ $hasilAkhir[0]['jurusan'] ?? '' }}</strong> direkomendasikan? 
                         Konsultasikan dengan AI Konselor BK Virtual untuk penjelasan detail berdasarkan profil Anda.
                     </p>
-                    <a href="{{ route('chatbot.index', ['rec' => session('last_recommendation_id')]) }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
+                    <a href="{{ route('chatbot.index', ['rec' => $recommendationId]) }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
                         💬 Tanya AI: "Mengapa jurusan ini cocok untukku?"
                     </a>
                 </div>
@@ -445,7 +458,7 @@
         <!-- Info Metode -->
         <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 4 fitur berbobot: Nilai Akademik (w=0.40), Minat (w=0.35), Cita-cita (w=0.15), Prestasi (w=0.10). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
+                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.156), Minat (w=0.456), Preferensi Studi (w=0.256), Cita-cita (w=0.090), Prestasi (w=0.040). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
             </p>
         </div>
     </div>

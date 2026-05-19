@@ -7,13 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .gradient-maroon {
-            background: linear-gradient(135deg, #5B7B89 0%, #7B9BA5 100%);
+            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
         }
         .text-maroon {
-            color: #5B7B89;
+            color: #6B7280;
         }
         .border-maroon {
-            border-color: #5B7B89;
+            border-color: #6B7280;
         }
         .bg-cream {
             background-color: #F8FAFC;
@@ -23,7 +23,7 @@
         }
         .card-hover:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(107, 44, 44, 0.2);
+            box-shadow: 0 10px 30px rgba(107, 114, 128, 0.15);
         }
     </style>
 </head>
@@ -64,179 +64,173 @@
     </header>
 
     <!-- Main Content -->
-    <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
-        <!-- Info Box -->
-        <div class="bg-white border-2 border-maroon rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-md">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-2 sm:mb-3">Selamat Datang di Sistem Pemilihan Jurusan</h2>
-            <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
-                Memilih jurusan adalah keputusan penting yang akan mempengaruhi karir dan masa depan Anda. Sistem ini dirancang untuk membantu Anda menemukan jurusan kuliah yang paling sesuai dengan profil akademik, minat, gaya belajar, prestasi, dan cita-cita Anda.
+    <div class="w-full px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-xl p-8 sm:p-10 mb-8 text-white">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-3">Temukan Jurusan Impianmu 🎯</h2>
+            <p class="text-purple-100 text-lg mb-4 max-w-3xl">
+                Memilih jurusan adalah salah satu keputusan terpenting dalam hidup. Kami ada di sini untuk membantu kamu menemukan program studi yang benar-benar sesuai dengan potensi, minat, dan impian karirmu. Dengan teknologi AI dan analisis mendalam, kami siap memberikan panduan terbaik.
             </p>
-            
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 sm:p-4 mb-4 rounded">
-                <p class="text-xs sm:text-sm md:text-base text-gray-800">
-                    <strong>Bagaimana Sistem Ini Bekerja?</strong> Kami menganalisis 5 faktor utama dalam diri Anda: nilai akademik (40%), minat dan passion (35%), preferensi gaya belajar (15%), prestasi dan pencapaian (5%), serta cita-cita dan rencana karir (5%). Dari analisis mendalam tersebut, sistem memberikan ranking 9 jurusan yang tersedia berdasarkan kesesuaian dengan profil Anda.
-                </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                    <p class="text-3xl font-bold">9</p>
+                    <p class="text-purple-100 text-sm">Jurusan</p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                    <p class="text-3xl font-bold">24/7</p>
+                    <p class="text-purple-100 text-sm">Konsultasi AI</p>
+                </div>
             </div>
-
-            <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
-                <strong>Fitur-Fitur yang Tersedia:</strong>
-            </p>
-            <ul class="text-xs sm:text-sm md:text-base text-gray-700 space-y-2 mb-4">
-                <li class="flex gap-2">
-                    <span class="text-maroon">✓</span>
-                    <span><strong>Analisis Rekomendasi:</strong> Isi kuesioner singkat dan dapatkan rekomendasi 9 jurusan yang disesuaikan dengan profil Anda</span>
-                </li>
-                <li class="flex gap-2">
-                    <span class="text-maroon">✓</span>
-                    <span><strong>Konsultasi dengan AI:</strong> Chat dengan konselor BK virtual yang siap menjawab pertanyaan tentang jurusan, prospek karir, dan tips sukses kuliah</span>
-                </li>
-                <li class="flex gap-2">
-                    <span class="text-maroon">✓</span>
-                    <span><strong>Riwayat Analisis:</strong> Lihat kembali semua analisis dan chat history Anda kapan saja untuk referensi</span>
-                </li>
-                <li class="flex gap-2">
-                    <span class="text-maroon">✓</span>
-                    <span><strong>Profil Pribadi:</strong> Kelola data diri, foto profil, dan informasi akademik Anda</span>
-                </li>
-            </ul>
-
-            <p class="text-xs sm:text-sm md:text-base text-gray-700 text-italic">
-                💡 <strong>Tips:</strong> Untuk hasil yang akurat, jawab semua pertanyaan dengan jujur dan detail. Semakin detail profil Anda, semakin akurat rekomendasi yang kami berikan.
-            </p>
         </div>
 
-        <!-- Main Actions Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-12">
+        <!-- Quick Action Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <!-- Rekomendasi Card -->
-            <div class="card-hover bg-white rounded-lg shadow-lg p-5 sm:p-8 border-l-4 border-blue-500 flex flex-col h-full">
-                <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 flex-grow">
-                    <div class="text-3xl sm:text-4xl flex-shrink-0">📊</div>
+            <div class="card-hover bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-8 border-2 border-blue-300 hover:border-blue-400 transition">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center text-white text-3xl shadow-md">📊</div>
                     <div>
-                        <h3 class="text-lg sm:text-lg md:text-2xl font-bold text-maroon mb-1 sm:mb-2">Analisis Rekomendasi</h3>
-                        <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                            Isi formulir singkat tentang profil Anda. Sistem akan menganalisis dan memberikan rekomendasi dari 9 jurusan yang tersedia.
-                        </p>
+                        <h3 class="text-2xl font-bold text-blue-900 mb-1">Cari Jurusan Terbaikmu</h3>
+                        <p class="text-blue-700">Rekomendasi Khusus</p>
                     </div>
                 </div>
-                <div class="mt-4 sm:mt-6">
-                    <a href="{{ url('/rekomendasi') }}" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 text-sm sm:text-base">
-                        Mulai Analisis Baru
-                    </a>
+                <p class="text-blue-800 mb-6 leading-relaxed">
+                    Jawab beberapa pertanyaan tentang nilai akademik, minat, gaya belajar, dan cita-cita kamu. Sistem kami akan menganalisis profil lengkap kamu dan memberikan rekomendasi jurusan yang paling cocok, lengkap dengan penjelasan alasan kesesuaiannya.
+                </p>
+                <div class="flex items-center justify-between bg-white rounded-lg p-4 mb-6">
+                    <span class="text-sm font-semibold text-gray-600">⏱️ Waktu: 3-5 menit</span>
+                    <span class="text-sm font-semibold text-blue-600">📈 Akurasi Tinggi</span>
                 </div>
-                <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 rounded-lg">
-                    <p class="text-xs sm:text-sm text-blue-800">
-                        <strong>Durasi:</strong> 3-5 menit | <strong>Metode:</strong> AI Analysis
-                    </p>
-                </div>
+                <a href="{{ url('/rekomendasi') }}" class="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md transform hover:scale-105">
+                    Mulai Analisis →
+                </a>
             </div>
 
             <!-- Chatbot Card -->
-            <div class="card-hover bg-white rounded-lg shadow-lg p-5 sm:p-8 border-l-4 border-green-500 flex flex-col h-full">
-                <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 flex-grow">
-                    <div class="text-3xl sm:text-4xl flex-shrink-0">💬</div>
+            <div class="card-hover bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-lg p-8 border-2 border-green-300 hover:border-green-400 transition">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center text-white text-3xl shadow-md">💬</div>
                     <div>
-                        <h3 class="text-lg sm:text-lg md:text-2xl font-bold text-maroon mb-1 sm:mb-2">Chat dengan AI</h3>
-                        <p class="text-xs sm:text-sm md:text-base text-gray-700">
-                            Tanya jawab tentang jurusan, kurikulum, prospek karir, dan pertanyaan seputar pemilihan jurusan.
-                        </p>
+                        <h3 class="text-2xl font-bold text-green-900 mb-1">Tanya Jawab dengan AI</h3>
+                        <p class="text-green-700">Konsultan Karir Virtual</p>
                     </div>
                 </div>
-                <div class="mt-4 sm:mt-6">
-                    <a href="{{ url('/chatbot') }}" class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-200 text-sm sm:text-base">
-                        Mulai Chat
-                    </a>
+                <p class="text-green-800 mb-6 leading-relaxed">
+                    Ada pertanyaan tentang jurusan tertentu? Penasaran dengan prospek karir? Atau butuh tips sukses masuk kuliah? Chat dengan konselor AI kami yang siap membantu kapan saja. Dapatkan jawaban detail dan rekomendasi personal untuk setiap pertanyaan kamu.
+                </p>
+                <div class="flex items-center justify-between bg-white rounded-lg p-4 mb-6">
+                    <span class="text-sm font-semibold text-gray-600">⭐ Respons Cepat</span>
+                    <span class="text-sm font-semibold text-green-600">🤖 AI Powered</span>
                 </div>
-                <div class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-50 rounded-lg">
-                    <p class="text-xs sm:text-sm text-green-800">
-                        <strong>Fitur:</strong> Tanya jawab dengan AI
-                    </p>
+                <a href="{{ url('/chatbot?new=1') }}" class="block w-full text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md transform hover:scale-105">
+                    Mulai Konsultasi →
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-8">Fitur Lengkap untuk Pendampinganmu</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="text-center p-6 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-md transition">
+                    <div class="text-4xl mb-3">📋</div>
+                    <h4 class="font-bold text-gray-900 mb-2">Rekomendasi Personal</h4>
+                    <p class="text-sm text-gray-700">Analisis mendalam berdasarkan profil unik kamu</p>
+                </div>
+                <div class="text-center p-6 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-md transition">
+                    <div class="text-4xl mb-3">💬</div>
+                    <h4 class="font-bold text-gray-900 mb-2">Chat 24/7</h4>
+                    <p class="text-sm text-gray-700">Konsultasi kapan saja dengan AI konselor</p>
+                </div>
+                <div class="text-center p-6 rounded-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-md transition">
+                    <div class="text-4xl mb-3">📚</div>
+                    <h4 class="font-bold text-gray-900 mb-2">Info Jurusan</h4>
+                    <p class="text-sm text-gray-700">Detail lengkap tentang setiap program studi</p>
+                </div>
+                <div class="text-center p-6 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-md transition">
+                    <div class="text-4xl mb-3">📊</div>
+                    <h4 class="font-bold text-gray-900 mb-2">Riwayat</h4>
+                    <p class="text-sm text-gray-700">Simpan & bandingkan hasil analisis sebelumnya</p>
                 </div>
             </div>
         </div>
 
-        <!-- Info Section -->
-        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8">
-            <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-4 sm:mb-6">9 Jurusan Tersedia</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🌾</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Produksi Pertanian</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Teknik budidaya tanaman modern</p>
+        <!-- Process Section -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-8 text-white mb-8">
+            <h3 class="text-2xl font-bold mb-8">Bagaimana Cara Kerjanya? 🔍</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-full bg-white text-indigo-600 font-bold text-xl flex items-center justify-center mx-auto mb-4 shadow-lg">1</div>
+                    <h4 class="font-bold mb-2">Isi Kuesioner</h4>
+                    <p class="text-indigo-100 text-sm">Jawab pertanyaan tentang nilai, minat, dan impian kamu secara jujur</p>
                 </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-teal-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🔬</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Teknologi Pertanian</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Inovasi teknologi pertanian</p>
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-full bg-white text-indigo-600 font-bold text-xl flex items-center justify-center mx-auto mb-4 shadow-lg">2</div>
+                    <h4 class="font-bold mb-2">Proses Data</h4>
+                    <p class="text-indigo-100 text-sm">AI menganalisis profil kamu dengan algoritma machine learning</p>
                 </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🐄</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Peternakan</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Manajemen peternakan</p>
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-full bg-white text-indigo-600 font-bold text-xl flex items-center justify-center mx-auto mb-4 shadow-lg">3</div>
+                    <h4 class="font-bold mb-2">Dapatkan Hasil</h4>
+                    <p class="text-indigo-100 text-sm">Terima ranking 9 jurusan dengan skor kesesuaian detail</p>
                 </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">💼</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Manajemen Agribisnis</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Bisnis pertanian</p>
-                </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">💻</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Teknologi Informasi</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Sistem digital</p>
-                </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">⚙️</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Teknik</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Mesin & sistem teknik</p>
-                </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-rose-50 to-red-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">⚕️</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Kesehatan</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Profesi kesehatan</p>
-                </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-sky-50 to-cyan-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🗣️</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Bahasa & Komunikasi</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Komunasikan & wisata</p>
-                </div>
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-lime-50 to-green-50 rounded-lg border border-maroon">
-                    <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">📊</div>
-                    <h4 class="font-bold text-sm sm:text-base text-maroon">Bisnis</h4>
-                    <p class="text-xs sm:text-sm text-gray-700 mt-1">Manajemen bisnis</p>
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-full bg-white text-indigo-600 font-bold text-xl flex items-center justify-center mx-auto mb-4 shadow-lg">4</div>
+                    <h4 class="font-bold mb-2">Konsultasi Lanjut</h4>
+                    <p class="text-indigo-100 text-sm">Diskusikan hasil & pertanyaan lanjut dengan AI konselor</p>
                 </div>
             </div>
         </div>
 
-        <!-- Features Section -->
-        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8">
-            <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-maroon mb-4 sm:mb-6">Cara Kerja Sistem</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div class="flex gap-3 sm:gap-4">
-                    <div class="text-2xl sm:text-3xl font-bold text-maroon flex-shrink-0">1</div>
-                    <div>
-                        <h4 class="font-bold text-sm sm:text-base text-maroon mb-1">Isi Data Diri</h4>
-                        <p class="text-xs sm:text-sm text-gray-700">Masukkan nilai akademik, minat, preferensi, prestasi, dan cita-cita</p>
-                    </div>
+        <!-- Programs Grid -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Program Studi yang Tersedia</h3>
+            <p class="text-gray-600 mb-8">Jelajahi 9 program studi unggulan kami di Politeknik Negeri Jember</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">🌾</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Produksi Pertanian</h4>
+                    <p class="text-sm text-gray-600 mt-2">Teknik budidaya tanaman modern & berkelanjutan</p>
                 </div>
-                <div class="flex gap-3 sm:gap-4">
-                    <div class="text-2xl sm:text-3xl font-bold text-maroon flex-shrink-0">2</div>
-                    <div>
-                        <h4 class="font-bold text-sm sm:text-base text-maroon mb-1">Analisis Sistem</h4>
-                        <p class="text-xs sm:text-sm text-gray-700">Sistem menganalisis data menggunakan algoritma canggih</p>
-                    </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">🔬</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Teknologi Pertanian</h4>
+                    <p class="text-sm text-gray-600 mt-2">Inovasi teknologi untuk efisiensi pertanian</p>
                 </div>
-                <div class="flex gap-3 sm:gap-4">
-                    <div class="text-2xl sm:text-3xl font-bold text-maroon flex-shrink-0">3</div>
-                    <div>
-                        <h4 class="font-bold text-sm sm:text-base text-maroon mb-1">Hasil Rekomendasi</h4>
-                        <p class="text-xs sm:text-sm text-gray-700">Dapatkan rekomendasi 9 jurusan dengan analisis detail</p>
-                    </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">🐄</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Peternakan</h4>
+                    <p class="text-sm text-gray-600 mt-2">Manajemen & teknologi peternakan terkini</p>
                 </div>
-                <div class="flex gap-3 sm:gap-4">
-                    <div class="text-2xl sm:text-3xl font-bold text-maroon flex-shrink-0">4</div>
-                    <div>
-                        <h4 class="font-bold text-sm sm:text-base text-maroon mb-1">Konsultasi Lanjut</h4>
-                        <p class="text-xs sm:text-sm text-gray-700">Gunakan chatbot untuk tanya jawab lebih lanjut</p>
-                    </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">💼</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Manajemen Agribisnis</h4>
+                    <p class="text-sm text-gray-600 mt-2">Bisnis & manajemen di sektor pertanian</p>
+                </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">💻</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Teknologi Informasi</h4>
+                    <p class="text-sm text-gray-600 mt-2">Sistem digital & aplikasi web modern</p>
+                </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">⚙️</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Teknik Mesin</h4>
+                    <p class="text-sm text-gray-600 mt-2">Teknik mesin & sistem otomasi industri</p>
+                </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">⚕️</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Kesehatan</h4>
+                    <p class="text-sm text-gray-600 mt-2">Program kesehatan & keselamatan kerja</p>
+                </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">🗣️</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Komunikasi & Pariwisata</h4>
+                    <p class="text-sm text-gray-600 mt-2">Program komunikasi & industri pariwisata</p>
+                </div>
+                <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-3xl mb-3">📊</div>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Akuntansi & Bisnis</h4>
+                    <p class="text-sm text-gray-600 mt-2">Akuntansi, keuangan & manajemen bisnis</p>
                 </div>
             </div>
         </div>
