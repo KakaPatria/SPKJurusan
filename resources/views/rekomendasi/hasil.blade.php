@@ -276,9 +276,18 @@
             <a href="{{ route('rekomendasi.index') }}" class="btn-primary px-6 py-3 rounded-lg font-semibold text-center hover:shadow-lg transition">
                 🔄 Analisis Ulang
             </a>
-            <a href="{{ route('chatbot.index', ['new' => 1]) }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-blue-500 text-white hover:bg-blue-600 transition hover:shadow-lg">
-                💬 Tanya Chatbot
-            </a>
+            @if(!empty($recommendationId))
+                <a href="{{ route('chatbot.index', ['rec' => $recommendationId]) }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-blue-600 text-white hover:bg-blue-700 transition hover:shadow-lg">
+                    💬 Tanya Chatbot
+                </a>
+                <!-- <a href="{{ route('chatbot.index', ['new' => 1]) }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-gray-100 text-primary hover:bg-gray-200 transition hover:shadow-lg">
+                    💬 Mulai Chat Baru
+                </a> -->
+            @else
+                <a href="{{ route('chatbot.index', ['new' => 1]) }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-blue-500 text-white hover:bg-blue-600 transition hover:shadow-lg">
+                    💬 Tanya Chatbot
+                </a>
+            @endif
             <a href="{{ url('/dashboard') }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-white text-primary border-2" style="border-color: var(--primary); transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='var(--bg-soft)'" onmouseout="this.style.backgroundColor='white'">
                 ← Ke Dashboard
             </a>
