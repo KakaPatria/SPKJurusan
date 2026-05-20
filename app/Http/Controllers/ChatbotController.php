@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\GeminiService;
 use App\Models\ChatHistory;
+use App\Models\PolijeMajor;
 use App\Models\Recommendation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -87,12 +88,26 @@ class ChatbotController extends Controller
 
         // Ambil konteks rekomendasi berdasarkan ID spesifik
         $recentRecommendation = $this->getRecommendationContext($user, $recommendationId, $isNew);
+        // Build initial greeting. For a fresh chat (?new=1) we want a generic greeting
+        // (do not pre-fill with any jurusan details) to avoid confusing the user.
+        $initialGreeting = $this->buildInitialGreeting($recentRecommendation, (bool) $isNew);
+
+        // Load recent chat history summaries for the right-hand panel (if any)
+        $chatHistories = [];
+        if ($user) {
+            $chatHistories = ChatHistory::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+        }
 
         return view('chatbot.index', [
             'recommendation' => $recentRecommendation,
             'sessionId' => $sessionId,
             'previousMessages' => $previousMessages,
             'recommendationId' => $recommendationId,
+            'initialGreeting' => $initialGreeting,
+            'chatHistories' => $chatHistories,
         ]);
     }
 
@@ -321,6 +336,47 @@ class ChatbotController extends Controller
                 'skor'    => is_array($r) ? ($r['skor'] ?? 0) : 0,
             ], $top3),
         ];
+    }
+
+    /**
+     * Build initial greeting. If $forceGeneric is true, do not include any jurusan-specific details.
+     */
+    private function buildInitialGreeting(?array $recommendation = null, bool $forceGeneric = false): string
+    {
+        $hour = (int) now()->format('H');
+        if ($hour >= 3 && $hour < 11) {
+            $sapaan = 'Selamat pagi';
+        } elseif ($hour >= 11 && $hour < 15) {
+            $sapaan = 'Selamat siang';
+        } elseif ($hour >= 15 && $hour < 18) {
+            $sapaan = 'Selamat sore';
+        } else {
+            $sapaan = 'Selamat malam';
+        }
+
+        $major = null;
+        if (!$forceGeneric && !empty($recommendation['jurusan'])) {
+            $major = PolijeMajor::where('nama_jurusan', $recommendation['jurusan'])->first();
+        }
+
+        if ($major) {
+            $description = trim((string) ($major->deskripsi ?? ''));
+            $prospek = trim((string) ($major->prospek_kerja ?? ''));
+
+            $opening = "{$sapaan}. Saya adalah konselor BK virtual SMA Bima Ambulu. Saat ini saya dapat membantu Anda memahami Jurusan {$major->nama_jurusan}";
+            if ($description !== '') {
+                $opening .= ", yaitu {$description}";
+            }
+            if ($prospek !== '') {
+                $opening .= ". Prospek kerjanya antara lain {$prospek}";
+            }
+            $opening .= '. Silakan sampaikan pertanyaan Anda mengenai jurusan ini atau jurusan lain yang ingin dibandingkan.';
+
+            return $opening;
+        }
+
+        // Generic fallback greeting when no specific major should be shown
+        return "{$sapaan}. Saya adalah konselor BK virtual SMA Bima Ambulu. Silakan sampaikan pertanyaan Anda terkait pemilihan jurusan, prospek karier, atau perbandingan jurusan.";
     }
 
     /**

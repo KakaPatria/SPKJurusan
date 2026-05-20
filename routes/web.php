@@ -18,10 +18,34 @@ Route::get('/dashboard', function () {
     $recommendationCount = $user ? \App\Models\Recommendation::where('user_id', $user->id)->count() : 0;
     $chatCount = $user ? \App\Models\ChatHistory::where('user_id', $user->id)->count() : 0;
     
-    return view('dashboard', [
-        'recommendationCount' => $recommendationCount,
-        'chatCount' => $chatCount
-    ]);
+        // Load latest recommendation summary for quick action on dashboard
+        $latestRecommendation = null;
+        if ($user) {
+            $lastRec = \App\Models\Recommendation::where('user_id', $user->id)->latest()->first();
+            if ($lastRec) {
+                $hasil = [];
+                if (!empty($lastRec->hasil_rekomendasi)) {
+                    $hasil = is_array($lastRec->hasil_rekomendasi) ? $lastRec->hasil_rekomendasi : json_decode($lastRec->hasil_rekomendasi, true);
+                    if (!is_array($hasil)) $hasil = [];
+                }
+
+                $top = $hasil[0] ?? null;
+                $top3 = array_slice($hasil ?? [], 0, 3);
+
+                $latestRecommendation = [
+                    'id' => $lastRec->id,
+                    'jurusan' => $top['jurusan'] ?? null,
+                    'skor' => $top['skor'] ?? null,
+                    'top3' => $top3,
+                ];
+            }
+        }
+
+        return view('dashboard', [
+            'recommendationCount' => $recommendationCount,
+            'chatCount' => $chatCount,
+            'latestRecommendation' => $latestRecommendation,
+        ]);
 })->middleware(['auth', 'verified', 'roleRedirect'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

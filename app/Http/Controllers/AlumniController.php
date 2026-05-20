@@ -79,7 +79,7 @@ class AlumniController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
             // Major
@@ -133,7 +133,7 @@ class AlumniController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|min:3|max:255',

@@ -83,26 +83,27 @@ class GeminiService
                 ]
             ];
 
-            // Mode Python-only: chatbot wajib melalui backend Python.
-            if (empty($this->backendUrl)) {
-                return [
-                    'success' => false,
-                    'message' => 'Layanan chatbot belum siap digunakan saat ini. Silakan coba kembali beberapa saat lagi.',
-                ];
+            // Use direct Gemini call from Laravel only. Python backend removed by request.
+            $directResponse = $this->sendDirectToGemini($payload);
+            if (($directResponse['success'] ?? false) === true) {
+                return $directResponse;
             }
 
-            $proxyResponse = $this->sendViaPythonBackend($payload);
-            if (($proxyResponse['success'] ?? false) === true) {
-                return $proxyResponse;
-            }
+            Log::warning('Direct Gemini call failed', ['direct_error' => $directResponse['message'] ?? 'unknown']);
 
-            Log::error('Python Gemini backend failed in Python-only mode', [
-                'error' => $proxyResponse['message'] ?? 'unknown',
-            ]);
+            // Try local fallback generator (rule-based) before returning error so user still gets helpful reply
+            try {
+                $fallback = $this->getFallbackResponse($message, $context, $chatHistory);
+                if (!empty($fallback) && ($fallback['success'] ?? false) === true) {
+                    return $fallback;
+                }
+            } catch (\Exception $e) {
+                Log::warning('Fallback generation failed', ['error' => $e->getMessage()]);
+            }
 
             return [
                 'success' => false,
-                'message' => $proxyResponse['message'] ?? 'Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba lagi.',
+                'message' => $directResponse['message'] ?? 'Maaf, layanan chatbot sedang mengalami gangguan. Silakan coba lagi.',
             ];
 
         } catch (\Exception $e) {
@@ -178,11 +179,115 @@ class GeminiService
         }
     }
 
+    protected function sendDirectToGemini(array $payload): array
+    {
+        // Implement retry/backoff for transient errors (429 and 5xx).
+        $maxAttempts = 3;
+        $baseBackoffMs = 500; // initial backoff in milliseconds
+
+        foreach ($this->models as $model) {
+            $url = $this->baseUrl . $model . ':generateContent?key=' . $this->apiKey;
+
+            $attempt = 0;
+            $lastException = null;
+
+            while ($attempt < $maxAttempts) {
+                $attempt++;
+
+                try {
+                    $response = Http::timeout(35)
+                        ->acceptJson()
+                        ->asJson()
+                        ->post($url, $payload);
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $message = (string) data_get($data, 'candidates.0.content.parts.0.text', '');
+
+                        if ($message !== '') {
+                            return [
+                                'success' => true,
+                                'message' => $message,
+                                'model' => $model,
+                            ];
+                        }
+
+                        return [
+                            'success' => false,
+                            'message' => 'Jawaban dari Gemini tidak ditemukan.',
+                        ];
+                    }
+
+                    $status = $response->status();
+
+                    // Map status to message
+                    $mappedMessage = match ($status) {
+                        401, 403 => 'Akses ke layanan AI ditolak sementara.',
+                        404 => 'Model Gemini sementara tidak tersedia.',
+                        429 => 'Layanan AI sedang ramai digunakan. Silakan tunggu sebentar lalu coba lagi.',
+                        500, 502, 503, 504 => 'Maaf, layanan AI sedang mengalami gangguan. Silakan coba kembali beberapa saat lagi.',
+                        default => 'Layanan AI sedang tidak tersedia. Silakan coba kembali nanti.',
+                    };
+
+                    // Retry on 429 and server errors
+                    if (in_array($status, [429, 500, 502, 503, 504], true)) {
+                        Log::warning('Gemini direct call transient error', ['model' => $model, 'status' => $status, 'attempt' => $attempt]);
+
+                        if ($attempt < $maxAttempts) {
+                            // exponential backoff with small jitter
+                            $backoffMs = (int) ($baseBackoffMs * (2 ** ($attempt - 1)));
+                            $jitter = random_int(-100, 100);
+                            $sleepMs = max(100, $backoffMs + $jitter);
+                            usleep($sleepMs * 1000);
+                            continue;
+                        }
+
+                        // exhausted attempts for this model, try next model
+                        Log::warning('Gemini direct call exhausted attempts for model', ['model' => $model, 'status' => $status]);
+                        $lastException = $mappedMessage;
+                        break;
+                    }
+
+                    // For other non-retriable statuses, return immediately
+                    return [
+                        'success' => false,
+                        'message' => $mappedMessage,
+                    ];
+
+                } catch (\Exception $e) {
+                    $lastException = $e->getMessage();
+                    Log::warning('Direct Gemini request exception', ['model' => $model, 'attempt' => $attempt, 'error' => $lastException]);
+
+                    if ($attempt < $maxAttempts) {
+                        $backoffMs = (int) ($baseBackoffMs * (2 ** ($attempt - 1)));
+                        $jitter = random_int(-100, 100);
+                        $sleepMs = max(100, $backoffMs + $jitter);
+                        usleep($sleepMs * 1000);
+                        continue;
+                    }
+
+                    break;
+                }
+            }
+
+            // If we exhausted attempts for this model and have a last exception/message, log and try next model
+            if ($lastException) {
+                Log::warning('Gemini model fallback', ['model' => $model, 'reason' => $lastException]);
+            }
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Layanan AI sedang ramai digunakan. Silakan tunggu sebentar lalu coba lagi.',
+        ];
+    }
+
     protected function getFallbackResponse($message, $context = [], $chatHistory = [])
     {
         $jurusan = $context['recommendation'] ?? null;
         $score = isset($context['score']) ? floatval($context['score']) : 0;
         $hasRecommendation = !empty($jurusan);
+        $messageLower = strtolower($message);
 
         if (($context['intent'] ?? '') === 'compare_majors') {
             $comparison = $this->buildStructuredComparisonResponse($message, $context);
@@ -204,6 +309,44 @@ class GeminiService
         // Keyword-based responses
         $messageLower = strtolower($message);
         $lastAiMessage = $this->getLastAssistantMessage($chatHistory);
+
+        // If user asks about program studi / prodi, return concise list of prodi
+        if (strpos($messageLower, 'prodi') !== false || strpos($messageLower, 'program studi') !== false) {
+            // If we have a recommended major, list its prodi
+            if ($hasRecommendation && $major) {
+                $prodi = $this->extractProdiFromDescription((string) $major->deskripsi);
+                if (!empty($prodi)) {
+                    $lines = ["Program studi untuk Jurusan {$major->nama_jurusan}:"];
+                    foreach ($prodi as $p) {
+                        $lines[] = "- {$p}";
+                    }
+                    return [
+                        'success' => true,
+                        'message' => implode("\n", $lines),
+                    ];
+                }
+            }
+
+            // Otherwise, list program studi names across all majors (compact)
+            $majors = PolijeMajor::orderBy('nama_jurusan')->get();
+            $allProdi = [];
+            foreach ($majors as $m) {
+                $p = $this->extractProdiFromDescription((string) $m->deskripsi);
+                foreach ($p as $x) {
+                    $allProdi[$x] = true;
+                }
+            }
+            if (!empty($allProdi)) {
+                $lines = ["Daftar program studi (ringkas):"];
+                foreach (array_keys($allProdi) as $pname) {
+                    $lines[] = "- {$pname}";
+                }
+                return [
+                    'success' => true,
+                    'message' => implode("\n", $lines),
+                ];
+            }
+        }
 
         // Tangani pertanyaan lanjutan agar tetap nyambung saat fallback aktif
         if ($this->isFollowUpMessage($messageLower)) {
@@ -357,6 +500,59 @@ class GeminiService
         ];
     }
 
+    /**
+     * Try to extract program studi names from a free-form description text.
+     * Returns array of short names (trimmed).
+     */
+    protected function extractProdiFromDescription(string $desc): array
+    {
+        $out = [];
+        if (trim($desc) === '') return [];
+
+        // Look for phrase 'program studi' and capture following segment until period
+        if (preg_match('/program studi\s*([^\.]+)/i', $desc, $m)) {
+            $segment = $m[1];
+            // split by comma or ' dan '
+            $parts = preg_split('/,| dan |\/|;/', $segment);
+            foreach ($parts as $p) {
+                $p = trim($p);
+                // remove leading words like 'yaitu' or conjunctions
+                $p = preg_replace('/^yaitu\s+/i', '', $p);
+                $p = preg_replace('/\s+PSDKU.*$/i', '', $p);
+                if ($p !== '') {
+                    // remove trailing words that are not part of name
+                    $p = trim($p, ",.");
+                    $out[] = $p;
+                }
+            }
+        }
+
+        // Also try to match items like 'D3 Nama Prodi' or 'D4 Nama Prodi'
+        if (preg_match_all('/\bD\d\s+[A-Z][A-Za-z0-9\s\-\&]+/u', $desc, $matches)) {
+            foreach ($matches[0] as $m) {
+                $m = trim($m);
+                if (!in_array($m, $out, true)) $out[] = $m;
+            }
+        }
+
+        // Clean and filter duplicates. Keep short, meaningful items.
+        $clean = [];
+        foreach ($out as $v) {
+            $v = preg_replace('/\s+\s+/',' ', trim($v));
+            // discard fragments that contain long descriptive clauses
+            if ($v === '') continue;
+            $words = preg_split('/\s+/', $v);
+            if (count($words) > 8) continue;
+            // discard if contains common non-name phrases
+            if (preg_match('/\b(sistem pembelajaran|laboratorium|dengan|memiliki|prospek|peluang kerja|didukung)\b/i', $v)) continue;
+            // normalize punctuation
+            $v = trim($v, ",.;:\-\t\n\r");
+            if (!in_array($v, $clean, true)) $clean[] = $v;
+        }
+
+        return $clean;
+    }
+
     protected function buildSystemPrompt($context)
     {
         $prompt = "Kamu adalah Konselor Bimbingan Konseling (BK) di SMA Bima Ambulu. ";
@@ -444,25 +640,7 @@ class GeminiService
             }
         }
 
-        $jurusanList = PolijeMajor::all();
-        if ($jurusanList->isNotEmpty()) {
-            $prompt .= "\n\nDAFTAR JURUSAN POLIJE ({$jurusanList->count()} jurusan) — INI ADALAH SUMBER DATA UTAMA, gunakan informasi ini saat menjelaskan jurusan:";
-            foreach ($jurusanList as $j) {
-                $prompt .= "\n- JURUSAN {$j->nama_jurusan}";
-                if (!empty($j->deskripsi)) {
-                    $prompt .= ": {$j->deskripsi}";
-                }
-                if (!empty($j->prospek_kerja)) {
-                    $prompt .= " | Prospek kerja: {$j->prospek_kerja}.";
-                }
-                if (!empty($j->keywords) && is_array($j->keywords)) {
-                    $prompt .= " | Kata kunci: " . implode(', ', array_slice($j->keywords, 0, 10)) . ".";
-                }
-                if (!empty($j->preferensi_studi) && is_array($j->preferensi_studi)) {
-                    $prompt .= " | Rumpun: " . implode(', ', $j->preferensi_studi) . ".";
-                }
-            }
-        }
+        $prompt .= "\n\nDAFTAR JURUSAN POLIJE disediakan oleh backend Python sebagai konteks terstruktur. Jangan ulang seluruh daftar jurusan di prompt ini agar ukuran request tetap ringan. Gunakan data jurusan yang sudah diinjeksi backend untuk menjawab secara akurat dan ringkas.";
         
         $prompt .= "\n\nCara kamu merespons:";
         $prompt .= "\n0. WAJIB jawab inti pertanyaan pengguna terlebih dahulu secara langsung dalam 1-2 kalimat pertama. Jangan memutar atau memberi jawaban generik yang tidak menanggapi pertanyaan.";

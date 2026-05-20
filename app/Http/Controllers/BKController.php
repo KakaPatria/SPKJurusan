@@ -70,90 +70,38 @@ class BKController extends Controller
             ->groupBy('kelompok_asal')
             ->get();
 
-        // Rekomendasi per kelompok
-        $rekomendasiPerKelompok = Recommendation::selectRaw(
-            'users.kelompok_asal, COUNT(*) as count'
-        )
-        ->join('users', 'rekomendasi.user_id', '=', 'users.id')
-        ->groupBy('users.kelompok_asal')
-        ->get();
-
         $topMajors = Recommendation::selectRaw("
             JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan') as major_name,
             COUNT(*) as count
         ")
-            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') IS NOT NULL")
-            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') != 'null'")            ->orderBy('count', 'desc')
+            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")
+            ->orderBy('count', 'desc')
             ->take(5)
             ->get();
 
-        // Data untuk chart - semua jurusan (filter out NULL values)
+        // Data untuk chart - semua jurusan
         $allMajorsChart = Recommendation::selectRaw("
-            JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') as major_name,
+            JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan') as major_name,
             COUNT(*) as count
         ")
-            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan')")
-            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') IS NOT NULL")
-            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') != 'null'")
+            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")
             ->orderBy('count', 'desc')
             ->get();
 
-        // Persiapkan data untuk Chart.js - aggregate & fix major names
-        $majorData = [];
-        foreach ($allMajorsChart as $item) {
-            $name = trim($item->major_name, '" ');
-            
-            // Skip empty/null values
-            if (empty($name) || $name === 'null') {
-                continue;
-            }
-            
-            // Normalize: handle all variants
-            $normalizedName = $name;
-            if (stripos($name, 'Teknik Informatika') === 0 || stripos($name, 'Teknologi Informasi') === 0) {
-                $normalizedName = 'Teknologi Informasi';
-            }
-            
-            if (!isset($majorData[$normalizedName])) {
-                $majorData[$normalizedName] = 0;
-            }
-            $majorData[$normalizedName] += (int)$item->count;
-        }
-        
-        // Sort by count descending
-        arsort($majorData);
-        
-        $chartMajorNames = array_keys($majorData);
-        $chartMajorCounts = array_values($majorData);
+        // Persiapkan data untuk Chart.js
+        $chartMajorNames = $allMajorsChart->pluck('major_name')->map(function($name) {
+            return trim($name, '"');
+        })->toArray();
+        $chartMajorCounts = $allMajorsChart->pluck('count')->toArray();
 
         $chartKelompokNames = $kelompokStats->pluck('kelompok_asal')->toArray();
         $chartKelompokCounts = $kelompokStats->pluck('count')->toArray();
 
-        // Top majors untuk horizontal bar chart - aggregate & fix
-        $topMajorData = [];
-        foreach ($topMajors as $item) {
-            $name = trim($item->major_name, '" ');
-            
-            // Skip empty/null values
-            if (empty($name) || $name === 'null') {
-                continue;
-            }
-            
-            // Normalize: handle all variants
-            $normalizedName = $name;
-            if (stripos($name, 'Teknik Informatika') === 0 || stripos($name, 'Teknologi Informasi') === 0) {
-                $normalizedName = 'Teknologi Informasi';
-            }
-            
-            if (!isset($topMajorData[$normalizedName])) {
-                $topMajorData[$normalizedName] = 0;
-            }
-            $topMajorData[$normalizedName] += (int)$item->count;
-        }
-        
-        arsort($topMajorData);
-        $topMajorsChart = array_keys($topMajorData);
-        $topMajorsCounts = array_values($topMajorData);
+        // Top majors untuk horizontal bar chart
+        $topMajorsChart = $topMajors->pluck('major_name')->map(function($name) {
+            return trim($name, '"');
+        })->toArray();
+        $topMajorsCounts = $topMajors->pluck('count')->toArray();
 
         return view('bk.dashboard', compact(
             'totalSiswa',
@@ -169,8 +117,7 @@ class BKController extends Controller
             'chartKelompokNames',
             'chartKelompokCounts',
             'topMajorsChart',
-            'topMajorsCounts',
-            'rekomendasiPerKelompok'
+            'topMajorsCounts'
         ));
     }
 
@@ -297,21 +244,18 @@ class BKController extends Controller
     {
         $request->validate([
             'nama_jurusan' => 'required|string|min:3|max:255|unique:jurusan_polije,nama_jurusan',
-            'deskripsi' => 'nullable|string|max:10000',
+            'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mapel' => 'nullable|array',
-            'bobot_mapel.ipa' => 'nullable|array',
-            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips' => 'nullable|array',
-            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         PolijeMajor::create([
@@ -338,21 +282,18 @@ class BKController extends Controller
 
         $request->validate([
             'nama_jurusan' => ['required', 'string', 'min:3', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
-            'deskripsi' => 'nullable|string|max:10000',
+            'deskripsi' => 'nullable|string|max:1000',
             'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
-            'bobot_mapel' => 'nullable|array',
-            'bobot_mapel.ipa' => 'nullable|array',
-            'bobot_mapel.ipa.mtk' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.fisika' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.kimia' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ipa.biologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips' => 'nullable|array',
-            'bobot_mapel.ips.ekonomi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.geografi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.sosiologi' => 'nullable|numeric|min:0|max:1',
-            'bobot_mapel.ips.sejarah' => 'nullable|numeric|min:0|max:1',
+            'bobot_mtk' => 'nullable|numeric|min:0|max:1',
+            'bobot_fisika' => 'nullable|numeric|min:0|max:1',
+            'bobot_kimia' => 'nullable|numeric|min:0|max:1',
+            'bobot_biologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_ekonomi' => 'nullable|numeric|min:0|max:1',
+            'bobot_geografi' => 'nullable|numeric|min:0|max:1',
+            'bobot_sosiologi' => 'nullable|numeric|min:0|max:1',
+            'bobot_sejarah' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $jurusan->update([
@@ -383,45 +324,15 @@ class BKController extends Controller
 
     private function parseBobotMapel(Request $request): array
     {
-        $ipaSubjects = ['mtk', 'fisika', 'kimia', 'biologi'];
-        $ipsSubjects = ['ekonomi', 'geografi', 'sosiologi', 'sejarah'];
-
-        $ipaInput = $request->input('bobot_mapel.ipa');
-        $ipsInput = $request->input('bobot_mapel.ips');
-
-        if (is_array($ipaInput) || is_array($ipsInput)) {
-            return [
-                'ipa' => $this->normalizeBobotGroup(is_array($ipaInput) ? $ipaInput : [], $ipaSubjects),
-                'ips' => $this->normalizeBobotGroup(is_array($ipsInput) ? $ipsInput : [], $ipsSubjects),
-            ];
+        $mapelList = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+        $bobot = [];
+        foreach ($mapelList as $mapel) {
+            $value = $request->input("bobot_{$mapel}");
+            if (!is_null($value) && $value !== '') {
+                $bobot[$mapel] = floatval($value);
+            }
         }
-
-        return [
-            'ipa' => $this->normalizeBobotGroup([
-                'mtk' => $request->input('bobot_mtk'),
-                'fisika' => $request->input('bobot_fisika'),
-                'kimia' => $request->input('bobot_kimia'),
-                'biologi' => $request->input('bobot_biologi'),
-            ], $ipaSubjects),
-            'ips' => $this->normalizeBobotGroup([
-                'ekonomi' => $request->input('bobot_ekonomi'),
-                'geografi' => $request->input('bobot_geografi'),
-                'sosiologi' => $request->input('bobot_sosiologi'),
-                'sejarah' => $request->input('bobot_sejarah'),
-            ], $ipsSubjects),
-        ];
-    }
-
-    private function normalizeBobotGroup(array $values, array $subjects): array
-    {
-        $normalized = [];
-
-        foreach ($subjects as $subject) {
-            $value = $values[$subject] ?? null;
-            $normalized[$subject] = is_numeric($value) ? (float) $value : 0.0;
-        }
-
-        return $normalized;
+        return $bobot;
     }
 
     // ============================================
@@ -460,7 +371,7 @@ class BKController extends Controller
             // Non-akademik
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
             // Major
@@ -505,7 +416,7 @@ class BKController extends Controller
             
             'minat' => 'nullable|string|max:255',
             'cita_cita' => 'nullable|string|max:255',
-            'preferensi_studi' => 'nullable|in:Praktik Langsung,Praktik_Langsung,DuDi,Project Based,Project_Based,Blended Learning,Blended',
+            'preferensi_studi' => 'nullable|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'prestasi' => 'nullable|string|max:255',
             
             'major_masuk' => 'required|string|min:3|max:255',

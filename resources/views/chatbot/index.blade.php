@@ -253,23 +253,11 @@
 
         // Time-aware greeting
         (function() {
-            const hour = new Date().getHours();
-            let sapaan;
-            if (hour >= 3 && hour < 11) {
-                sapaan = 'Selamat pagi';
-            } else if (hour >= 11 && hour < 15) {
-                sapaan = 'Selamat siang';
-            } else if (hour >= 15 && hour < 18) {
-                sapaan = 'Selamat sore';
-            } else {
-                sapaan = 'Selamat malam';
-            }
-
             if (previousMessages.length > 0) {
                 // Melanjutkan sesi lama — tampilkan info lanjutan
-                document.getElementById('initialGreeting').textContent = sapaan + '. Anda melanjutkan sesi konsultasi sebelumnya. Silakan lanjutkan pertanyaan Anda.';
+                document.getElementById('initialGreeting').textContent = @json($initialGreeting) + ' Anda melanjutkan sesi konsultasi sebelumnya. Silakan lanjutkan pertanyaan Anda.';
             } else {
-                document.getElementById('initialGreeting').textContent = sapaan + '. Saya adalah konselor BK virtual SMA Bima Ambulu. Saya siap membantu Anda dalam pemilihan jurusan Politeknik Negeri Jember, informasi prospek karier, maupun konsultasi lanjutan studi. Silakan sampaikan pertanyaan Anda.';
+                document.getElementById('initialGreeting').textContent = @json($initialGreeting);
             }
         })();
 

@@ -128,7 +128,7 @@
                     <p class="text-sm md:text-base text-teal-100 mt-1">Jurusan terbaik berdasarkan profil Anda</p>
                 </div>
                 <div class="flex gap-3">
-                    <a href="{{ route('rekomendasi.input') }}" class="btn-primary px-4 py-2 rounded-lg font-medium text-sm hover:shadow-lg transition">
+                    <a href="{{ route('rekomendasi.index') }}" class="btn-primary px-4 py-2 rounded-lg font-medium text-sm hover:shadow-lg transition">
                         🔄 Analisis Ulang
                     </a>
                     <a href="{{ url('/dashboard') }}" class="px-4 py-2 rounded-lg font-medium text-sm bg-white text-primary hover:bg-gray-50 transition">
@@ -275,6 +275,9 @@
         <div class="flex flex-col sm:flex-row gap-4 mt-8">
             <a href="{{ route('rekomendasi.index') }}" class="btn-primary px-6 py-3 rounded-lg font-semibold text-center hover:shadow-lg transition">
                 🔄 Analisis Ulang
+            </a>
+            <a href="{{ route('chatbot.index', ['new' => 1]) }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-blue-500 text-white hover:bg-blue-600 transition hover:shadow-lg">
+                💬 Tanya Chatbot
             </a>
             <a href="{{ url('/dashboard') }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-white text-primary border-2" style="border-color: var(--primary); transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='var(--bg-soft)'" onmouseout="this.style.backgroundColor='white'">
                 ← Ke Dashboard

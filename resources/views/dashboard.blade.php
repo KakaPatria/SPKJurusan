@@ -122,9 +122,23 @@
                     <span class="text-sm font-semibold text-gray-600">⭐ Respons Cepat</span>
                     <span class="text-sm font-semibold text-green-600">🤖 AI Powered</span>
                 </div>
-                <a href="{{ url('/chatbot?new=1') }}" class="block w-full text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md transform hover:scale-105">
-                    Mulai Konsultasi →
-                </a>
+                @if(!empty($latestRecommendation) && !empty($latestRecommendation['jurusan']))
+                    <div class="mb-4 text-sm text-gray-700">
+                        <p class="font-semibold">Rekomendasi Terbaru: <span class="text-green-800">{{ $latestRecommendation['jurusan'] }}</span> · Skor: {{ isset($latestRecommendation['skor']) ? number_format(($latestRecommendation['skor'] > 1 ? $latestRecommendation['skor'] : $latestRecommendation['skor'] * 100), 1) : '-' }}%</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="{{ route('chatbot.index', ['rec' => $latestRecommendation['id']]) }}" class="block text-center bg-white text-green-700 font-bold py-2 px-4 rounded-lg border border-green-200 hover:bg-green-50 transition text-sm">
+                            Tanya dengan rekomendasi ini
+                        </a>
+                        <a href="{{ url('/chatbot?new=1') }}" class="block text-center bg-gradient-to-r from-green-600 to-green-700 text-white font-bold py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition text-sm">
+                            Buka Chat Baru
+                        </a>
+                    </div>
+                @else
+                    <a href="{{ url('/chatbot?new=1') }}" class="block w-full text-center bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md transform hover:scale-105">
+                        Mulai Konsultasi →
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -214,8 +228,8 @@
                 </div>
                 <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
                     <div class="text-3xl mb-3">⚙️</div>
-                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Teknik Mesin</h4>
-                    <p class="text-sm text-gray-600 mt-2">Teknik mesin & sistem otomasi industri</p>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Teknik</h4>
+                    <p class="text-sm text-gray-600 mt-2">Teknik & sistem otomasi industri</p>
                 </div>
                 <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
                     <div class="text-3xl mb-3">⚕️</div>
@@ -229,7 +243,7 @@
                 </div>
                 <div class="group p-5 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:shadow-md transition bg-gradient-to-br from-gray-50 to-white">
                     <div class="text-3xl mb-3">📊</div>
-                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Akuntansi & Bisnis</h4>
+                    <h4 class="font-bold text-gray-900 group-hover:text-purple-600 transition">Bisnis</h4>
                     <p class="text-sm text-gray-600 mt-2">Akuntansi, keuangan & manajemen bisnis</p>
                 </div>
             </div>

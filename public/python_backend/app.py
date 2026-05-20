@@ -110,6 +110,8 @@ def _build_majors_context_text(majors_data: Dict[str, Any]) -> str:
         f"last_updated: {majors_data.get('last_updated', 'unknown')}",
         "Gunakan data berikut untuk menjawab informasi jurusan secara konsisten.",
         "Jika ada konflik dengan asumsi model, utamakan data ini.",
+        "CATATAN PENTING: Jika pengguna menanyakan 'prodi' atau 'program studi', coba ekstrak dan sebutkan nama-nama program studi yang secara eksplisit disebut dalam field 'description' atau dalam teks data jurusan."
+        "Jika tidak ada daftar program studi eksplisit, beri tahu pengguna bahwa data resmi tidak menyebutkan daftar prodi dan sertakan ringkasan singkat dari 'description'.",
     ]
 
     for index, major in enumerate(majors, start=1):
@@ -119,9 +121,12 @@ def _build_majors_context_text(majors_data: Dict[str, Any]) -> str:
         preferences = ", ".join(major.get("study_preferences", [])) or "-"
         keywords = ", ".join(major.get("keywords", [])) or "-"
 
+        # Include description verbatim and mark it so model can extract prodi if present
         lines.append(
-            f"{index}. {name} | deskripsi: {description} | preferensi studi: {preferences} | prospek: {prospects} | kata kunci: {keywords}"
+            f"{index}. {name} | description: {description} | study_preferences: {preferences} | career_prospects: {prospects} | keywords: {keywords}"
         )
+        # Add an explicit helper line to indicate where program-study info may be found
+        lines.append(f"{index}. {name} | note: Jika menanyakan 'prodi' cari dalam bagian 'description' di atas untuk daftar program studi (jika tersedia).")
 
     return "\n".join(lines)
 
@@ -253,5 +258,6 @@ def chat() -> Any:
 if __name__ == "__main__":
     host = os.getenv("PY_BACKEND_HOST", "0.0.0.0")
     port = int(os.getenv("PY_BACKEND_PORT", "5000"))
-    debug = os.getenv("PY_BACKEND_DEBUG", "true").lower() == "true"
-    app.run(host=host, port=port, debug=debug)
+    debug = os.getenv("PY_BACKEND_DEBUG", "false").lower() == "true"
+    use_reloader = os.getenv("PY_BACKEND_RELOADER", "false").lower() == "true"
+    app.run(host=host, port=port, debug=debug, threaded=True, use_reloader=use_reloader)
