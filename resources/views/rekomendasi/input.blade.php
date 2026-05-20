@@ -6,129 +6,227 @@
     <title>Input Data - Sistem Pemilihan Jurusan</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .gradient-maroon {
-            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
+        * {
+            box-sizing: border-box;
         }
-        .text-maroon {
-            color: #6B7280;
+
+        :root {
+            --primary: #0f766e;
+            --primary-light: #0d9488;
+            --secondary: #d97706;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-soft: #f0f9ff;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-light: #e5e7eb;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
         }
-        .border-maroon {
-            border-color: #6B7280;
+
+        body {
+            background-color: var(--bg-soft);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-        .bg-cream {
-            background-color: #F8FAFC;
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.3s ease;
         }
-        .focus-maroon:focus {
-            border-color: #6B7280;
-            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            box-shadow: var(--shadow-lg);
         }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .border-primary {
+            border-color: var(--primary);
+        }
+
+        .focus-primary:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        }
+
         .input-error {
-            border-color: #ef4444 !important;
-            background-color: #fef2f2 !important;
+            border-color: var(--error) !important;
+            background-color: #fff5f5 !important;
         }
+
         .input-valid {
-            border-color: #10b981 !important;
+            border-color: var(--success) !important;
             background-color: #f0fdf4 !important;
         }
-        .error-icon::before {
-            content: "⚠️ ";
-            margin-right: 0.25rem;
-        }
-        .success-icon::before {
-            content: "✅ ";
-            margin-right: 0.25rem;
-        }
-        .input-wrapper {
-            position: relative;
-        }
+
         .validation-message {
             font-size: 0.75rem;
-            margin-top: 0.25rem;
+            margin-top: 0.375rem;
             display: flex;
             align-items: center;
             animation: slideIn 0.3s ease-out;
         }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-5px);
+                transform: translateY(-4px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .header-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.375rem;
+        }
+
+        .input-field input,
+        .input-field select,
+        .input-field textarea {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .input-field input:focus,
+        .input-field select:focus,
+        .input-field textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+            background-color: #f8feff;
+        }
+
+        .input-hint {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.375rem;
+        }
     </style>
 </head>
-<body class="bg-cream">
+<body>
     <!-- Header -->
-    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Input Data Rekomendasi</h1>
-                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Sistem Pemilihan Jurusan</p>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">
-                    Kembali ke Dashboard
+    <header class="header-main py-4 md:py-6">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Form Analisis Jurusan</h1>
+                    <p class="text-sm md:text-base text-teal-100 mt-1">Temukan jurusan yang paling sesuai dengan minat dan potensi Anda</p>
+                </div>
+                <a href="{{ url('/dashboard') }}" class="btn-primary px-4 py-2 rounded-lg font-medium text-sm md:text-base hover:shadow-lg transition">
+                    ← Kembali
                 </a>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <div class="w-full px-4 sm:px-6 py-6 sm:py-8">
-        <!-- Hero Intro -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 sm:p-10 mb-8 text-white">
-            <h2 class="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">Kuis Cerdas Menemukan Jurusanmu 🚀</h2>
-            <p class="text-base sm:text-lg text-blue-100 mb-4 sm:mb-6 leading-relaxed">
-                Kami akan mengajukan beberapa pertanyaan untuk mengenal lebih dalam tentang profil akademis, minat, gaya belajar, prestasi, dan impian karirmu. Jawab dengan jujur dan sedetail mungkin - informasi ini akan membantu sistem AI kami memberikan rekomendasi yang paling akurat untuk masa depan gemilangmu.
-            </p>
-            <div class="grid grid-cols-3 gap-4 mt-6">
-                <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm text-center">
-                    <p class="text-3xl font-bold">⏱️</p>
-                    <p class="text-sm text-blue-100 mt-1">3-5 Menit</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm text-center">
-                    <p class="text-3xl font-bold">✅</p>
-                    <p class="text-sm text-blue-100 mt-1">Mudah & Cepat</p>
-                </div>
-                <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm text-center">
-                    <p class="text-3xl font-bold">🎯</p>
-                    <p class="text-sm text-blue-100 mt-1">Hasil Akurat</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tips Card -->
-        <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-6 sm:p-8 mb-8 shadow-sm">
-            <div class="flex gap-4">
-                <div class="text-3xl flex-shrink-0">💡</div>
+    <main class="container mx-auto px-4 md:px-6 py-8 md:py-12">
+        <!-- Info Banner -->
+        <div class="card p-5 md:p-6 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4" style="border-left-color: var(--primary);">
+            <div style="display: flex; gap: 1rem;">
+                <div style="font-size: 2rem; flex-shrink: 0;">🎯</div>
                 <div>
-                    <h3 class="font-bold text-amber-900 mb-3 text-lg">Tips Agar Hasil Lebih Akurat</h3>
-                    <ul class="text-sm text-amber-800 space-y-2">
-                        <li>✓ Jawab semua pertanyaan dengan jujur dan sebenar-benarnya</li>
-                        <li>✓ Jangan terburu-buru - pikirkan jawaban dengan matang</li>
-                        <li>✓ Nilai yang kamu masukkan sebaiknya merupakan rata-rata atau nilai terbaik dari rapor</li>
-                        <li>✓ Pilih opsi yang benar-benar mewakili minat dan preferensi kamu</li>
-                    </ul>
+                    <h2 class="text-lg font-semibold mb-2 text-primary">Petunjuk Pengisian</h2>
+                    <p class="text-sm mb-2">Isi form berikut dengan data yang akurat. Sistem akan menganalisis profil Anda menggunakan algoritma Weighted Naive Bayes untuk merekomendasikan 9 jurusan terbaik.</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Bobot kriteria: Minat (45.6%) • Preferensi (25.6%) • Nilai (15.6%) • Cita-cita (9%) • Prestasi (4%)</p>
                 </div>
             </div>
         </div>
 
         <!-- Form Card -->
-        <div class="bg-white rounded-xl shadow-lg p-8 sm:p-10 border-t-4 border-purple-600">
+
+        <div class="card p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6 text-primary">Data Diri Siswa</h2>
 
             @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 sm:p-5 rounded-lg mb-6 shadow-md animate-pulse">
-                    <div class="flex items-start gap-3">
-                        <span class="text-2xl flex-shrink-0">❌</span>
-                        <div class="flex-1">
-                            <h3 class="text-red-700 font-bold text-sm sm:text-base mb-3">Terjadi Kesalahan Validasi</h3>
-                            <p class="text-red-600 text-xs sm:text-sm mb-3">Silakan perbaiki kesalahan berikut sebelum melanjutkan:</p>
-                            <ul class="list-disc list-inside space-y-2 text-red-600 text-xs sm:text-sm bg-white bg-opacity-50 p-3 rounded">
+                <div class="mb-6 p-4 rounded-lg bg-red-50 border-l-4" style="border-left-color: var(--error);">
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="font-size: 1.5rem; flex-shrink: 0;">❌</div>
+                        <div>
+                            <h3 style="color: var(--error); font-weight: 600; margin-bottom: 0.5rem;">Ada Kesalahan Pengisian</h3>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
                                 @foreach ($errors->all() as $error)
-                                    <li class="ml-2">{{ $error }}</li>
+                                    <li style="font-size: 0.875rem; color: var(--error); margin-bottom: 0.375rem;">
+                                        • {{ $error }}
+                                    </li>
                                 @endforeach
                             </ul>
                         </div>
@@ -136,182 +234,136 @@
                 </div>
             @endif
 
-            <form action="{{ route('rekomendasi.proses') }}" method="POST" class="space-y-4 sm:space-y-6">
+            <form action="{{ route('rekomendasi.proses') }}" method="POST" class="space-y-8">
                 @csrf
 
-                {{-- ============================================ --}}
-                {{-- KRITERIA 1: NILAI MATA PELAJARAN --}}
-                {{-- ============================================ --}}
-                <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
-                    <h3 class="font-bold text-lg sm:text-xl text-purple-700 mb-2">1️⃣ Nilai Mata Pelajaran <span class="text-red-500">*</span></h3>
-                    <p class="text-sm text-gray-600 mb-4">
+                <!-- NILAI AKADEMIK -->
+                <section>
+                    <h3 class="section-title">
+                        <span style="font-size: 1.25rem;">1️⃣</span> Nilai Akademik
+                        <span style="color: var(--error);">*</span>
+                    </h3>
+                    <p class="section-desc">
                         @if(isset($student) && $student->kelompok_asal == 'IPA')
-                            Siswa <strong>IPA</strong> — Masukkan nilai rapor (0-100): <strong>Matematika, Fisika, Kimia, Biologi</strong>.
+                            Masukkan nilai rapor untuk IPA: <strong>Matematika, Fisika, Kimia, Biologi</strong>
                         @else
-                            Siswa <strong>IPS</strong> — Masukkan nilai rapor (0-100): <strong>Ekonomi, Geografi, Sosiologi, Sejarah</strong>.
+                            Masukkan nilai rapor untuk IPS: <strong>Ekonomi, Geografi, Sosiologi, Sejarah</strong>
                         @endif
                     </p>
 
                     @if(isset($student) && $student->kelompok_asal == 'IPA')
-                        {{-- SISWA IPA: Matematika, Fisika, Kimia, Biologi --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="input-wrapper">
-                                <label for="mtk" class="block text-sm font-semibold text-gray-700 mb-2">Matematika <span class="text-red-500">*</span></label>
-                                <input id="mtk" type="number" name="mtk" min="0" max="100" value="{{ old('mtk') }}" placeholder="Nilai: 85" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('mtk') input-error @enderror">
-                                @error('mtk')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="fisika" class="block text-sm font-semibold text-gray-700 mb-2">Fisika <span class="text-red-500">*</span></label>
-                                <input id="fisika" type="number" name="fisika" min="0" max="100" value="{{ old('fisika') }}" placeholder="Nilai: 78" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('fisika') input-error @enderror">
-                                @error('fisika')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="kimia" class="block text-sm font-semibold text-gray-700 mb-2">Kimia <span class="text-red-500">*</span></label>
-                                <input id="kimia" type="number" name="kimia" min="0" max="100" value="{{ old('kimia') }}" placeholder="Nilai: 72" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('kimia') input-error @enderror">
-                                @error('kimia')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="biologi" class="block text-sm font-semibold text-gray-700 mb-2">Biologi <span class="text-red-500">*</span></label>
-                                <input id="biologi" type="number" name="biologi" min="0" max="100" value="{{ old('biologi') }}" placeholder="Nilai: 80" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('biologi') input-error @enderror">
-                                @error('biologi')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            @foreach(['mtk' => 'Matematika', 'fisika' => 'Fisika', 'kimia' => 'Kimia', 'biologi' => 'Biologi'] as $field => $label)
+                                <div class="input-field">
+                                    <label>{{ $label }}</label>
+                                    <input type="number" name="{{ $field }}" min="0" max="100" value="{{ old($field) }}" placeholder="0-100" required
+                                        class="focus-primary @error($field) input-error @enderror">
+                                    @error($field)
+                                        <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
+                                    @enderror
+                                </div>
+                            @endforeach
                         </div>
                     @else
-                        {{-- SISWA IPS: Ekonomi, Geografi, Sosiologi, Sejarah --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="input-wrapper">
-                                <label for="ekonomi" class="block text-sm font-semibold text-gray-700 mb-2">Ekonomi <span class="text-red-500">*</span></label>
-                                <input id="ekonomi" type="number" name="ekonomi" min="0" max="100" value="{{ old('ekonomi') }}" placeholder="Nilai: 82" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('ekonomi') input-error @enderror">
-                                @error('ekonomi')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="geografi" class="block text-sm font-semibold text-gray-700 mb-2">Geografi <span class="text-red-500">*</span></label>
-                                <input id="geografi" type="number" name="geografi" min="0" max="100" value="{{ old('geografi') }}" placeholder="Nilai: 76" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('geografi') input-error @enderror">
-                                @error('geografi')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="sosiologi" class="block text-sm font-semibold text-gray-700 mb-2">Sosiologi <span class="text-red-500">*</span></label>
-                                <input id="sosiologi" type="number" name="sosiologi" min="0" max="100" value="{{ old('sosiologi') }}" placeholder="Nilai: 74" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('sosiologi') input-error @enderror">
-                                @error('sosiologi')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="input-wrapper">
-                                <label for="sejarah" class="block text-sm font-semibold text-gray-700 mb-2">Sejarah <span class="text-red-500">*</span></label>
-                                <input id="sejarah" type="number" name="sejarah" min="0" max="100" value="{{ old('sejarah') }}" placeholder="Nilai: 70" required
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('sejarah') input-error @enderror">
-                                @error('sejarah')
-                                    <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                                @enderror
-                            </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            @foreach(['ekonomi' => 'Ekonomi', 'geografi' => 'Geografi', 'sosiologi' => 'Sosiologi', 'sejarah' => 'Sejarah'] as $field => $label)
+                                <div class="input-field">
+                                    <label>{{ $label }}</label>
+                                    <input type="number" name="{{ $field }}" min="0" max="100" value="{{ old($field) }}" placeholder="0-100" required
+                                        class="focus-primary @error($field) input-error @enderror">
+                                    @error($field)
+                                        <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
+                                    @enderror
+                                </div>
+                            @endforeach
                         </div>
                     @endif
-                </div>
+                </section>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- ============================================ --}}
-                    {{-- KRITERIA 2: MINAT SISWA --}}
-                    {{-- ============================================ --}}
-                    <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
-                        <h3 class="font-bold text-lg sm:text-xl text-blue-700 mb-2">2️⃣ Minat Siswa <span class="text-red-500">*</span></h3>
-                        <p class="text-sm text-gray-600 mb-4">Tuliskan bidang atau kegiatan yang Anda minati / sukai.</p>
-                        <div class="input-wrapper">
-                            <label for="minat" class="block text-sm font-semibold text-gray-700 mb-2">Bidang Minat</label>
-                            <input id="minat" type="text" name="minat" value="{{ old('minat') }}" placeholder="Contoh: coding, komputer, bisnis, pertanian" 
-                                class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('minat') input-error @enderror" required>
-                            <p class="text-xs text-gray-500 mt-2">Pisahkan dengan koma jika lebih dari satu minat</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- MINAT -->
+                    <section>
+                        <h3 class="section-title">
+                            <span style="font-size: 1.25rem;">2️⃣</span> Bidang Minat
+                            <span style="color: var(--error);">*</span>
+                        </h3>
+                        <p class="section-desc">Tuliskan bidang atau kegiatan yang Anda minati. Contoh: coding, pertanian, seni, dll.</p>
+                        <div class="input-field">
+                            <input type="text" name="minat" value="{{ old('minat') }}" placeholder="Minat Anda..." required
+                                class="focus-primary @error('minat') input-error @enderror">
+                            <span class="input-hint">Minimal 3 karakter, pisahkan dengan koma jika lebih dari satu</span>
                             @error('minat')
-                                <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
+                                <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
                             @enderror
                         </div>
-                    </div>
+                    </section>
 
-                    {{-- ============================================ --}}
-                    {{-- KRITERIA 3: PREFERENSI STUDI LANJUTAN --}}
-                    {{-- ============================================ --}}
-                    <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
-                        <h3 class="font-bold text-lg sm:text-xl text-green-700 mb-2">3️⃣ Preferensi Studi Lanjutan <span class="text-red-500">*</span></h3>
-                        <p class="text-sm text-gray-600 mb-4">Pilih rumpun jurusan Politeknik Negeri Jember yang paling sesuai.</p>
-                        <div class="input-wrapper">
-                            <label for="pref_studi" class="block text-sm font-semibold text-gray-700 mb-2">Arah Rumpun Jurusan Tujuan</label>
-                            <select id="pref_studi" name="pref_studi" class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('pref_studi') input-error @enderror" required>
-                                <option value="">-- Pilih Arah Rumpun Jurusan --</option>
-                                <option value="Sains & Teknologi" {{ old('pref_studi') == 'Sains & Teknologi' ? 'selected' : '' }}>Sains & Teknologi (contoh: TI, Teknik)</option>
-                                <option value="Pertanian & Lingkungan" {{ old('pref_studi') == 'Pertanian & Lingkungan' ? 'selected' : '' }}>Pertanian & Lingkungan (contoh: Produksi/Teknologi Pertanian)</option>
-                                <option value="Kesehatan & Ilmu Hayat" {{ old('pref_studi') == 'Kesehatan & Ilmu Hayat' ? 'selected' : '' }}>Kesehatan & Ilmu Hayat (contoh: rumpun Kesehatan)</option>
-                                <option value="Bisnis & Manajemen" {{ old('pref_studi') == 'Bisnis & Manajemen' ? 'selected' : '' }}>Bisnis & Manajemen (contoh: Akuntansi, Manajemen Agribisnis)</option>
-                                <option value="Sosial & Humaniora" {{ old('pref_studi') == 'Sosial & Humaniora' ? 'selected' : '' }}>Sosial & Humaniora (contoh: Bahasa, Komunikasi, Pariwisata)</option>
+                    <!-- PREFERENSI STUDI -->
+                    <section>
+                        <h3 class="section-title">
+                            <span style="font-size: 1.25rem;">3️⃣</span> Preferensi Studi
+                            <span style="color: var(--error);">*</span>
+                        </h3>
+                        <p class="section-desc">Pilih rumpun jurusan yang paling Anda minati untuk studi lanjutan.</p>
+                        <div class="input-field">
+                            <select name="pref_studi" required class="focus-primary @error('pref_studi') input-error @enderror">
+                                <option value="">-- Pilih Preferensi --</option>
+                                <option value="Sains & Teknologi" {{ old('pref_studi') == 'Sains & Teknologi' ? 'selected' : '' }}>Sains & Teknologi</option>
+                                <option value="Pertanian & Lingkungan" {{ old('pref_studi') == 'Pertanian & Lingkungan' ? 'selected' : '' }}>Pertanian & Lingkungan</option>
+                                <option value="Kesehatan & Ilmu Hayat" {{ old('pref_studi') == 'Kesehatan & Ilmu Hayat' ? 'selected' : '' }}>Kesehatan & Ilmu Hayat</option>
+                                <option value="Bisnis & Manajemen" {{ old('pref_studi') == 'Bisnis & Manajemen' ? 'selected' : '' }}>Bisnis & Manajemen</option>
+                                <option value="Sosial & Humaniora" {{ old('pref_studi') == 'Sosial & Humaniora' ? 'selected' : '' }}>Sosial & Humaniora</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-2">Pilih rumpun yang paling menggambarkan jurusan Polije yang ingin Anda tuju.</p>
                             @error('pref_studi')
-                                <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
+                                <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
                             @enderror
                         </div>
-                    </div>
-
-                    {{-- ============================================ --}}
-                    {{-- KRITERIA 4: CITA-CITA / PREFERENSI KARIR --}}
-                    {{-- ============================================ --}}
-                    <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
-                        <h3 class="font-bold text-lg sm:text-xl text-orange-700 mb-2">4️⃣ Cita-cita / Preferensi Karir <span class="text-red-500">*</span></h3>
-                        <p class="text-sm text-gray-600 mb-4">Tuliskan profesi atau karir yang Anda impikan.</p>
-                        <div class="input-wrapper">
-                            <label for="cita_cita" class="block text-sm font-semibold text-gray-700 mb-2">Cita-cita</label>
-                            <input id="cita_cita" type="text" name="cita_cita" value="{{ old('cita_cita') }}" placeholder="Contoh: programmer, dokter, pengusaha" 
-                                class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('cita_cita') input-error @enderror" required>
-                            <p class="text-xs text-gray-500 mt-2">Bisa lebih dari satu, pisahkan dengan koma</p>
-                            @error('cita_cita')
-                                <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    {{-- ============================================ --}}
-                    {{-- KRITERIA 5: PRESTASI AKADEMIK / NON-AKADEMIK --}}
-                    {{-- ============================================ --}}
-                    <div class="p-6 rounded-lg border-2 border-gray-200 bg-gray-50">
-                        <h3 class="font-bold text-lg sm:text-xl text-red-700 mb-2">5️⃣ Prestasi (Opsional)</h3>
-                        <p class="text-sm text-gray-600 mb-4">Tuliskan prestasi yang pernah diraih (opsional).</p>
-                        <div class="input-wrapper">
-                            <label for="prestasi" class="block text-sm font-semibold text-gray-700 mb-2">Prestasi</label>
-                            <input id="prestasi" type="text" name="prestasi" value="{{ old('prestasi') }}" placeholder="Contoh: Juara 1 olimpiade MTK, sertifikat web design" 
-                                class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus-maroon focus:outline-none text-sm transition-colors @error('prestasi') input-error @enderror">
-                            <p class="text-xs text-gray-500 mt-2">Kosongkan jika belum ada prestasi</p>
-                            @error('prestasi')
-                                <span class="validation-message text-red-600">⚠️ {{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
+                    </section>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="mt-8 p-6 rounded-lg bg-gradient-to-r from-yellow-50 to-yellow-100 border-l-4 border-yellow-400 shadow-sm">
-                    <p class="text-sm text-gray-700 mb-4 leading-relaxed">
-                        ⏳ Setelah menekan tombol, sistem akan menganalisis data Anda dengan algoritma Naive Bayes dan menampilkan ranking 9 jurusan Politeknik Negeri Jember yang paling sesuai dengan profil kamu.
-                    </p>
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg active:scale-95 transition duration-200 text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                        ✨ Lihat Rekomendasi Jurusan
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- CITA-CITA -->
+                    <section>
+                        <h3 class="section-title">
+                            <span style="font-size: 1.25rem;">4️⃣</span> Cita-cita / Karir Impian
+                            <span style="color: var(--error);">*</span>
+                        </h3>
+                        <p class="section-desc">Tuliskan profesi atau karir yang Anda impikan di masa depan.</p>
+                        <div class="input-field">
+                            <input type="text" name="cita_cita" value="{{ old('cita_cita') }}" placeholder="Contoh: programmer, dokter, pengusaha..." required
+                                class="focus-primary @error('cita_cita') input-error @enderror">
+                            <span class="input-hint">Minimal 3 karakter, pisahkan dengan koma jika lebih dari satu</span>
+                            @error('cita_cita')
+                                <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
+                            @enderror
+                        </div>
+                    </section>
+
+                    <!-- PRESTASI -->
+                    <section>
+                        <h3 class="section-title">
+                            <span style="font-size: 1.25rem;">5️⃣</span> Prestasi (Opsional)
+                        </h3>
+                        <p class="section-desc">Tuliskan prestasi akademik atau non-akademik yang pernah Anda raih.</p>
+                        <div class="input-field">
+                            <input type="text" name="prestasi" value="{{ old('prestasi') }}" placeholder="Contoh: Juara olimpiade, sertifikat programming..."
+                                class="focus-primary @error('prestasi') input-error @enderror">
+                            <span class="input-hint">Kolom ini bersifat opsional</span>
+                            @error('prestasi')
+                                <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
+                            @enderror
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-white text-base md:text-lg shadow-md hover:shadow-lg transition">
+                        ✨ Analisis & Lihat Rekomendasi
                     </button>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-3 text-center">Pastikan semua data terisi dengan benar sebelum melanjutkan</p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem; text-align: center;">
+                        ⏳ Proses analisis membutuhkan waktu 1-2 detik
+                    </p>
                 </div>
             </form>
         </div>
@@ -360,47 +412,24 @@
             </div>
         @endif
 
-        <!-- Info Metode -->
-        <div class="mt-8 sm:mt-12 p-6 rounded-lg bg-blue-50 border-l-4 border-blue-400 shadow-sm">
-            <div class="flex gap-4">
-                <div class="text-3xl flex-shrink-0">🤖</div>
-                <div>
-                    <h3 class="font-bold text-blue-900 mb-2 text-lg">Tentang Sistem Rekomendasi Kami</h3>
-                    <p class="text-sm text-blue-800 leading-relaxed">
-                        <strong>Metode:</strong> Sistem menggunakan Weighted Naive Bayes dengan 5 kriteria:
-                    </p>
-                    <ul class="text-sm text-blue-800 mt-3 space-y-1 ml-4">
-                        <li>📚 Nilai Akademik (15.6%)</li>
-                        <li>💡 Minat & Bakat (45.6%)</li>
-                        <li>🎯 Preferensi Studi (25.6%)</li>
-                        <li>🚀 Cita-cita (9%)</li>
-                        <li>🏆 Prestasi (4%)</li>
-                    </ul>
-                </div>
-            </div>
+
+        <!-- Footer Info -->
+        <div class="card p-4 md:p-5 mt-8 bg-gradient-to-r from-teal-50 to-cyan-50">
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                <strong>📊 Metode Analisis:</strong> Weighted Naive Bayes dengan 5 kriteria yang diseimbangkan berdasarkan data historis siswa Polije.
+            </p>
         </div>
-    </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
             const submitBtn = form?.querySelector('button[type="submit"]');
-
-            // Validasi input fields
             const inputs = form?.querySelectorAll('input, select, textarea');
             
             inputs?.forEach(input => {
-                // Validasi pada change event
-                input.addEventListener('change', function() {
-                    validateField(this);
-                });
-                
-                // Validasi pada blur event
-                input.addEventListener('blur', function() {
-                    validateField(this);
-                });
-
-                // Remove error on input
+                input.addEventListener('change', () => validateField(input));
+                input.addEventListener('blur', () => validateField(input));
                 input.addEventListener('input', function() {
                     if (this.classList.contains('input-error')) {
                         validateField(this);
@@ -408,10 +437,8 @@
                 });
             });
 
-            // Validasi saat submit
             form?.addEventListener('submit', function(e) {
                 let isValid = true;
-                
                 inputs?.forEach(input => {
                     if (!validateField(input)) {
                         isValid = false;
@@ -420,7 +447,6 @@
 
                 if (!isValid) {
                     e.preventDefault();
-                    // Scroll ke error pertama
                     const firstError = form.querySelector('.input-error');
                     if (firstError) {
                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -432,74 +458,40 @@
             function validateField(field) {
                 const value = field.value.trim();
                 const isRequired = field.hasAttribute('required');
-                const name = field.name;
                 const type = field.type;
-                let errorMsg = '';
                 let isValid = true;
 
-                // Remove previous error/valid styling
                 field.classList.remove('input-error', 'input-valid');
                 const existingMsg = field.parentElement.querySelector('.validation-message');
-                if (existingMsg) {
-                    existingMsg.remove();
-                }
+                if (existingMsg) existingMsg.remove();
 
-                // Validasi untuk field yang required
                 if (isRequired && !value) {
-                    errorMsg = '⚠️ ' + field.placeholder?.split('Contoh')[0]?.trim() + ' tidak boleh kosong';
                     isValid = false;
-                }
-
-                // Validasi untuk number fields
-                if (type === 'number' && value) {
-                    const numValue = parseFloat(value);
-                    const min = parseFloat(field.min || 0);
-                    const max = parseFloat(field.max || 100);
-
-                    if (isNaN(numValue)) {
-                        errorMsg = '⚠️ Masukkan angka yang valid (0-100)';
-                        isValid = false;
-                    } else if (numValue < min || numValue > max) {
-                        errorMsg = '⚠️ Nilai harus antara ' + min + ' - ' + max;
+                } else if (type === 'number' && value) {
+                    const num = parseFloat(value);
+                    if (isNaN(num) || num < 0 || num > 100) {
                         isValid = false;
                     }
-                }
-
-                // Validasi untuk text fields (min length)
-                if ((name === 'minat' || name === 'cita_cita') && value && value.length < 3) {
-                    errorMsg = '⚠️ Minimal 3 karakter, jelaskan lebih detail';
+                } else if ((field.name === 'minat' || field.name === 'cita_cita') && value && value.length < 3) {
                     isValid = false;
                 }
 
-                // Validasi untuk select (pref_studi)
-                if (name === 'pref_studi' && !value) {
-                    errorMsg = '⚠️ Pilih salah satu preferensi studi';
-                    isValid = false;
-                }
-
-                // Apply styling
-                if (!isValid && value) {
+                if (!isValid && (value || isRequired)) {
                     field.classList.add('input-error');
                 } else if (isValid && (isRequired || value)) {
                     field.classList.add('input-valid');
                 }
 
-                // Show error message
-                if (errorMsg) {
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'validation-message text-red-600';
-                    msgDiv.textContent = errorMsg;
-                    field.parentElement.appendChild(msgDiv);
-                }
-
                 return isValid || !isRequired;
             }
 
-            // Loading state pada submit
             form?.addEventListener('submit', function() {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="inline-flex items-center">⏳ Menganalisis data...</span>';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '⏳ Menganalisis...';
+                }
             });
         });
     </script>
 </body>
+</html>

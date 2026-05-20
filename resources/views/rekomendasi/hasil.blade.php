@@ -6,461 +6,292 @@
     <title>Hasil Rekomendasi - Sistem Pemilihan Jurusan</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .gradient-maroon {
-            background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%);
+        :root {
+            --primary: #0f766e;
+            --primary-light: #0d9488;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-soft: #f0f9ff;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-light: #e5e7eb;
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
         }
-        .text-maroon {
-            color: #6B7280;
+
+        body {
+            background-color: var(--bg-soft);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-        .border-maroon {
-            border-color: #6B7280;
+
+        .header-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-md);
         }
-        .bg-cream {
-            background-color: #F8FAFC;
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.3s ease;
         }
-        .bg-maroon-light {
-            background-color: rgba(107, 114, 128, 0.1);
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.25rem;
+            min-height: 2.25rem;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .profile-box {
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.05) 0%, rgba(13, 148, 136, 0.05) 100%);
+            border: 1px solid rgba(15, 118, 110, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .result-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .result-item.top-1 {
+            border-left: 4px solid var(--accent);
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.05), white);
+        }
+
+        .progress-bar {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s ease;
         }
     </style>
 </head>
-<body class="bg-cream">
+<body>
     <!-- Header -->
-    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Hasil Rekomendasi</h1>
-                <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Sistem Pemilihan Jurusan</p>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <a href="{{ url('/dashboard') }}" class="block sm:inline-block flex-1 sm:flex-none text-center bg-yellow-400 text-maroon font-bold py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm">
-                    Kembali ke Dashboard
-                </a>
+    <header class="header-main py-4 md:py-6">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Hasil Analisis Rekomendasi</h1>
+                    <p class="text-sm md:text-base text-teal-100 mt-1">Jurusan terbaik berdasarkan profil Anda</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('rekomendasi.input') }}" class="btn-primary px-4 py-2 rounded-lg font-medium text-sm hover:shadow-lg transition">
+                        🔄 Analisis Ulang
+                    </a>
+                    <a href="{{ url('/dashboard') }}" class="px-4 py-2 rounded-lg font-medium text-sm bg-white text-primary hover:bg-gray-50 transition">
+                        ← Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <div class="w-full px-4 sm:px-6 py-6 sm:py-8">
-        <!-- Selamat Section -->
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-lg p-8 text-white mb-8">
-            <div class="flex gap-4 items-start">
-                <div class="text-5xl">🎉</div>
-                <div>
-                    <h2 class="text-3xl font-bold mb-2">Hasil Analisis Siap!</h2>
-                    <p class="text-lg text-green-100 mb-4">
-                        Sistem AI kami telah menganalisis profil kamu secara menyeluruh. Berikut adalah 9 program studi yang kami rekomendasikan, diurutkan dari yang paling sesuai dengan potensi dan minat kamu. Setiap jurusan memiliki skor kesesuaian yang menunjukkan tingkat kecocokan dengan profil kamu.
-                    </p>
-                    <div class="inline-block bg-white bg-opacity-20 rounded-lg px-4 py-2 backdrop-blur-sm">
-                        <p class="text-sm font-semibold">💡 Tip: Cek beberapa program teratas dan diskusikan dengan konselor atau orang tua untuk memastikan pilihan terbaik untuk masa depanmu</p>
-                    </div>
+    <main class="container mx-auto px-4 md:px-6 py-8 md:py-12">
+        <!-- Data Profil Summary -->
+        <div class="card p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-bold text-primary mb-6">Data Profil Anda</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Nilai Akademik -->
+                <div class="profile-box">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Nilai Akademik</p>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">{{ $katNilai }}</p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">Rata-rata: {{ number_format($average, 1) }}%</p>
                 </div>
-            </div>
-        </div>
 
-        <!-- Ringkasan Input -->
-        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border-t-4 border-purple-600">
-            <h3 class="text-2xl font-bold text-gray-900 mb-6">📊 Profil Analisismu</h3>
-            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-lg border border-purple-200">
-                    <p class="text-xs font-semibold text-purple-600 mb-2">📚 Nilai Akademik</p>
-                    <p class="text-2xl font-bold text-purple-900">{{ number_format($average, 1) }}</p>
-                    <p class="text-xs text-purple-700 mt-1">Rata-rata Rapor</p>
+                <!-- Minat -->
+                <div class="profile-box">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Bidang Minat</p>
+                    <p style="font-size: 1.125rem; font-weight: 700; color: var(--primary);">{{ $minatMapped ?? '-' }}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.375rem;">Anda inputkan: <strong>{{ ucfirst($minatRaw ?? '-') }}</strong></p>
                 </div>
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200">
-                    <p class="text-xs font-semibold text-blue-600 mb-2">🎯 Preferensi Studi</p>
-                    <p class="text-lg font-bold text-blue-900">{{ $prefStudi ?? '-' }}</p>
-                    <p class="text-xs text-blue-700 mt-1">Gaya Belajar</p>
+
+                <!-- Cita-cita -->
+                <div class="profile-box">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Cita-cita</p>
+                    <p style="font-size: 1.125rem; font-weight: 700; color: var(--primary);">{{ $citaMapped ?? '-' }}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.375rem;">Anda inputkan: <strong>{{ ucfirst($citaRaw ?? '-') }}</strong></p>
                 </div>
-                <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-lg border border-amber-200">
-                    <p class="text-xs font-semibold text-amber-600 mb-2">🏆 Prestasi</p>
-                    <p class="text-lg font-bold text-amber-900">
+
+                <!-- Preferensi Studi -->
+                <div class="profile-box">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Preferensi Studi</p>
+                    <p style="font-size: 1.125rem; font-weight: 700; color: var(--primary);">{{ $prefStudi ?? '-' }}</p>
+                </div>
+
+                <!-- Prestasi -->
+                <div class="profile-box">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Prestasi</p>
+                    <p style="font-size: 1.125rem; font-weight: 700; color: var(--primary);">
                         @if(!($isPrestasiFilled ?? true))
-                            Belum Ada
+                            Tidak Ada
                         @elseif($prestasiScore >= 0.8)
-                            Tinggi
+                            Tinggi ⭐
                         @elseif($prestasiScore >= 0.6)
-                            Sedang
+                            Sedang 👍
                         @elseif($prestasiScore > 0)
                             Cukup
                         @else
                             Belum Ada
                         @endif
                     </p>
-                    <p class="text-xs text-amber-700 mt-1">Pencapaian</p>
-                </div>
-                <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-lg border border-green-200">
-                    <p class="text-xs font-semibold text-green-600 mb-2">💯 Skor Nilai</p>
-                    <p class="text-2xl font-bold text-green-900">{{ number_format($average, 1) }}%</p>
-                    <p class="text-xs text-green-700 mt-1">Nilai Rata-rata</p>
-                </div>
-            </div>
-                    <p class="text-xs sm:text-sm text-gray-600">Minat</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $minatMapped ?? '-' }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Input: {{ ucfirst($minatRaw ?? '-') }}</p>
-                </div>
-                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
-                    <p class="text-xs sm:text-sm text-gray-600">Cita-cita</p>
-                    <p class="text-sm sm:text-lg font-bold text-maroon">{{ $citaMapped ?? '-' }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Input: {{ ucfirst($citaRaw ?? '-') }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Tabel Peringkat Jurusan -->
-        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6 sm:mb-8">
-            <h3 class="text-base sm:text-lg font-bold text-maroon mb-3 sm:mb-4">Peringkat Jurusan</h3>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="gradient-maroon text-white">
-                        <tr>
-                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-bold">#</th>
-                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-bold">Jurusan</th>
-                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs sm:text-sm font-bold">Skor</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @foreach($hasilAkhir as $index => $res)
-                            <tr class="hover:bg-gray-50 transition {{ $index == 0 ? 'bg-yellow-50' : '' }}">
-                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-center">
-                                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-bold {{ $index == 0 ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-700' }}">
-                                        {{ $index + 1 }}
-                                    </span>
-                                </td>
-                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm font-semibold text-gray-900">
-                                    {{ $res['jurusan'] ?? '-' }}
-                                    @if($index == 0)
-                                        <span class="ml-1 sm:ml-2 inline-block px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">
-                                            ⭐ Utama
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-3 sm:px-6 py-2 sm:py-4 text-right text-xs sm:text-sm font-bold text-maroon">
-                                    {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        <!-- Top Recommendation -->
+        @if(count($hasilAkhir) > 0)
+        <div class="mb-8">
+            <div class="result-item top-1 border-4">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <span style="display: inline-block; background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.75rem;">
+                            🏆 REKOMENDASI UTAMA
+                        </span>
+                        <h3 style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ $hasilAkhir[0]['jurusan'] ?? '-' }}</h3>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 2.5rem; font-weight: 700; color: var(--accent);">{{ number_format(($hasilAkhir[0]['skor'] ?? 0) * 100, 1) }}%</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Skor Kesesuaian</p>
+                    </div>
+                </div>
+
+                <div class="progress-bar mb-4">
+                    <div class="progress-fill" style="width: {{ number_format(($hasilAkhir[0]['skor'] ?? 0) * 100, 1) }}%"></div>
+                </div>
+
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Berdasarkan analisis Weighted Naive Bayes, jurusan ini adalah pilihan terbaik untuk profil akademik dan minat Anda.
+                </p>
             </div>
-            
-            <!-- Visualisasi Progress Bars -->
-            <div class="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
+        </div>
+        @endif
+
+        <!-- All Rankings -->
+        <div class="card p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-primary mb-6">Peringkat Semua Jurusan</h2>
+
+            <div class="space-y-4">
                 @foreach($hasilAkhir as $index => $res)
-                    <div class="flex flex-col gap-1">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs sm:text-sm font-semibold text-gray-700">{{ $res['jurusan'] ?? '-' }}</span>
-                            <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($res['skor'] ?? 0) * 100, 1) }}%</span>
+                    <div class="result-item {{ $index == 0 ? 'top-1' : '' }}">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-4">
+                                <div class="badge-primary">{{ $index + 1 }}</div>
+                                <div>
+                                    <p style="font-weight: 600; color: var(--text-main); margin-bottom: 0.125rem;">{{ $res['jurusan'] ?? '-' }}</p>
+                                    <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                                        @if($index == 0)
+                                            Pilihan terbaik untuk Anda
+                                        @elseif($index < 3)
+                                            Rekomendasi alternatif yang baik
+                                        @else
+                                            Pilihan lainnya
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                                    {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%
+                                </p>
+                            </div>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%"></div>
+
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ number_format(($res['skor'] ?? 0) * 100, 1) }}%"></div>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        <!-- Detail Rekomendasi Utama -->
-        @if(count($hasilAkhir) > 0)
-            <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8 border-l-4 border-yellow-400">
-                @php
-                    $topRecommendation = $hasilAkhir[0];
-                    $detail = $topRecommendation['detail'] ?? [];
-                @endphp
-                
-                <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-yellow-100 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">1</div>
-                    <div>
-                        <h3 class="text-lg sm:text-2xl font-bold text-maroon mb-1 sm:mb-2">{{ $topRecommendation['jurusan'] ?? '-' }}</h3>
-                        <p class="text-sm sm:text-lg text-gray-700">
-                            Skor Kesesuaian: <span class="font-bold text-maroon">{{ number_format(($topRecommendation['skor'] ?? 0) * 100, 1) }}%</span>
-                        </p>
-                        @if($topJurusan && $topJurusan->deskripsi)
-                            <p class="text-xs sm:text-sm text-gray-600 mt-2">{{ $topJurusan->deskripsi }}</p>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Analysis Breakdown -->
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <h4 class="font-bold text-maroon text-sm sm:text-base mb-3 sm:mb-4">Likelihood per Kriteria (Weighted Naive Bayes):</h4>
-                    
-                    <div class="space-y-2 sm:space-y-3">
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Nilai Akademik — P(nilai|H) &times; w=0.156</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['nilai'] ?? 0) * 100, 1) }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Minat & Bakat — P(minat|H) &times; w=0.456</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ number_format(($detail['minat'] ?? 0) * 100, 1) }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Preferensi Studi — P(pref|H) &times; w=0.256</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">{{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['pref'] ?? 0) * 100, 1) }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">Cita-cita — P(cita|H) &times; w=0.090</p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">
-                                    {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%
-                                </span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ number_format(($detail['cita'] ?? 0) * 100, 1) }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="text-xs sm:text-sm font-semibold text-gray-700">
-                                    Prestasi — P(prestasi|H) &times; w={{ ($isPrestasiFilled ?? true) ? '0.040' : '0.00' }}
-                                </p>
-                                <span class="text-xs sm:text-sm font-bold text-maroon">
-                                    @if(!($isPrestasiFilled ?? true))
-                                        Tidak dihitung
-                                    @else
-                                        {{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%
-                                    @endif
-                                </span>
-                            </div>
-                            <div class="w-full bg-gray-300 rounded-full h-2">
-                                <div class="gradient-maroon h-2 rounded-full" style="width: {{ number_format(($detail['prestasi'] ?? 0) * 100, 1) }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Explanation Breakdown -->
-                <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 class="font-bold text-blue-900 text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
-                        <span class="text-lg">💡</span> Alasan Kenapa Jurusan Ini Cocok:
-                    </h4>
-                    
-                    <div class="space-y-2 sm:space-y-3">
-                        <div class="flex gap-2 sm:gap-3">
-                            <span class="text-lg flex-shrink-0">📊</span>
-                            <p class="text-xs sm:text-sm text-gray-800">
-                                <strong>Nilai Akademik:</strong> {{ $topRecommendation['explanation']['nilai'] ?? '-' }}
-                            </p>
-                        </div>
-                        <div class="flex gap-2 sm:gap-3">
-                            <span class="text-lg flex-shrink-0">❤️</span>
-                            <p class="text-xs sm:text-sm text-gray-800">
-                                <strong>Minat & Bakat:</strong> {{ $topRecommendation['explanation']['minat'] ?? '-' }}
-                            </p>
-                        </div>
-                        <div class="flex gap-2 sm:gap-3">
-                            <span class="text-lg flex-shrink-0">🎓</span>
-                            <p class="text-xs sm:text-sm text-gray-800">
-                                <strong>Metode Pembelajaran:</strong> {{ $topRecommendation['explanation']['pref'] ?? '-' }}
-                            </p>
-                        </div>
-                        <div class="flex gap-2 sm:gap-3">
-                            <span class="text-lg flex-shrink-0">🎯</span>
-                            <p class="text-xs sm:text-sm text-gray-800">
-                                <strong>Cita-cita Karir:</strong> {{ $topRecommendation['explanation']['cita'] ?? '-' }}
-                            </p>
-                        </div>
-                        <div class="flex gap-2 sm:gap-3">
-                            <span class="text-lg flex-shrink-0">🏆</span>
-                            <p class="text-xs sm:text-sm text-gray-800">
-                                <strong>Prestasi Akademik:</strong> {{ $topRecommendation['explanation']['prestasi'] ?? '-' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kesimpulan -->
-                <div class="p-3 sm:p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 mb-3 sm:mb-4">
-                    <h4 class="font-bold text-maroon mb-2 text-sm sm:text-base">📋 Kesimpulan:</h4>
-                    <p class="text-gray-700 text-xs sm:text-sm leading-relaxed">
-                        Berdasarkan profil Anda dengan <strong>nilai akademik {{ $katNilai }} (rata-rata {{ number_format($average, 1) }})</strong> 
-                        dan <strong>preferensi studi {{ $prefStudi ?? '-' }}</strong>, 
-                        sistem menganalisis bahwa <strong>{{ $topRecommendation['jurusan'] ?? '-' }}</strong> 
-                        adalah pilihan yang paling sesuai dengan skor {{ number_format(($topRecommendation['skor'] ?? 0) * 100, 1) }}%.
-                    </p>
-                </div>
-
-                <!-- Prospek Kerja -->
-                @if($topJurusan && $topJurusan->prospek_kerja)
-                    <div class="mb-3 sm:mb-4">
-                        <p class="text-xs sm:text-sm font-bold text-maroon mb-2">Prospek Kerja:</p>
-                        <p class="text-xs sm:text-sm text-gray-700">{{ $topJurusan->prospek_kerja }}</p>
-                    </div>
-                @endif
-            </div>
-        @endif
-
-        <!-- Rekomendasi Alternatif & Penjelasan Detail -->
-        @if(count($hasilAkhir) > 1)
-            <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8">
-                <h3 class="text-lg sm:text-xl font-bold text-maroon mb-4 sm:mb-6 flex items-center gap-2">
-                    <span class="text-2xl">🔍</span> Rekomendasi Alternatif & Penjelasan Detail
-                </h3>
-                
-                <div class="space-y-3 sm:space-y-4">
-                    @foreach($hasilAkhir as $index => $rec)
-                        @if($index > 0)
-                            <details class="border border-gray-300 rounded-lg overflow-hidden">
-                                <summary class="cursor-pointer p-4 hover:bg-gray-50 flex justify-between items-center">
-                                    <div class="flex items-center gap-3">
-                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-bold text-sm">
-                                            {{ $index + 1 }}
-                                        </span>
-                                        <div>
-                                            <p class="font-semibold text-gray-900 text-sm sm:text-base">{{ $rec['jurusan'] ?? '-' }}</p>
-                                            <p class="text-xs sm:text-sm text-gray-600">Skor: {{ number_format(($rec['skor'] ?? 0) * 100, 1) }}%</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-gray-400">▸</span>
-                                </summary>
-                                
-                                <div class="p-4 bg-gray-50 border-t border-gray-300 space-y-4">
-                                    <!-- Score Breakdown -->
-                                    <div class="bg-white p-3 rounded-lg">
-                                        <p class="text-xs sm:text-sm font-bold text-gray-700 mb-3">Scoring per Kriteria:</p>
-                                        <div class="space-y-2">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <span class="text-gray-600">📊 Nilai (15.6%)</span>
-                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['nilai'] ?? 0) * 100, 1) }}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded h-1.5">
-                                                <div class="bg-red-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['nilai'] ?? 0) * 100, 1) }}%"></div>
-                                            </div>
-
-                                            <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">❤️ Minat (45.6%)</span>
-                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['minat'] ?? 0) * 100, 1) }}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded h-1.5">
-                                                <div class="bg-pink-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['minat'] ?? 0) * 100, 1) }}%"></div>
-                                            </div>
-
-                                            <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">🎓 Preferensi (25.6%)</span>
-                                                <span class="font-semibold text-maroon">{{ number_format(($rec['detail']['pref'] ?? 0) * 100, 1) }}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded h-1.5">
-                                                <div class="bg-yellow-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['pref'] ?? 0) * 100, 1) }}%"></div>
-                                            </div>
-
-                                            <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">🎯 Cita-cita (5%)</span>
-                                                <span class="font-semibold text-maroon">
-                                                    @if(!($isPrestasiFilled ?? true))
-                                                        Tidak dihitung
-                                                    @else
-                                                        {{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded h-1.5">
-                                                <div class="bg-blue-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['cita'] ?? 0) * 100, 1) }}%"></div>
-                                            </div>
-
-                                            <div class="flex justify-between items-center text-xs mt-2">
-                                                <span class="text-gray-600">🏆 Prestasi ({{ ($isPrestasiFilled ?? true) ? '5%' : '0%' }})</span>
-                                                <span class="font-semibold text-maroon">
-                                                    @if(!($isPrestasiFilled ?? true))
-                                                        Tidak dihitung
-                                                    @else
-                                                        {{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded h-1.5">
-                                                <div class="bg-green-500 rounded h-1.5 transition-all" style="width: {{ number_format(($rec['detail']['prestasi'] ?? 0) * 100, 1) }}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Explanation -->
-                                    @if(isset($rec['explanation']) && is_array($rec['explanation']))
-                                        <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
-                                            <p class="text-xs sm:text-sm font-bold text-blue-900 mb-2">💡 Alasan Cocok:</p>
-                                            <ul class="space-y-1.5 text-xs sm:text-sm text-gray-800">
-                                                <li class="flex gap-2">
-                                                    <span class="flex-shrink-0">📊</span>
-                                                    <span>{{ $rec['explanation']['nilai'] ?? '-' }}</span>
-                                                </li>
-                                                <li class="flex gap-2">
-                                                    <span class="flex-shrink-0">❤️</span>
-                                                    <span>{{ $rec['explanation']['minat'] ?? '-' }}</span>
-                                                </li>
-                                                <li class="flex gap-2">
-                                                    <span class="flex-shrink-0">🎓</span>
-                                                    <span>{{ $rec['explanation']['pref'] ?? '-' }}</span>
-                                                </li>
-                                                <li class="flex gap-2">
-                                                    <span class="flex-shrink-0">🎯</span>
-                                                    <span>{{ $rec['explanation']['cita'] ?? '-' }}</span>
-                                                </li>
-                                                <li class="flex gap-2">
-                                                    <span class="flex-shrink-0">🏆</span>
-                                                    <span>{{ $rec['explanation']['prestasi'] ?? '-' }}</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    @endif
-                                </div>
-                            </details>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        <!-- Chatbot Confirmation Card -->
-        <div class="bg-white rounded-lg shadow-lg p-5 sm:p-8 mb-6 sm:mb-8 border-2 border-yellow-400">
-            <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-yellow-100 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">💬</div>
-                <div class="flex-1">
-                    <h3 class="text-base sm:text-xl font-bold text-maroon mb-1 sm:mb-2">Konsultasi Lebih Lanjut</h3>
-                    <p class="text-xs sm:text-sm md:text-base text-gray-700 mb-3 sm:mb-4">
-                        Ingin tahu mengapa jurusan <strong>{{ $hasilAkhir[0]['jurusan'] ?? '' }}</strong> direkomendasikan? 
-                        Konsultasikan dengan AI Konselor BK Virtual untuk penjelasan detail berdasarkan profil Anda.
-                    </p>
-                    <a href="{{ route('chatbot.index', ['rec' => $recommendationId]) }}" class="inline-block gradient-maroon text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base">
-                        💬 Tanya AI: "Mengapa jurusan ini cocok untukku?"
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tombol Aksi -->
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between">
-            <a href="{{ route('rekomendasi.index') }}" class="block sm:inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition duration-200 text-sm sm:text-base text-center">
-                Kembali & Ubah Input
-            </a>
-            <a href="{{ url('/dashboard') }}" class="block sm:inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 gradient-maroon text-white font-semibold rounded-lg hover:opacity-90 transition duration-200 text-sm sm:text-base text-center">
-                Ke Dashboard
-            </a>
-        </div>
-
-        <!-- Info Metode -->
-        <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <p class="text-xs sm:text-sm text-gray-600">
-                <strong>Metode:</strong> Sistem menggunakan algoritma Weighted Naive Bayes dengan 5 fitur berbobot: Nilai Akademik (w=0.156), Minat (w=0.456), Preferensi Studi (w=0.256), Cita-cita (w=0.090), Prestasi (w=0.040). Jika prestasi tidak diisi, atribut prestasi tidak dihitung (w=0.00) dan bobot atribut lain dinormalisasi. Rumus: P(H|X) &prop; P(H) &times; &prod; P(Xi|H)<sup>wi</sup>, kemudian dinormalisasi menggunakan softmax.
+        <!-- Method Explanation -->
+        <div class="card p-6 md:p-8 mt-8 bg-gradient-to-r from-cyan-50 to-blue-50">
+            <h3 class="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span>🔬</span> Metode Analisis
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                Sistem menggunakan <strong>Weighted Naive Bayes</strong> dengan 5 kriteria yang dibobotkan berdasarkan data historis siswa:
+                <br><strong>Minat (45.6%)</strong> • Preferensi Studi (25.6%) • Nilai Akademik (15.6%) • Cita-cita (9%) • Prestasi (4%)
+                <br>Jika prestasi tidak diisi, bobot distribusi ulang ke 4 kriteria lainnya untuk hasil yang akurat.
             </p>
         </div>
-    </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-8">
+            <a href="{{ route('rekomendasi.index') }}" class="btn-primary px-6 py-3 rounded-lg font-semibold text-center hover:shadow-lg transition">
+                🔄 Analisis Ulang
+            </a>
+            <a href="{{ url('/dashboard') }}" class="px-6 py-3 rounded-lg font-semibold text-center bg-white text-primary border-2" style="border-color: var(--primary); transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='var(--bg-soft)'" onmouseout="this.style.backgroundColor='white'">
+                ← Ke Dashboard
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Smooth animations for progress bars
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.progress-fill').forEach(el => {
+                el.style.width = '0%';
+                setTimeout(() => {
+                    el.style.width = el.parentElement.style.width;
+                }, 100);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -50,7 +50,7 @@
                             <a href="{{ route('profile.edit') }}" class="block px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold border-b border-gray-100 rounded-t-lg">
                                 👤 Lihat Profil
                             </a>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form method="POST" action="{{ route('logout') }}" class="confirm-logout">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold text-red-600 rounded-b-lg">
                                     🚪 Logout
@@ -270,6 +270,30 @@
                 profileDropdown.classList.add('hidden');
                 dropdownArrow.style.transform = 'rotate(0deg)';
             }
+        });
+    </script>
+    <!-- SweetAlert2 for nicer logout modal on dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form.confirm-logout').forEach(function(form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi Logout',
+                        text: 'Yakin ingin logout dari akun ini?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Logout',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
     </script>
 </body>

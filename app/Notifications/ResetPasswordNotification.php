@@ -46,11 +46,20 @@ class ResetPasswordNotification extends Notification
             'email' => $notifiable->getEmailForPasswordReset(),
         ], false));
 
+        // generate 6-digit numeric code and store it for inline token flow
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        \Illuminate\Support\Facades\DB::table('password_reset_codes')->updateOrInsert(
+            ['email' => $notifiable->getEmailForPasswordReset()],
+            ['code' => $code, 'created_at' => now()]
+        );
+
         return (new MailMessage)
             ->subject('🔑 Reset Password - Sistem Pemilihan Jurusan Polije')
             ->view('emails.reset-password', [
                 'user' => $notifiable,
                 'resetUrl' => $resetUrl,
+                'code' => $code,
+                'token' => $this->token,
                 'expiresIn' => config('auth.passwords.users.expire', 60),
             ]);
     }

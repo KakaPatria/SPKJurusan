@@ -36,7 +36,7 @@
                             <a href="{{ route('admin.guru-bk.edit', $guru->id) }}" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition inline-block">
                                 Edit
                             </a>
-                            <form method="POST" action="{{ route('admin.guru-bk.destroy', $guru->id) }}" style="display:inline;" onsubmit="return confirm('Hapus akun guru BK ini?')">
+                            <form method="POST" action="{{ route('admin.guru-bk.destroy', $guru->id) }}" style="display:inline;" class="swal-confirm" data-confirm-message="Hapus akun guru BK ini?">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">

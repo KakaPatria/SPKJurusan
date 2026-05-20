@@ -77,7 +77,7 @@
         <a href="{{ route('bk.alumni.edit', $alumni->id) }}" class="px-6 py-2 rounded-lg font-bold bg-yellow-400 text-maroon hover:bg-yellow-300 transition">
             ✏ Edit
         </a>
-        <form action="{{ route('bk.alumni.destroy', $alumni->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus data alumni ini?')">
+        <form action="{{ route('bk.alumni.destroy', $alumni->id) }}" method="POST" class="inline swal-confirm" data-confirm-message="Yakin hapus data alumni ini?">
             @csrf @method('DELETE')
             <button type="submit" class="px-6 py-2 rounded-lg font-bold bg-red-500 text-white hover:bg-red-600 transition">
                 🗑 Hapus

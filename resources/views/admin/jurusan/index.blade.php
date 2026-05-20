@@ -70,7 +70,7 @@
                                 <a href="{{ route('admin.jurusan.edit', $jurusan->id) }}" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold hover:bg-blue-200 transition">
                                     ✏️ Edit
                                 </a>
-                                <form action="{{ route('admin.jurusan.destroy', $jurusan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus jurusan {{ $jurusan->nama_jurusan }}?')">
+                                <form action="{{ route('admin.jurusan.destroy', $jurusan->id) }}" method="POST" class="swal-confirm" data-confirm-message="Yakin ingin menghapus jurusan {{ $jurusan->nama_jurusan }}?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-semibold hover:bg-red-200 transition">

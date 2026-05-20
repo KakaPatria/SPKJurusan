@@ -82,55 +82,35 @@
             </div>
         </div>
 
-        <!-- Bobot Mata Pelajaran -->
+        <!-- ROC Weights Info (Fixed) -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold text-maroon mb-4">⚖️ Bobot Mata Pelajaran</h3>
-            <p class="text-xs text-gray-500 mb-4">Tentukan bobot setiap mata pelajaran untuk jurusan ini (0.00 - 1.00). Mata pelajaran yang lebih relevan diberi bobot lebih tinggi. Jumlah total tidak harus 1.0.</p>
+            <h3 class="text-lg font-bold text-maroon mb-4">⚖️ Bobot Kriteria Penilaian (ROC-Validated)</h3>
+            <p class="text-xs text-gray-600 mb-4">Semua jurusan menggunakan bobot yang sama dan telah divalidasi menggunakan ROC curve analysis:</p>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📐 IPA</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Matematika</label>
-                            <input type="number" name="bobot_mapel[ipa][mtk]" value="{{ old('bobot_mapel.ipa.mtk', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Fisika</label>
-                            <input type="number" name="bobot_mapel[ipa][fisika]" value="{{ old('bobot_mapel.ipa.fisika', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Kimia</label>
-                            <input type="number" name="bobot_mapel[ipa][kimia]" value="{{ old('bobot_mapel.ipa.kimia', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Biologi</label>
-                            <input type="number" name="bobot_mapel[ipa][biologi]" value="{{ old('bobot_mapel.ipa.biologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                    </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="p-3 bg-green-50 rounded-lg text-center border-l-4 border-green-400">
+                    <p class="text-xs font-bold text-green-800">💡 Minat</p>
+                    <p class="text-lg font-bold text-green-700">45.6%</p>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📊 IPS</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ekonomi</label>
-                            <input type="number" name="bobot_mapel[ips][ekonomi]" value="{{ old('bobot_mapel.ips.ekonomi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Geografi</label>
-                            <input type="number" name="bobot_mapel[ips][geografi]" value="{{ old('bobot_mapel.ips.geografi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Sosiologi</label>
-                            <input type="number" name="bobot_mapel[ips][sosiologi]" value="{{ old('bobot_mapel.ips.sosiologi', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Sejarah</label>
-                            <input type="number" name="bobot_mapel[ips][sejarah]" value="{{ old('bobot_mapel.ips.sejarah', '0.25') }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-maroon text-sm">
-                        </div>
-                    </div>
+                <div class="p-3 bg-yellow-50 rounded-lg text-center border-l-4 border-yellow-400">
+                    <p class="text-xs font-bold text-yellow-800">🎯 Preferensi</p>
+                    <p class="text-lg font-bold text-yellow-700">25.6%</p>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg text-center border-l-4 border-blue-400">
+                    <p class="text-xs font-bold text-blue-800">📝 Nilai</p>
+                    <p class="text-lg font-bold text-blue-700">15.6%</p>
+                </div>
+                <div class="p-3 bg-red-50 rounded-lg text-center border-l-4 border-red-400">
+                    <p class="text-xs font-bold text-red-800">💼 Cita-cita</p>
+                    <p class="text-lg font-bold text-red-700">9.0%</p>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-lg text-center border-l-4 border-purple-400">
+                    <p class="text-xs font-bold text-purple-800">🏆 Prestasi</p>
+                    <p class="text-lg font-bold text-purple-700">4.0%</p>
                 </div>
             </div>
+            
+            <p class="text-xs text-gray-600 mt-4">ℹ️ Total: 100% | Bobot ini tidak dapat diubah per jurusan untuk konsistensi sistem</p>
         </div>
 
         <div class="flex gap-4">

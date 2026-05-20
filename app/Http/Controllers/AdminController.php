@@ -38,38 +38,90 @@ class AdminController extends Controller
             ->groupBy('kelompok_asal')
             ->get();
 
+        // Rekomendasi per kelompok
+        $rekomendasiPerKelompok = Recommendation::selectRaw(
+            'users.kelompok_asal, COUNT(*) as count'
+        )
+        ->join('users', 'rekomendasi.user_id', '=', 'users.id')
+        ->groupBy('users.kelompok_asal')
+        ->get();
+
         $topMajors = Recommendation::selectRaw("
             JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan') as major_name,
             COUNT(*) as count
         ")
-            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")
-            ->orderBy('count', 'desc')
+            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') IS NOT NULL")
+            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') != 'null'")            ->orderBy('count', 'desc')
             ->take(5)
             ->get();
 
-        // Data untuk chart - semua jurusan
+        // Data untuk chart - semua jurusan (filter out NULL values)
         $allMajorsChart = Recommendation::selectRaw("
-            JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan') as major_name,
+            JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') as major_name,
             COUNT(*) as count
         ")
-            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '$[0].jurusan')")
+            ->groupByRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan')")
+            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') IS NOT NULL")
+            ->whereRaw("JSON_EXTRACT(hasil_rekomendasi, '\$[0].jurusan') != 'null'")
             ->orderBy('count', 'desc')
             ->get();
 
-        // Persiapkan data untuk Chart.js
-        $chartMajorNames = $allMajorsChart->pluck('major_name')->map(function($name) {
-            return trim($name, '"');
-        })->toArray();
-        $chartMajorCounts = $allMajorsChart->pluck('count')->toArray();
+        // Persiapkan data untuk Chart.js - aggregate & fix major names
+        $majorData = [];
+        foreach ($allMajorsChart as $item) {
+            $name = trim($item->major_name, '" ');
+            
+            // Skip empty/null values
+            if (empty($name) || $name === 'null') {
+                continue;
+            }
+            
+            // Normalize: handle all variants
+            $normalizedName = $name;
+            if (stripos($name, 'Teknik Informatika') === 0 || stripos($name, 'Teknologi Informasi') === 0) {
+                $normalizedName = 'Teknologi Informasi';
+            }
+            
+            if (!isset($majorData[$normalizedName])) {
+                $majorData[$normalizedName] = 0;
+            }
+            $majorData[$normalizedName] += (int)$item->count;
+        }
+        
+        // Sort by count descending
+        arsort($majorData);
+        
+        $chartMajorNames = array_keys($majorData);
+        $chartMajorCounts = array_values($majorData);
 
         $chartKelompokNames = $kelompokStats->pluck('kelompok_asal')->toArray();
         $chartKelompokCounts = $kelompokStats->pluck('count')->toArray();
 
-        // Top majors untuk horizontal bar chart
-        $topMajorsChart = $topMajors->pluck('major_name')->map(function($name) {
-            return trim($name, '"');
-        })->toArray();
-        $topMajorsCounts = $topMajors->pluck('count')->toArray();
+        // Top majors untuk horizontal bar chart - aggregate & fix
+        $topMajorData = [];
+        foreach ($topMajors as $item) {
+            $name = trim($item->major_name, '" ');
+            
+            // Skip empty/null values
+            if (empty($name) || $name === 'null') {
+                continue;
+            }
+            
+            // Normalize: handle all variants
+            $normalizedName = $name;
+            if (stripos($name, 'Teknik Informatika') === 0 || stripos($name, 'Teknologi Informasi') === 0) {
+                $normalizedName = 'Teknologi Informasi';
+            }
+            
+            if (!isset($topMajorData[$normalizedName])) {
+                $topMajorData[$normalizedName] = 0;
+            }
+            $topMajorData[$normalizedName] += (int)$item->count;
+        }
+        
+        arsort($topMajorData);
+        $topMajorsChart = array_keys($topMajorData);
+        $topMajorsCounts = array_values($topMajorData);
 
         return view('admin.dashboard', compact(
             'totalSiswa',
@@ -85,7 +137,8 @@ class AdminController extends Controller
             'chartKelompokNames',
             'chartKelompokCounts',
             'topMajorsChart',
-            'topMajorsCounts'
+            'topMajorsCounts',
+            'rekomendasiPerKelompok'
         ));
     }
 
@@ -458,6 +511,19 @@ class AdminController extends Controller
         $admin->save();
 
         return redirect()->route('admin.profil')->with('success', 'Password berhasil diubah!');
+    }
+
+    // ============================================
+    // 8. LOGOUT SEMUA USER
+    // ============================================
+    public function logoutAllUsers()
+    {
+        // Logout semua session user
+        \DB::table('sessions')->truncate();
+        
+        Auth::logout();
+
+        return redirect()->route('login')->with('success', 'Semua user telah berhasil logout!');
     }
 
 }

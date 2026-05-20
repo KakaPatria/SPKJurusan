@@ -94,7 +94,7 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 60,
+            'expire' => 1440,  // 24 hours (was 60 minutes)
             'throttle' => 60,
         ],
     ],

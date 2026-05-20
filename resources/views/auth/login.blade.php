@@ -405,6 +405,20 @@
                     </div>
                 @endif
 
+                {{-- Success Message: Password Reset Successfully --}}
+                @if (session('status'))
+                    <div class="success-alert" style="background-color: #ECFDF5; border: 2px solid #A7F3D0; color: #065F46; padding: 12px 14px; border-radius: 8px; margin-bottom: 18px; font-size: 13px; font-weight: 500;">
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="font-size: 20px;">✅</span>
+                            <div>
+                                <p style="margin: 0; font-weight: 700;">Password Berhasil Direset!</p>
+                                <p style="margin: 5px 0 0 0; line-height: 1.5;">{{ session('status') }}</p>
+                                <p style="margin: 8px 0 0 0; font-size: 12px; font-weight: 600;">Silakan login dengan password baru Anda.</p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 

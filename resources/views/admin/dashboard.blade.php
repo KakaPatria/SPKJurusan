@@ -3,6 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('content')
+            <!-- Logout All Users Button (hidden for safety during sidang) -->
+            {{-- <div class="mb-6">
+                <button onclick="confirmLogoutAllUsers()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 font-semibold">
+                    🚪 Logout Semua User
+                </button>
+            </div> --}}
+
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="stat-card bg-white rounded-lg shadow p-6 border-t-4 border-maroon">
@@ -42,13 +49,13 @@
                 </div>
             </div>
 
-            <!-- Kelompok Distribution -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Kelompok Chart -->
-                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-maroon">
-                    <h3 class="text-lg font-bold text-maroon mb-4">📊 Siswa per Kelompok</h3>
-                    <div style="position: relative; height: 250px;">
-                        <canvas id="chartKelompokPie"></canvas>
+<!-- Rekomendasi & Top Majors -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Rekomendasi per Kelompok -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-maroon">
+            <h3 class="text-lg font-bold text-maroon mb-4">📊 Rekomendasi per Kelompok</h3>
+            <div style="position: relative; height: 250px;">
+                <canvas id="chartRekomendasiKelompok"></canvas>
                     </div>
                 </div>
 
@@ -67,7 +74,7 @@
                 @if($recentStudents->isNotEmpty())
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
-                            <thead class="border-b-2 border-maroon">
+                            <thead class="border-b-2 border-purple-500">
                                 <tr>
                                     <th class="text-left px-4 py-2 font-bold text-maroon">Nama</th>
                                     <th class="text-center px-4 py-2 font-bold text-maroon">NIS</th>
@@ -86,7 +93,7 @@
                                             </span>
                                         </td>
                                         <td class="px-4 py-2 text-center">
-                                            <a href="{{ route('admin.student.detail', $student->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs">👁 Lihat</a>
+                                            <a href="{{ route('admin.student.detail', $student->id) }}" class="text-purple-600 hover:text-purple-800 font-semibold text-xs">👁 Lihat</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -207,17 +214,18 @@
             }
         });
 
-        // Chart 3: Kelompok Pie Chart
-        const chartKelompokPieCtx = document.getElementById('chartKelompokPie').getContext('2d');
-        const chartKelompokPie = new Chart(chartKelompokPieCtx, {
-            type: 'pie',
+        // Chart 3: Rekomendasi per Kelompok Bar Chart
+        const chartRekomendasiKelompokCtx = document.getElementById('chartRekomendasiKelompok').getContext('2d');
+        const chartRekomendasiKelompok = new Chart(chartRekomendasiKelompokCtx, {
+            type: 'bar',
             data: {
-                labels: @json($chartKelompokNames),
+                labels: @json($rekomendasiPerKelompok->pluck('kelompok_asal')->toArray()),
                 datasets: [{
-                    data: @json($chartKelompokCounts),
+                    label: 'Jumlah Rekomendasi',
+                    data: @json($rekomendasiPerKelompok->pluck('count')->toArray()),
                     backgroundColor: ['#0369A1', '#D97706'],
-                    borderColor: '#fff',
-                    borderWidth: 2
+                    borderColor: ['#0369A1', '#D97706'],
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -225,10 +233,17 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
+                        display: true,
                         labels: {
-                            font: { size: 11 },
-                            padding: 10
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10 }
                         }
                     }
                 }
@@ -271,5 +286,35 @@
                 }
             }
         });
+    </script>
+
+    <!-- Logout All Users Confirmation Script -->
+    <script>
+        function confirmLogoutAllUsers() {
+            // First confirmation
+            if (!confirm('⚠️  WARNING! Ini akan logout SEMUA user (Siswa, BK, Admin)!\\n\\nYakin ingin melanjutkan?')) {
+                return;
+            }
+
+            // Second confirmation
+            if (!confirm('🔔 Konfirmasi sekali lagi!\\n\\nIni tidak bisa dibatalkan. Lanjutkan?')) {
+                return;
+            }
+
+            // Submit form via POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("admin.logout-all-users") }}';
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 @endsection

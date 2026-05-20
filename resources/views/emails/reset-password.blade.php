@@ -204,6 +204,14 @@
                 <a href="{{ $resetUrl }}" class="cta-button">🔑 RESET PASSWORD</a>
             </div>
 
+            <!-- Code alternative -->
+            @if(!empty($code))
+            <div style="margin-top:18px;">
+                <p style="font-size:14px;color:#374151;margin-bottom:8px;">Atau, jika Anda ingin melakukan reset tanpa membuka tautan, salin <strong>kode token 6 digit</strong> di bawah ini dan masukkan pada form "Gunakan token" di halaman Lupa Password:</p>
+                <div style="background:#f3f4f6;border:1px dashed #e5e7eb;padding:14px;border-radius:6px;font-family:monospace;color:#111827;font-weight:700;word-break:break-all;font-size:20px;letter-spacing:4px;text-align:center;">{{ $code }}</div>
+            </div>
+            @endif
+
             <!-- Steps -->
             <div class="steps">
                 <h3>📋 Langkah-Langkah:</h3>

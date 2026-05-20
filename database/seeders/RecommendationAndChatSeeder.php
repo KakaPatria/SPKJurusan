@@ -257,7 +257,7 @@ class RecommendationAndChatSeeder extends Seeder
             Recommendation::create(array_merge($data, [
                 'hasil_rekomendasi' => [
                     [
-                        'jurusan' => 'Teknik Informatika',
+                        'jurusan' => 'Teknologi Informasi',
                         'skor' => rand(70, 95) / 100,
                         'detail' => [
                             'nilai' => rand(60, 95) / 100,
@@ -274,7 +274,7 @@ class RecommendationAndChatSeeder extends Seeder
         // Data chat history yang natural dan tidak template
         $chatData = [
             // Chat tentang rekomendasi
-            ['user_id' => 2, 'id_sesi' => 'session_1', 'pertanyaan' => 'Jadi menurut sistem saya cocok ambil jurusan apa ya?', 'jawaban' => 'Berdasarkan hasil analisis, untuk profile Anda yang nilai MTK-Fisika bagus dan minat coding kuat, Teknik Informatika adalah pilihan yang selaras. Anda bisa fokus cybersecurity atau development.'],
+            ['user_id' => 2, 'id_sesi' => 'session_1', 'pertanyaan' => 'Jadi menurut sistem saya cocok ambil jurusan apa ya?', 'jawaban' => 'Berdasarkan hasil analisis, untuk profile Anda yang nilai MTK-Fisika bagus dan minat coding kuat, Teknologi Informasi adalah pilihan yang selaras. Anda bisa fokus cybersecurity atau development.'],
             ['user_id' => 2, 'id_sesi' => 'session_1', 'pertanyaan' => 'Cybersecurity lebih amankan karir atau development?', 'jawaban' => 'Dua-duanya prospek bagus. Cybersecurity ada demand dari government dan finance yang stabil. Development skills lebih flexible bisa startup atau big tech. Lihat passion Anda lebih ke yang mana.'],
             ['user_id' => 3, 'id_sesi' => 'session_2', 'pertanyaan' => 'Saya pengen jurusan yang bisa langsung applicable untuk robotika', 'jawaban' => 'Untuk robotika, Teknik Elektro atau Teknik Mesin sangat applicable. Dengan score fisika 90 Anda, dua jurusan ini cocok. Teknik Elektro kalau fokus control system, Teknik Mesin kalau fokus mechanical design.'],
             ['user_id' => 3, 'id_sesi' => 'session_2', 'pertanyaan' => 'Lebih pilih mana sih?', 'jawaban' => 'Lihat passion Anda lebih ke elektrik atau mekanik? Kalau suka coding dan control systems, Teknik Elektro. Kalau suka design fisik dan assemble-dismantle, Teknik Mesin. Keduanya relevant untuk robotika.'],
@@ -310,7 +310,7 @@ class RecommendationAndChatSeeder extends Seeder
             ['user_id' => 11, 'id_sesi' => 'session_10', 'pertanyaan' => 'Ada lab atau praktik langsung nggak?', 'jawaban' => 'Ada. Biasanya ada lab communicative, media production, bahkan ada broadcast studio. Praktik langsung dengan project nyata untuk client atau media partner. Itu yang membuat komunikasi menarik.'],
             
             // More natural chats
-            ['user_id' => 2, 'id_sesi' => 'session_11', 'pertanyaan' => 'Kenalin dong senior-senior di Teknik Informatika', 'jawaban' => 'Udah ada program mentoring di Polije. Senior bisa di-connect melalui alumni network atau student organization. Mereka helpful banget share experience dan tips lolos interview di tech company.'],
+            ['user_id' => 2, 'id_sesi' => 'session_11', 'pertanyaan' => 'Kenalin dong senior-senior di Teknologi Informasi', 'jawaban' => 'Udah ada program mentoring di Polije. Senior bisa di-connect melalui alumni network atau student organization. Mereka helpful banget share experience dan tips lolos interview di tech company.'],
             ['user_id' => 3, 'id_sesi' => 'session_12', 'pertanyaan' => 'Lab di Teknik Elektro lengkap nggak untuk robotika?', 'jawaban' => 'Lumayan lengkap. Ada microcontroller lab, digital logic lab. Untuk advanced robotics, bisa kolaborasi dengan Teknik Mesin juga. Ada makerspace bersama yang membantu student projects.'],
             ['user_id' => 4, 'id_sesi' => 'session_13', 'pertanyaan' => 'Kesehatan di Polije fokus apa ya?', 'jawaban' => 'Ada program Ilmu Gizi, Teknologi Laboratorium Medis, dan Kesehatan Masyarakat. Fokus ke applied health, tidak pure medical science. Cocok untuk Anda yang peduli community health.'],
             ['user_id' => 5, 'id_sesi' => 'session_14', 'pertanyaan' => 'Mahasiswa agribusiness banyak nggak?', 'jawaban' => 'Cukup banyak, sekitar 100 per tahun. Intake lumayan tinggi karena demand industri. Networking sama peers bisa bagus untuk future business partnership.'],

@@ -10,7 +10,7 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="stat-card bg-white rounded-lg shadow p-6 border-t-4 border-teal-500">
+        <div class="stat-card bg-white rounded-lg shadow p-6 border-t-4 border-purple-500">
             <p class="text-gray-600 text-sm font-semibold">👥 Total Siswa</p>
             <p class="text-3xl font-bold text-bk mt-2">{{ $totalSiswa }}</p>
         </div>
@@ -47,13 +47,13 @@
         </div>
     </div>
 
-    <!-- Kelompok Distribution & Top Majors -->
+    <!-- Rekomendasi & Top Majors -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Kelompok Chart -->
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-teal-500">
-            <h3 class="text-lg font-bold text-bk mb-4">📊 Siswa per Kelompok</h3>
+        <!-- Rekomendasi per Kelompok -->
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <h3 class="text-lg font-bold text-bk mb-4">📊 Rekomendasi per Kelompok</h3>
             <div style="position: relative; height: 250px;">
-                <canvas id="chartKelompokPie"></canvas>
+                <canvas id="chartRekomendasiKelompok"></canvas>
             </div>
         </div>
 
@@ -72,7 +72,7 @@
         @if($recentStudents->isNotEmpty())
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="border-b-2 border-teal-500">
+                    <thead class="border-b-2 border-purple-500">
                         <tr>
                             <th class="text-left px-4 py-2 font-bold text-bk">Nama</th>
                             <th class="text-center px-4 py-2 font-bold text-bk">NIS</th>
@@ -91,7 +91,7 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-2 text-center">
-                                    <a href="{{ route('bk.student.detail', $student->id) }}" class="text-teal-600 hover:text-teal-800 font-semibold text-xs">👁 Lihat</a>
+                                    <a href="{{ route('bk.student.detail', $student->id) }}" class="text-purple-600 hover:text-purple-800 font-semibold text-xs">👁 Lihat</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -212,17 +212,18 @@
             }
         });
 
-        // Chart 3: Kelompok Pie Chart
-        const chartKelompokPieCtx = document.getElementById('chartKelompokPie').getContext('2d');
-        const chartKelompokPie = new Chart(chartKelompokPieCtx, {
-            type: 'pie',
+        // Chart 3: Rekomendasi per Kelompok Bar Chart
+        const chartRekomendasiKelompokCtx = document.getElementById('chartRekomendasiKelompok').getContext('2d');
+        const chartRekomendasiKelompok = new Chart(chartRekomendasiKelompokCtx, {
+            type: 'bar',
             data: {
-                labels: @json($chartKelompokNames),
+                labels: @json($rekomendasiPerKelompok->pluck('kelompok_asal')->toArray()),
                 datasets: [{
-                    data: @json($chartKelompokCounts),
+                    label: 'Jumlah Rekomendasi',
+                    data: @json($rekomendasiPerKelompok->pluck('count')->toArray()),
                     backgroundColor: ['#0369A1', '#D97706'],
-                    borderColor: '#fff',
-                    borderWidth: 2
+                    borderColor: ['#0369A1', '#D97706'],
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -230,10 +231,17 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
+                        display: true,
                         labels: {
-                            font: { size: 11 },
-                            padding: 10
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10 }
                         }
                     }
                 }

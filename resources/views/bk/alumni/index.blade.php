@@ -55,7 +55,7 @@
                         <td class="px-6 py-4 text-center gap-2 flex justify-center">
                             <a href="{{ route('bk.alumni.show', $a->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">👁 Lihat</a>
                             <a href="{{ route('bk.alumni.edit', $a->id) }}" class="text-yellow-600 hover:text-yellow-800 font-semibold text-sm">✏ Edit</a>
-                            <form action="{{ route('bk.alumni.destroy', $a->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin hapus?')">
+                            <form action="{{ route('bk.alumni.destroy', $a->id) }}" method="POST" class="inline swal-confirm" data-confirm-message="Yakin hapus?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm">🗑 Hapus</button>
                             </form>

@@ -82,6 +82,9 @@ Route::middleware(['auth', 'verified', 'isAdmin'])->prefix('admin')->name('admin
     Route::get('/profil', [AdminController::class, 'profil'])->name('profil');
     Route::put('/profil', [AdminController::class, 'updateProfil'])->name('profil.update');
     Route::put('/profil/password', [AdminController::class, 'updatePassword'])->name('profil.password');
+
+    // 8. Logout Semua User
+    Route::post('/logout-all-users', [AdminController::class, 'logoutAllUsers'])->name('logout-all-users');
 });
 
 // BK Routes (role-based access control)
@@ -114,3 +117,8 @@ Route::middleware(['auth', 'verified', 'isBK'])->prefix('bk')->name('bk.')->grou
 });
 
 require __DIR__.'/auth.php';
+
+// Password reset with 6-digit code (inline token flow)
+use App\Http\Controllers\Auth\PasswordResetWithCodeController;
+Route::post('/password/reset-with-code', [PasswordResetWithCodeController::class, 'resetWithCode'])->name('password.reset.with_code');
+Route::post('/password/verify-code', [PasswordResetWithCodeController::class, 'verifyCode'])->name('password.verify.code');

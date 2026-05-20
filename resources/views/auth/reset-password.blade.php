@@ -81,12 +81,25 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <p class="text-red-700 text-xs mt-3 font-semibold">💡 Pastikan:</p>
-                            <ul class="text-red-700 text-xs mt-1 space-y-0.5 ml-2">
-                                <li>✓ Password minimal 8 karakter</li>
-                                <li>✓ Kedua password sama persis</li>
-                                <li>✓ Tidak menggunakan password lama</li>
-                            </ul>
+                            
+                            @if($errors->has('token'))
+                                <div class="mt-4 pt-3 border-t border-red-200">
+                                    <p class="text-red-700 text-xs font-semibold mb-2">⏰ Token telah kadaluarsa?</p>
+                                    <p class="text-red-700 text-xs mb-3">Minta tautan reset password yang baru:</p>
+                                    <a href="{{ route('password.request') }}" class="inline-block px-4 py-2 bg-red-600 text-white text-xs font-semibold rounded hover:bg-red-700 transition">
+                                        🔄 Minta Link Reset Baru
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if(!$errors->has('token'))
+                                <p class="text-red-700 text-xs mt-3 font-semibold">💡 Pastikan:</p>
+                                <ul class="text-red-700 text-xs mt-1 space-y-0.5 ml-2">
+                                    <li>✓ Password minimal 8 karakter</li>
+                                    <li>✓ Kedua password sama persis</li>
+                                    <li>✓ Tidak menggunakan password lama</li>
+                                </ul>
+                            @endif
                         </div>
                     </div>
                 </div>

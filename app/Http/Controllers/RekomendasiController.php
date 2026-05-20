@@ -255,27 +255,25 @@ class RekomendasiController extends Controller
             $prior = 1 / $cfgCount;
             $logPrior = log(max($prior, $epsilon));
 
-            // Weights dan match probabilities dengan defaults (ROC-based: nilai 15.6%, minat 45.6%, pref 25.6%, cita 9%, prestasi 4%)
-            $weights = $c['weights'] ?? ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
-            
-            // Ensure weights is array
-            if (!is_array($weights)) {
-                $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
-            }
+            // Use global ROC weights (override any per-jurusan editable weights)
+            // ROC-based: nilai 15.6%, minat 45.6%, pref 25.6%, cita 9%, prestasi 4%
+            $globalWeights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
+            $weights = $globalWeights;
 
-            // Jika prestasi kosong, atribut prestasi tidak dihitung dengan normalisasi ulang
+            // Jika prestasi kosong, atribut prestasi tidak dihitung dan lakukan normalisasi ulang pada atribut lain
             if (!$isPrestasiFilled) {
                 $weights['prestasi'] = 0.0;
-                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['cita_cita'] ?? 0);
-                
+                $sumNonPrestasi = ($weights['nilai'] ?? 0) + ($weights['minat'] ?? 0) + ($weights['pref'] ?? 0) + ($weights['cita_cita'] ?? 0);
+
                 // Normalize weights dengan safety check
                 if ($sumNonPrestasi > $epsilon) {
                     $weights['nilai'] = ($weights['nilai'] ?? 0) / $sumNonPrestasi;
                     $weights['minat'] = ($weights['minat'] ?? 0) / $sumNonPrestasi;
+                    $weights['pref'] = ($weights['pref'] ?? 0) / $sumNonPrestasi;
                     $weights['cita_cita'] = ($weights['cita_cita'] ?? 0) / $sumNonPrestasi;
                 } else {
-                    // Fallback weights jika semua weight adalah 0
-                    $weights = ['nilai' => 0.156, 'minat' => 0.456, 'pref' => 0.256, 'cita_cita' => 0.090, 'prestasi' => 0.040];
+                    // Fallback ke global jika normalisasi gagal
+                    $weights = $globalWeights;
                 }
             }
             

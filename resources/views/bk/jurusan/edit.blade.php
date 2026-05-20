@@ -37,7 +37,7 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Jurusan <span class="text-red-500">*</span> <span class="text-gray-400 text-xs">(minimal 3 karakter)</span></label>
-                    <input type="text" name="nama_jurusan" value="{{ old('nama_jurusan', $jurusan->nama_jurusan) }}" minlength="3" maxlength="100" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition @error('nama_jurusan') border-red-500 focus:ring-red-400 @else border-gray-300 focus:ring-teal-400 @enderror" required oninput="validateJurusanForm()">
+                    <input type="text" name="nama_jurusan" value="{{ old('nama_jurusan', $jurusan->nama_jurusan) }}" minlength="3" maxlength="100" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition @error('nama_jurusan') border-red-500 focus:ring-red-400 @else border-gray-300 focus:ring-teal-400 @enderror" placeholder="Contoh: Teknologi Informasi" required oninput="validateJurusanForm()">
                     <div class="flex justify-between items-center mt-1">
                         <span id="namaError" class="text-red-500 text-xs hidden">⚠️ Nama harus minimal 3 karakter</span>
                         <span id="namaValid" class="text-green-500 text-xs hidden">✓ Nama valid</span>
@@ -80,63 +80,18 @@
             </div>
         </div>
 
-        <!-- Bobot Mata Pelajaran -->
-        @php
-            $bobot = $jurusan->bobot_mapel ?? [];
-            $bobotIpa = data_get($bobot, 'ipa', $bobot);
-            $bobotIps = data_get($bobot, 'ips', $bobot);
-        @endphp
+        <!-- Bobot Mata Pelajaran dihapus: gunakan bobot ROC global -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold text-bk mb-4">⚖️ Bobot Mata Pelajaran</h3>
-            <p class="text-xs text-gray-500 mb-4">Tentukan bobot setiap mata pelajaran untuk jurusan ini (0.00 - 1.00). Mata pelajaran yang lebih relevan diberi bobot lebih tinggi. Jumlah total tidak harus 1.0.</p>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📐 IPA</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Matematika</label>
-                            <input type="number" name="bobot_mapel[ipa][mtk]" value="{{ old('bobot_mapel.ipa.mtk', data_get($bobotIpa, 'mtk', data_get($bobot, 'mtk', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Fisika</label>
-                            <input type="number" name="bobot_mapel[ipa][fisika]" value="{{ old('bobot_mapel.ipa.fisika', data_get($bobotIpa, 'fisika', data_get($bobot, 'fisika', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Kimia</label>
-                            <input type="number" name="bobot_mapel[ipa][kimia]" value="{{ old('bobot_mapel.ipa.kimia', data_get($bobotIpa, 'kimia', data_get($bobot, 'kimia', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Biologi</label>
-                            <input type="number" name="bobot_mapel[ipa][biologi]" value="{{ old('bobot_mapel.ipa.biologi', data_get($bobotIpa, 'biologi', data_get($bobot, 'biologi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-3 border-b pb-2">📊 IPS</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ekonomi</label>
-                            <input type="number" name="bobot_mapel[ips][ekonomi]" value="{{ old('bobot_mapel.ips.ekonomi', data_get($bobotIps, 'ekonomi', data_get($bobot, 'ekonomi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Geografi</label>
-                            <input type="number" name="bobot_mapel[ips][geografi]" value="{{ old('bobot_mapel.ips.geografi', data_get($bobotIps, 'geografi', data_get($bobot, 'geografi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Sosiologi</label>
-                            <input type="number" name="bobot_mapel[ips][sosiologi]" value="{{ old('bobot_mapel.ips.sosiologi', data_get($bobotIps, 'sosiologi', data_get($bobot, 'sosiologi', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Sejarah</label>
-                            <input type="number" name="bobot_mapel[ips][sejarah]" value="{{ old('bobot_mapel.ips.sejarah', data_get($bobotIps, 'sejarah', data_get($bobot, 'sejarah', '0.25'))) }}" step="0.05" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm" oninput="validateBobot()">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="bobotInfo" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
-                <p class="text-blue-700 text-xs"><span id="bobotTotal">0</span> / 2.00 (Total bobot untuk penilaian)</p>
-            </div>
+            <h3 class="text-lg font-bold text-bk mb-4">⚖️ Bobot Penilaian (ROC)</h3>
+            <p class="text-sm text-gray-600 mb-3">Mulai sekarang, sistem menggunakan bobot ROC tetap untuk semua jurusan. Pengaturan bobot per-mata-pelajaran tidak lagi tersedia di form ini.</p>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                <li><strong>Minat</strong>: 45.6% (0.456)</li>
+                <li><strong>Preferensi</strong>: 25.6% (0.256)</li>
+                <li><strong>Nilai</strong>: 15.6% (0.156)</li>
+                <li><strong>Cita-cita</strong>: 9.0% (0.090)</li>
+                <li><strong>Prestasi</strong>: 4.0% (0.040)</li>
+            </ul>
+            <p class="text-xs text-gray-500 mt-3">Catatan: Jika Anda tetap menyimpan nilai bobot di database, sistem akan mengabaikannya dan menggunakan bobot ROC global dalam perhitungan rekomendasi.</p>
         </div>
 
         <div class="flex gap-4">
@@ -185,32 +140,8 @@
         submitButton.disabled = !isNamaValid;
     }
 
-    function validateBobot() {
-        const bobotInputs = document.querySelectorAll('input[type="number"][name^="bobot_"]');
-        const bobotInfo = document.getElementById('bobotInfo');
-        const bobotTotal = document.getElementById('bobotTotal');
-        let total = 0;
-
-        bobotInputs.forEach(input => {
-            let value = parseFloat(input.value);
-            if (isNaN(value) || value < 0) {
-                value = 0;
-                input.value = '0.00';
-            }
-            if (value > 1) {
-                value = 1;
-                input.value = '1.00';
-            }
-            total += value;
-        });
-
-        bobotTotal.textContent = total.toFixed(2);
-        bobotInfo.classList.remove('hidden');
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         validateJurusanForm();
-        validateBobot();
         updateCharCount('deskripsi');
     });
 </script>

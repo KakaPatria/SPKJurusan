@@ -7,18 +7,18 @@
     <title>@yield('title', 'Panel Guru BK') - SPK Jurusan Polije</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Keep BK theme, but also support admin-style utility classes used by Alumni pages */
-        .gradient-maroon { background: linear-gradient(135deg, #6B7280 0%, #8B95A5 100%); }
-        .text-maroon { color: #6B7280; }
-        .border-maroon { border-color: #6B7280; }
-        .bg-maroon { background-color: #6B7280; }
+        /* Updated BK theme to match modern purple-indigo gradient */
+        .gradient-maroon { background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); }
+        .text-maroon { color: #7c3aed; }
+        .border-maroon { border-color: #7c3aed; }
+        .bg-maroon { background-color: #7c3aed; }
 
-        .gradient-bk { background: linear-gradient(135deg, #5A8A7F 0%, #7BA39A 100%); }
-        .text-bk { color: #5A8A7F; }
-        .border-bk { border-color: #5A8A7F; }
-        .bg-cream { background-color: #F8FAFC; }
+        .gradient-bk { background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); }
+        .text-bk { color: #7c3aed; }
+        .border-bk { border-color: #7c3aed; }
+        .bg-cream { background-color: #f8fafc; }
         .stat-card { transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(90, 138, 127, 0.1); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.1); }
 
         /* Sidebar */
         .sidebar-dark {
@@ -31,14 +31,14 @@
             color: #cbd5e1;
         }
         .sidebar-link:hover {
-            background: rgba(90, 138, 127, 0.12);
+            background: rgba(124, 58, 237, 0.12);
             color: #ffffff;
-            border-left-color: rgba(90, 138, 127, 0.5);
+            border-left-color: rgba(124, 58, 237, 0.5);
         }
         .sidebar-link.active {
-            background: linear-gradient(90deg, rgba(90,138,127,0.2) 0%, rgba(90,138,127,0.03) 100%);
-            color: #a8bfb8 !important;
-            border-left-color: #a8bfb8;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.03) 100%);
+            color: #c4b5fd !important;
+            border-left-color: #c4b5fd;
         }
         .sidebar-link .sidebar-icon {
             display: inline-flex;
@@ -53,11 +53,11 @@
             transition: all 0.25s ease;
         }
         .sidebar-link:hover .sidebar-icon {
-            background: rgba(90, 138, 127, 0.25);
+            background: rgba(124, 58, 237, 0.25);
             transform: scale(1.05);
         }
         .sidebar-link.active .sidebar-icon {
-            background: rgba(90, 138, 127, 0.15);
+            background: rgba(124, 58, 237, 0.15);
         }
         .sidebar-section-label {
             font-size: 10px;
@@ -77,13 +77,13 @@
         .sidebar-brand-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #5A8A7F 0%, #7BA39A 100%);
+            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            box-shadow: 0 4px 12px rgba(90, 138, 127, 0.3);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
         }
         .sidebar-footer {
             border-top: 1px solid rgba(255,255,255,0.06);
@@ -123,7 +123,7 @@
                         <a href="{{ route('bk.profil') }}" class="block px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold border-b">
                             👤 Profil Saya
                         </a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" class="confirm-logout">
                             @csrf
                             <button type="submit" class="block w-full text-left px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold text-red-600 rounded-b-lg">
                                 🚪 Logout
@@ -271,6 +271,50 @@
         mobileMenuBtn.addEventListener('click', () => mobileSidebar.classList.remove('hidden'));
         mobileOverlay.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
         closeMobileMenu.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
+    </script>
+    <!-- SweetAlert2 (BK) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form.confirm-logout').forEach(function(form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi Logout',
+                        text: 'Yakin ingin logout dari akun ini?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Logout',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            // Generic SweetAlert2 confirmation for destructive actions in BK
+            document.querySelectorAll('form.swal-confirm').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const msg = form.getAttribute('data-confirm-message') || 'Yakin melanjutkan aksi ini?';
+                    Swal.fire({
+                        title: 'Konfirmasi',
+                        text: msg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+            });
+        });
     </script>
     @yield('scripts')
 </body>

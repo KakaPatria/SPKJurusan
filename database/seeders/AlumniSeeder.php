@@ -28,7 +28,7 @@ class AlumniSeeder extends Seeder
                 'cita_cita' => 'Software Developer',
                 'preferensi_studi' => 'Sains & Teknologi',
                 'prestasi' => 'Juara 1 Olimpiade Komputer Nasional',
-                'major_masuk' => 'Teknik Informatika',
+                'major_masuk' => 'Teknologi Informasi',
                 'tahun_lulus_polije' => 2027,
                 'catatan' => 'Alumni 2023 - Rekomendasi akurat',
             ],
