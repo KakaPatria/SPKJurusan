@@ -53,14 +53,7 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Keywords (Kata Kunci Minat & Cita-cita)</label>
-                    <textarea name="keywords" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-maroon" placeholder="Pisahkan dengan koma, contoh: programmer, developer, coding, software, web" maxlength="500" oninput="updateCharCount('keywordsCount')">{{ old('keywords') }}</textarea>
-                    <div class="flex justify-between items-center mt-1">
-                        <p class="text-xs text-gray-500">Keywords digunakan untuk mencocokkan minat dan cita-cita siswa dengan jurusan ini. Pisahkan dengan koma.</p>
-                        <span id="keywordsCount" class="text-gray-600 text-xs font-medium">0/500</span>
-                    </div>
-                </div>
+
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Preferensi Studi</label>
@@ -160,7 +153,6 @@
                 // Update char counts on load
                 document.querySelectorAll('textarea[maxlength]').forEach(textarea => {
                     const id = textarea.name === 'deskripsi' ? 'charCount' : 
-                               textarea.name === 'keywords' ? 'keywordsCount' :
                                textarea.name === 'preferensi_studi' ? 'preferensiCount' :
                                'prospekCount';
                     const count = textarea.value.length;

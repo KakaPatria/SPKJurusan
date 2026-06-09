@@ -39,13 +39,13 @@
     <!-- Header -->
     <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
                 <div>
-                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Profil Saya</h1>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold leading-tight">Profil Saya</h1>
                     <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Sistem Pemilihan Jurusan</p>
                 </div>
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                    <span class="text-xs sm:text-sm md:text-base text-yellow-200">{{ Auth::user()->name }}</span>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <span class="text-xs sm:text-sm md:text-base text-yellow-200 break-words">{{ Auth::user()->name }}</span>
                     <a href="{{ route('dashboard') }}" class="block sm:inline-block w-full sm:w-auto bg-yellow-400 text-center font-bold py-2 px-4 rounded-lg hover:bg-yellow-300 transition text-xs sm:text-sm" style="color: #5B7B89;">
                         ← Kembali ke Dashboard
                     </a>
@@ -65,36 +65,36 @@
         @endif
 
         {{-- ========== PROFILE HEADER CARD - HORIZONTAL ========== --}}
-        <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-xl shadow-xl p-6 mb-6 text-gray-800">
-            <div class="flex gap-6 items-center">
+        <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-xl shadow-xl p-4 sm:p-6 mb-6 text-gray-800">
+            <div class="flex flex-col lg:flex-row gap-5 lg:gap-6 items-center lg:items-start">
                 <!-- Avatar Section -->
                 <div class="flex-shrink-0">
                     @if($user->foto)
-                        <img src="{{ asset($user->foto) }}" alt="Foto Profil" class="w-32 h-32 rounded-2xl object-cover border-4 border-white shadow-lg" id="foto-preview-header">
+                        <img src="{{ asset($user->foto) }}" alt="Foto Profil" class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl object-cover border-4 border-white shadow-lg" id="foto-preview-header">
                     @else
-                        <div class="w-32 h-32 rounded-2xl bg-white bg-opacity-30 flex items-center justify-center text-5xl font-bold text-gray-700" id="foto-placeholder-header">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl bg-white bg-opacity-30 flex items-center justify-center text-4xl sm:text-5xl font-bold text-gray-700" id="foto-placeholder-header">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
                         </div>
-                        <img src="#" alt="Foto Profil" class="w-32 h-32 rounded-2xl object-cover border-4 border-white shadow-lg hidden" id="foto-preview-header">
+                        <img src="#" alt="Foto Profil" class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl object-cover border-4 border-white shadow-lg hidden" id="foto-preview-header">
                     @endif
                 </div>
                 
                 <!-- Info Section -->
-                <div class="flex-1">
-                    <h2 class="text-3xl font-bold mb-4">{{ $user->name }}</h2>
-                    <div class="grid grid-cols-4 gap-4 text-sm">
+                <div class="flex-1 w-full text-center lg:text-left">
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-4 break-words">{{ $user->name }}</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                         <div>
                             <p class="text-gray-700 text-xs font-semibold opacity-75">NIS</p>
                             <p class="text-lg font-bold text-gray-800">{{ $user->nis ?? '-' }}</p>
                         </div>
                         <div>
                             <p class="text-gray-700 text-xs font-semibold opacity-75">Email</p>
-                            <p class="text-sm font-semibold text-gray-800 break-words">{{ $user->email }}</p>
+                            <p class="text-sm font-semibold text-gray-800 break-words min-w-0">{{ $user->email }}</p>
                         </div>
                         <div>
                             <p class="text-gray-700 text-xs font-semibold opacity-75">Kelompok</p>
                             @if($user->kelompok_asal)
-                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold text-white" style="background-color: {{ $user->kelompok_asal == 'IPA' ? '#0369A1' : '#B45309' }};">
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold text-white break-words" style="background-color: {{ $user->kelompok_asal == 'IPA' ? '#0369A1' : '#B45309' }};">
                                     {{ $user->kelompok_asal }}
                                 </span>
                             @else
@@ -114,7 +114,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
             {{-- ========== INFORMASI PROFIL ========== --}}
-            <div class="bg-white rounded-lg shadow-lg p-5 border-l-4 border-blue-500">
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-5 border-l-4 border-blue-500">
                 <h2 class="text-lg font-bold text-maroon mb-1">📝 Edit Profil</h2>
                 <p class="text-xs text-gray-500 mb-4">Perbarui data diri Anda.</p>
 
@@ -132,9 +132,9 @@
                         @enderror
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {{-- Nama --}}
-                    <div class="col-span-2">
+                    <div class="sm:col-span-2">
                         <label for="name" class="block text-xs font-semibold text-maroon mb-1">Nama Lengkap</label>
                         <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
                             class="input-focus w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-0">
@@ -144,7 +144,7 @@
                     </div>
 
                     {{-- Email --}}
-                    <div class="col-span-2">
+                    <div class="sm:col-span-2">
                         <label for="email" class="block text-xs font-semibold text-maroon mb-1">Email</label>
                         <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required
                             class="input-focus w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-0">
@@ -156,8 +156,9 @@
                     {{-- NIS --}}
                     <div>
                         <label for="nis" class="block text-xs font-semibold text-maroon mb-1">NIS</label>
-                        <input type="text" id="nis" name="nis" value="{{ old('nis', $user->nis) }}" maxlength="20"
+                        <input type="text" id="nis" name="nis" value="{{ old('nis', $user->nis) }}" minlength="5" maxlength="20" inputmode="numeric" pattern="[0-9]{5,20}"
                             class="input-focus w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-0" placeholder="12345678">
+                        <p class="text-gray-400 text-xs mt-0.5">NIS 5-20 digit angka.</p>
                         @error('nis')
                             <p class="text-red-600 text-xs mt-0.5">{{ $message }}</p>
                         @enderror
@@ -185,7 +186,7 @@
             </div>
 
             {{-- ========== UBAH PASSWORD ========== --}}
-            <div class="bg-white rounded-lg shadow-lg p-5 border-l-4 border-green-500">
+            <div class="bg-white rounded-lg shadow-lg p-4 sm:p-5 border-l-4 border-green-500">
                 <h2 class="text-lg font-bold text-maroon mb-1">🔐 Ubah Password</h2>
                 <p class="text-xs text-gray-500 mb-4">Gunakan password yang kuat dan aman.</p>
 

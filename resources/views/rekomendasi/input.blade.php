@@ -11,17 +11,17 @@
         }
 
         :root {
-            --primary: #0f766e;
-            --primary-light: #0d9488;
+            --primary: #9333ea;
+            --primary-light: #6366f1;
             --secondary: #d97706;
             --accent: #f59e0b;
             --success: #10b981;
             --error: #ef4444;
-            --bg-soft: #f0f9ff;
+            --bg-soft: #f5f3ff;
             --bg-card: #ffffff;
             --text-main: #1f2937;
             --text-secondary: #6b7280;
-            --border-light: #e5e7eb;
+            --border-light: #e9e3ff;
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
@@ -184,7 +184,7 @@
 <body>
     <!-- Header -->
     <header class="header-main py-4 md:py-6">
-        <div class="container mx-auto px-4 md:px-6">
+        <div class="w-full px-4 md:px-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold">Form Analisis Jurusan</h1>
@@ -198,7 +198,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 md:px-6 py-8 md:py-12">
+    <main class="w-full px-4 md:px-6 py-8 md:py-12">
         <!-- Info Banner -->
         <div class="card p-5 md:p-6 mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4" style="border-left-color: var(--primary);">
             <div style="display: flex; gap: 1rem;">
@@ -207,6 +207,33 @@
                     <h2 class="text-lg font-semibold mb-2 text-primary">Petunjuk Pengisian</h2>
                     <p class="text-sm mb-2">Isi form berikut dengan data yang akurat. Sistem akan menganalisis profil Anda menggunakan algoritma Weighted Naive Bayes untuk merekomendasikan 9 jurusan terbaik.</p>
                     <p class="text-xs" style="color: var(--text-secondary);">Bobot kriteria: Minat (45.6%) • Preferensi (25.6%) • Nilai (15.6%) • Cita-cita (9%) • Prestasi (4%)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5 md:p-6 mb-6 md:mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4" style="border-left-color: var(--secondary);">
+            <h2 class="text-lg font-semibold mb-3" style="color: var(--secondary);">Peta Minat & Preferensi Studi</h2>
+            <p class="text-sm mb-3" style="color: var(--text-secondary);">Gunakan kata minat yang jelas. Input yang typo atau terlalu umum akan ditolak agar hasil rekomendasi akurat.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="font-semibold mb-1" style="color: var(--text-main);">Kategori Minat:</p>
+                    <ul class="space-y-1" style="color: var(--text-secondary);">
+                        <li>• Logika & Komputer: coding, programming, komputer, software, data</li>
+                        <li>• Alam & Tanaman: pertanian, kebun, hortikultura, budidaya</li>
+                        <li>• Pelayanan & Kesehatan: medis, perawat, farmasi, gizi</li>
+                        <li>• Manajemen & Bisnis: bisnis, marketing, keuangan, akuntansi</li>
+                        <li>• Mesin & Listrik: mesin, listrik, teknik, otomasi</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold mb-1" style="color: var(--text-main);">Preferensi Studi Valid:</p>
+                    <ul class="space-y-1" style="color: var(--text-secondary);">
+                        <li>• Sains & Teknologi</li>
+                        <li>• Pertanian & Lingkungan</li>
+                        <li>• Kesehatan & Ilmu Hayat</li>
+                        <li>• Bisnis & Manajemen</li>
+                        <li>• Sosial & Humaniora</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -237,6 +264,16 @@
             <form action="{{ route('rekomendasi.proses') }}" method="POST" class="space-y-8">
                 @csrf
 
+                <div id="clientValidationAlert" class="hidden mb-6 p-4 rounded-lg bg-red-50 border-l-4" style="border-left-color: var(--error);" role="alert" aria-live="polite">
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="font-size: 1.5rem; flex-shrink: 0;">⚠️</div>
+                        <div>
+                            <h3 style="color: var(--error); font-weight: 600; margin-bottom: 0.5rem;">Periksa Kembali Input Anda</h3>
+                            <ul id="clientValidationList" style="list-style: none; padding: 0; margin: 0;"></ul>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- NILAI AKADEMIK -->
                 <section>
                     <h3 class="section-title">
@@ -256,7 +293,7 @@
                             @foreach(['mtk' => 'Matematika', 'fisika' => 'Fisika', 'kimia' => 'Kimia', 'biologi' => 'Biologi'] as $field => $label)
                                 <div class="input-field">
                                     <label>{{ $label }}</label>
-                                    <input type="number" name="{{ $field }}" min="0" max="100" value="{{ old($field) }}" placeholder="0-100" required
+                                    <input type="number" name="{{ $field }}" min="0" max="100" step="0.01" value="{{ old($field) }}" placeholder="0-100" required
                                         class="focus-primary @error($field) input-error @enderror">
                                     @error($field)
                                         <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
@@ -269,7 +306,7 @@
                             @foreach(['ekonomi' => 'Ekonomi', 'geografi' => 'Geografi', 'sosiologi' => 'Sosiologi', 'sejarah' => 'Sejarah'] as $field => $label)
                                 <div class="input-field">
                                     <label>{{ $label }}</label>
-                                    <input type="number" name="{{ $field }}" min="0" max="100" value="{{ old($field) }}" placeholder="0-100" required
+                                    <input type="number" name="{{ $field }}" min="0" max="100" step="0.01" value="{{ old($field) }}" placeholder="0-100" required
                                         class="focus-primary @error($field) input-error @enderror">
                                     @error($field)
                                         <span class="validation-message" style="color: var(--error);">⚠️ {{ $message }}</span>
@@ -289,7 +326,7 @@
                         </h3>
                         <p class="section-desc">Tuliskan bidang atau kegiatan yang Anda minati. Contoh: coding, pertanian, seni, dll.</p>
                         <div class="input-field">
-                            <input type="text" name="minat" value="{{ old('minat') }}" placeholder="Minat Anda..." required
+                            <input type="text" name="minat" value="{{ old('minat') }}" maxlength="255" placeholder="Minat Anda..." required
                                 class="focus-primary @error('minat') input-error @enderror">
                             <span class="input-hint">Minimal 3 karakter, pisahkan dengan koma jika lebih dari satu</span>
                             @error('minat')
@@ -330,7 +367,7 @@
                         </h3>
                         <p class="section-desc">Tuliskan profesi atau karir yang Anda impikan di masa depan.</p>
                         <div class="input-field">
-                            <input type="text" name="cita_cita" value="{{ old('cita_cita') }}" placeholder="Contoh: programmer, dokter, pengusaha..." required
+                            <input type="text" name="cita_cita" value="{{ old('cita_cita') }}" maxlength="255" placeholder="Contoh: programmer, dokter, pengusaha..." required
                                 class="focus-primary @error('cita_cita') input-error @enderror">
                             <span class="input-hint">Minimal 3 karakter, pisahkan dengan koma jika lebih dari satu</span>
                             @error('cita_cita')
@@ -346,7 +383,7 @@
                         </h3>
                         <p class="section-desc">Tuliskan prestasi akademik atau non-akademik yang pernah Anda raih.</p>
                         <div class="input-field">
-                            <input type="text" name="prestasi" value="{{ old('prestasi') }}" placeholder="Contoh: Juara olimpiade, sertifikat programming..."
+                            <input type="text" name="prestasi" value="{{ old('prestasi') }}" maxlength="255" placeholder="Contoh: Juara olimpiade, sertifikat programming..."
                                 class="focus-primary @error('prestasi') input-error @enderror">
                             <span class="input-hint">Kolom ini bersifat opsional</span>
                             @error('prestasi')
@@ -426,6 +463,13 @@
             const form = document.querySelector('form');
             const submitBtn = form?.querySelector('button[type="submit"]');
             const inputs = form?.querySelectorAll('input, select, textarea');
+            const minatKeywords = [
+                'coding', 'pemrograman', 'programming', 'komputer', 'informatika', 'software', 'aplikasi', 'web', 'website', 'data', 'ai', 'it', 'database', 'jaringan', 'cybersecurity',
+                'pertanian', 'tanaman', 'kebun', 'sawah', 'hortikultura', 'agribisnis', 'petani', 'panen', 'tanah', 'lingkungan', 'kehutanan', 'budidaya',
+                'kesehatan', 'medis', 'dokter', 'perawat', 'farmasi', 'gizi', 'klinik', 'rumah sakit', 'terapi', 'keperawatan', 'laboratorium',
+                'bisnis', 'manajemen', 'usaha', 'wirausaha', 'entrepreneur', 'marketing', 'keuangan', 'akuntansi', 'ekonomi', 'penjualan', 'perbankan',
+                'mesin', 'listrik', 'teknik', 'otomasi', 'elektronik', 'mekanik', 'industri', 'bengkel', 'las', 'motor', 'robotik'
+            ];
             
             inputs?.forEach(input => {
                 input.addEventListener('change', () => validateField(input));
@@ -439,19 +483,31 @@
 
             form?.addEventListener('submit', function(e) {
                 let isValid = true;
+                const errorMessages = [];
+
                 inputs?.forEach(input => {
                     if (!validateField(input)) {
                         isValid = false;
+                        const messageNode = input.parentElement.querySelector('.validation-message');
+                        if (messageNode) {
+                            const cleanMessage = messageNode.textContent.replace('⚠️', '').trim();
+                            if (!errorMessages.includes(cleanMessage)) {
+                                errorMessages.push(cleanMessage);
+                            }
+                        }
                     }
                 });
 
                 if (!isValid) {
                     e.preventDefault();
+                    showClientValidationSummary(errorMessages);
                     const firstError = form.querySelector('.input-error');
                     if (firstError) {
                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         firstError.focus();
                     }
+                } else {
+                    showClientValidationSummary([]);
                 }
             });
 
@@ -460,6 +516,7 @@
                 const isRequired = field.hasAttribute('required');
                 const type = field.type;
                 let isValid = true;
+                let errorMessage = '';
 
                 field.classList.remove('input-error', 'input-valid');
                 const existingMsg = field.parentElement.querySelector('.validation-message');
@@ -467,22 +524,76 @@
 
                 if (isRequired && !value) {
                     isValid = false;
+                    errorMessage = `${getFieldLabel(field)} wajib diisi.`;
                 } else if (type === 'number' && value) {
                     const num = parseFloat(value);
                     if (isNaN(num) || num < 0 || num > 100) {
                         isValid = false;
+                        errorMessage = `${getFieldLabel(field)} harus di antara 0 sampai 100.`;
                     }
                 } else if ((field.name === 'minat' || field.name === 'cita_cita') && value && value.length < 3) {
                     isValid = false;
+                    errorMessage = `${getFieldLabel(field)} minimal 3 karakter.`;
+                } else if (field.name === 'minat' && value && !containsKnownKeyword(value, minatKeywords)) {
+                    isValid = false;
+                    errorMessage = 'Minat tidak dikenali. Gunakan kata yang lebih spesifik, misalnya coding, pertanian, farmasi, bisnis, atau teknik.';
                 }
 
                 if (!isValid && (value || isRequired)) {
                     field.classList.add('input-error');
+                    const message = document.createElement('span');
+                    message.className = 'validation-message';
+                    message.style.color = 'var(--error)';
+                    message.textContent = `⚠️ ${errorMessage}`;
+                    field.parentElement.appendChild(message);
                 } else if (isValid && (isRequired || value)) {
                     field.classList.add('input-valid');
                 }
 
                 return isValid || !isRequired;
+            }
+
+            function getFieldLabel(field) {
+                const labels = {
+                    mtk: 'Nilai Matematika',
+                    fisika: 'Nilai Fisika',
+                    kimia: 'Nilai Kimia',
+                    biologi: 'Nilai Biologi',
+                    ekonomi: 'Nilai Ekonomi',
+                    geografi: 'Nilai Geografi',
+                    sosiologi: 'Nilai Sosiologi',
+                    sejarah: 'Nilai Sejarah',
+                    minat: 'Bidang Minat',
+                    pref_studi: 'Preferensi Studi',
+                    cita_cita: 'Cita-cita',
+                    prestasi: 'Prestasi'
+                };
+
+                return labels[field.name] || field.name;
+            }
+
+            function containsKnownKeyword(value, keywords) {
+                const normalized = value.toLowerCase();
+                return keywords.some(keyword => normalized.includes(keyword));
+            }
+
+            function showClientValidationSummary(errorMessages) {
+                const alertBox = document.getElementById('clientValidationAlert');
+                const errorList = document.getElementById('clientValidationList');
+
+                if (!alertBox || !errorList) return;
+
+                if (errorMessages.length === 0) {
+                    alertBox.classList.add('hidden');
+                    errorList.innerHTML = '';
+                    return;
+                }
+
+                errorList.innerHTML = errorMessages
+                    .map(message => `<li style="font-size: 0.875rem; color: var(--error); margin-bottom: 0.375rem;">• ${message}</li>`)
+                    .join('');
+
+                alertBox.classList.remove('hidden');
             }
 
             form?.addEventListener('submit', function() {

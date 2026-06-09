@@ -98,28 +98,28 @@
 </head>
 <body class="bg-cream">
     <!-- Header -->
-    <header class="gradient-bk text-white shadow-lg sticky top-0 z-50">
+    <header class="gradient-bk text-white shadow-lg sticky top-0 z-50 overflow-visible">
         <div class="container mx-auto px-4 sm:px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                <div class="flex items-center gap-3 min-w-0">
                     <button id="mobileMenuBtn" class="md:hidden text-white focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
                     <div>
-                        <h1 class="text-lg sm:text-xl md:text-2xl font-bold">📋 Panel Guru BK</h1>
+                        <h1 class="text-lg sm:text-xl md:text-2xl font-bold leading-tight">📋 Panel Guru BK</h1>
                         <p class="text-xs text-teal-100 font-semibold">Sistem Pemilihan Jurusan Politeknik Negeri Jember</p>
                     </div>
                 </div>
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="bg-white font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm flex items-center gap-2 text-bk">
+                <div class="relative w-full sm:w-auto overflow-visible">
+                    <button id="profileDropdownBtn" class="bg-white font-bold py-2 px-4 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto text-bk">
                         👤 {{ Auth::user()->name }}
                         <svg id="dropdownArrow" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg hidden z-50">
+                    <div id="profileDropdown" class="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-48 bg-white text-gray-800 rounded-lg shadow-lg hidden z-50" style="min-width: 12rem;">
                         <a href="{{ route('bk.profil') }}" class="block px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold border-b">
                             👤 Profil Saya
                         </a>
@@ -244,33 +244,48 @@
     </div>
 
     <script>
-        // Profile dropdown
-        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
-        const profileDropdown = document.getElementById('profileDropdown');
-        const dropdownArrow = document.getElementById('dropdownArrow');
-
-        profileDropdownBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            profileDropdown.classList.toggle('hidden');
-            dropdownArrow.style.transform = profileDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!profileDropdownBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-                profileDropdown.classList.add('hidden');
-                dropdownArrow.style.transform = 'rotate(0deg)';
-            }
-        });
-
         // Mobile sidebar
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileSidebar = document.getElementById('mobileSidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         const closeMobileMenu = document.getElementById('closeMobileMenu');
 
-        mobileMenuBtn.addEventListener('click', () => mobileSidebar.classList.remove('hidden'));
-        mobileOverlay.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
-        closeMobileMenu.addEventListener('click', () => mobileSidebar.classList.add('hidden'));
+        // Profile dropdown
+        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const dropdownArrow = document.getElementById('dropdownArrow');
+
+        if (profileDropdownBtn && profileDropdown && dropdownArrow) {
+            profileDropdownBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+                dropdownArrow.style.transform = profileDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!profileDropdownBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.add('hidden');
+                    dropdownArrow.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
+        if (mobileMenuBtn && mobileSidebar && mobileOverlay && closeMobileMenu) {
+            const openMobileSidebar = () => mobileSidebar.classList.remove('hidden');
+            const closeMobileSidebar = () => mobileSidebar.classList.add('hidden');
+
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (mobileSidebar.classList.contains('hidden')) {
+                    openMobileSidebar();
+                } else {
+                    closeMobileSidebar();
+                }
+            });
+            mobileOverlay.addEventListener('click', closeMobileSidebar);
+            closeMobileMenu.addEventListener('click', closeMobileSidebar);
+        }
     </script>
     <!-- SweetAlert2 (BK) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

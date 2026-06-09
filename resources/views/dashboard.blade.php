@@ -29,24 +29,23 @@
 </head>
 <body class="bg-cream">
     <!-- Header -->
-    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+    <header class="gradient-maroon text-white shadow-lg sticky top-0 z-50 overflow-visible">
+        <div class="w-full px-4 sm:px-6 py-4 sm:py-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center sm:gap-4">
                 <div>
                     <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Dashboard Siswa</h1>
                     <p class="text-xs sm:text-sm text-yellow-300 font-semibold mt-1">Sistem Pemilihan Jurusan</p>
                 </div>
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                     <span class="text-xs sm:text-sm md:text-base text-yellow-200">Selamat datang, <strong>{{ Auth::user()->name }}</strong>!</span>
-                    <div class="relative">
-                        <button id="profileDropdownBtn" class="bg-gray-100 text-maroon font-bold py-2 px-4 rounded-lg hover:bg-gray-200 transition text-xs sm:text-sm flex items-center gap-2" style="color: #5B7B89;">
+                    <div class="relative w-full sm:w-auto overflow-visible">
+                        <button id="profileDropdownBtn" class="bg-gray-100 text-maroon font-bold py-2 px-4 rounded-lg hover:bg-gray-200 transition text-xs sm:text-sm flex items-center justify-center gap-2 w-full sm:w-auto" style="color: #5B7B89;">
                             👤 Profil
                             <svg id="dropdownArrow" class="w-4 h-4 transition-transform duration-300" style="transform: rotate(0deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                             </svg>
                         </button>
-                        
-                        <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg hidden z-50">
+                        <div id="profileDropdown" class="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-48 bg-white text-gray-800 rounded-lg shadow-lg hidden z-50" style="min-width: 12rem;">
                             <a href="{{ route('profile.edit') }}" class="block px-4 py-3 hover:bg-gray-50 text-xs sm:text-sm font-semibold border-b border-gray-100 rounded-t-lg">
                                 👤 Lihat Profil
                             </a>
@@ -252,7 +251,7 @@
 
     <!-- Footer -->
     <footer class="gradient-maroon text-white mt-8 sm:mt-12 py-4 sm:py-6">
-        <div class="container mx-auto px-4 sm:px-6 text-center">
+        <div class="w-full px-4 sm:px-6 text-center">
             <p class="text-xs sm:text-sm text-yellow-200">Sistem Pemilihan Jurusan © 2026 | SMA Bima Ambulu</p>
         </div>
     </footer>
@@ -265,6 +264,7 @@
 
         profileDropdownBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             const isHidden = profileDropdown.classList.contains('hidden');
             
             if (isHidden) {

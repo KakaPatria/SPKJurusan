@@ -119,14 +119,14 @@ class RekomendasiController extends Controller
 
         // Enhanced validation rules dengan lebih strict untuk non-akademik fields
         $rules = [
-            'mtk' => 'nullable|numeric|min:0|max:100',
-            'fisika' => 'nullable|numeric|min:0|max:100',
-            'kimia' => 'nullable|numeric|min:0|max:100',
-            'biologi' => 'nullable|numeric|min:0|max:100',
-            'ekonomi' => 'nullable|numeric|min:0|max:100',
-            'geografi' => 'nullable|numeric|min:0|max:100',
-            'sosiologi' => 'nullable|numeric|min:0|max:100',
-            'sejarah' => 'nullable|numeric|min:0|max:100',
+            'mtk' => 'nullable|numeric|between:0,100',
+            'fisika' => 'nullable|numeric|between:0,100',
+            'kimia' => 'nullable|numeric|between:0,100',
+            'biologi' => 'nullable|numeric|between:0,100',
+            'ekonomi' => 'nullable|numeric|between:0,100',
+            'geografi' => 'nullable|numeric|between:0,100',
+            'sosiologi' => 'nullable|numeric|between:0,100',
+            'sejarah' => 'nullable|numeric|between:0,100',
             'minat' => 'required|string|min:3|max:255',
             'pref_studi' => 'required|string|in:Sains & Teknologi,Pertanian & Lingkungan,Kesehatan & Ilmu Hayat,Bisnis & Manajemen,Sosial & Humaniora',
             'cita_cita' => 'required|string|min:3|max:255',
@@ -134,29 +134,84 @@ class RekomendasiController extends Controller
         ];
 
         if ($kelompokAsal === 'IPA') {
-            $rules['mtk'] = 'required|numeric|min:0|max:100';
-            $rules['fisika'] = 'required|numeric|min:0|max:100';
-            $rules['kimia'] = 'required|numeric|min:0|max:100';
-            $rules['biologi'] = 'required|numeric|min:0|max:100';
+            $rules['mtk'] = 'required|numeric|between:0,100';
+            $rules['fisika'] = 'required|numeric|between:0,100';
+            $rules['kimia'] = 'required|numeric|between:0,100';
+            $rules['biologi'] = 'required|numeric|between:0,100';
         } else {
-            $rules['ekonomi'] = 'required|numeric|min:0|max:100';
-            $rules['geografi'] = 'required|numeric|min:0|max:100';
-            $rules['sosiologi'] = 'required|numeric|min:0|max:100';
-            $rules['sejarah'] = 'required|numeric|min:0|max:100';
+            $rules['ekonomi'] = 'required|numeric|between:0,100';
+            $rules['geografi'] = 'required|numeric|between:0,100';
+            $rules['sosiologi'] = 'required|numeric|between:0,100';
+            $rules['sejarah'] = 'required|numeric|between:0,100';
         }
 
         // Custom error messages untuk lebih informatif
         $messages = [
+            '*.required' => ':attribute wajib diisi.',
+            '*.numeric' => ':attribute harus berupa angka.',
+            '*.between' => ':attribute harus di antara 0 sampai 100.',
+            '*.max' => ':attribute melebihi batas maksimum yang diizinkan.',
             'minat.required' => 'Minat harus diisi (minimal 3 karakter)',
             'minat.min' => 'Minat terlalu pendek, jelaskan lebih detail',
+            'minat.max' => 'Minat maksimal 255 karakter',
             'cita_cita.required' => 'Cita-cita harus diisi (minimal 3 karakter)',
             'cita_cita.min' => 'Cita-cita terlalu pendek, jelaskan lebih detail',
+            'cita_cita.max' => 'Cita-cita maksimal 255 karakter',
             'prestasi.min' => 'Prestasi terlalu pendek, jelaskan lebih detail',
+            'prestasi.max' => 'Prestasi maksimal 255 karakter',
             'pref_studi.required' => 'Pilih salah satu preferensi studi',
             'pref_studi.in' => 'Preferensi studi tidak valid',
         ];
 
-        $validated = $request->validate($rules, $messages);
+        $attributes = [
+            'mtk' => 'Nilai Matematika',
+            'fisika' => 'Nilai Fisika',
+            'kimia' => 'Nilai Kimia',
+            'biologi' => 'Nilai Biologi',
+            'ekonomi' => 'Nilai Ekonomi',
+            'geografi' => 'Nilai Geografi',
+            'sosiologi' => 'Nilai Sosiologi',
+            'sejarah' => 'Nilai Sejarah',
+            'minat' => 'Minat',
+            'pref_studi' => 'Preferensi Studi',
+            'cita_cita' => 'Cita-cita',
+            'prestasi' => 'Prestasi',
+        ];
+
+        $validated = $request->validate($rules, $messages, $attributes);
+
+        // Validasi berbasis mapping tree agar typo/singkatan tidak lolos sebagai kategori umum.
+        $minatInput = trim((string) ($validated['minat'] ?? ''));
+        $minatRaw = strtolower($minatInput);
+        $minatMapping = $this->mapMinat($minatRaw);
+        if (!($minatMapping['is_valid'] ?? false)) {
+            $suggestion = !empty($minatMapping['suggestion'])
+                ? ' Mungkin maksud Anda: "' . $minatMapping['suggestion'] . '".'
+                : '';
+
+            return back()
+                ->withErrors([
+                    'minat' => 'Minat tidak dikenali. Gunakan kata yang lebih spesifik sesuai bidang minat.' . $suggestion,
+                ])
+                ->withInput();
+        }
+
+        $prefInput = trim((string) ($validated['pref_studi'] ?? ''));
+        $prefMapping = $this->mapPreferensiStudi($prefInput);
+        if (!($prefMapping['is_valid'] ?? false)) {
+            $suggestion = !empty($prefMapping['suggestion'])
+                ? ' Mungkin maksud Anda: "' . $prefMapping['suggestion'] . '".'
+                : '';
+
+            return back()
+                ->withErrors([
+                    'pref_studi' => 'Preferensi studi tidak valid.' . $suggestion,
+                ])
+                ->withInput();
+        }
+
+        $minatMapped = $minatMapping['category'];
+        $prefStudi = $prefMapping['canonical'];
 
         // --- 1. PREPROCESSING NILAI (Kriteria 1: Akademik) ---
         $scores = $request->only(['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah']);
@@ -174,42 +229,38 @@ class RekomendasiController extends Controller
         }
 
         // --- 2. ANALISIS MINAT (Kriteria 2) ---
-        $minatInput = trim((string) ($validated['minat'] ?? ''));
-        
-        // Validasi minat tidak hanya satu kata
-        if (strlen($minatInput) < 3) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Minat harus diisi dengan minimal 3 karakter untuk analisis yang akurat',
-            ])->setStatusCode(422);
-        }
-        
-        $minatRaw = strtolower($minatInput);
-        $minatMapped = $this->mapMinat($minatRaw);
-        
         // Log untuk audit trail
         \Log::debug('Minat Analysis', [
             'input' => $minatInput,
             'normalized' => $minatRaw,
             'mapped' => $minatMapped,
+            'confidence' => $minatMapping['score'] ?? 0,
         ]);
 
         // --- 3. PREFERENSI STUDI LANJUTAN (Kriteria 3) ---
-        $prefStudi = $validated['pref_studi'];
+        \Log::debug('Preferensi Studi Analysis', [
+            'input' => $prefInput,
+            'mapped' => $prefStudi,
+        ]);
 
         // --- 4. ANALISIS CITA-CITA (Kriteria 4) ---
         $citaInput = trim((string) ($validated['cita_cita'] ?? ''));
         
-        // Validasi cita-cita tidak hanya satu kata
-        if (strlen($citaInput) < 3) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cita-cita harus diisi dengan minimal 3 karakter untuk analisis yang akurat',
-            ])->setStatusCode(422);
+        $citaRaw = strtolower($citaInput);
+        $citaMapping = $this->mapCitaCita($citaRaw);
+        if (!($citaMapping['is_valid'] ?? false)) {
+            $suggestion = !empty($citaMapping['suggestion'])
+                ? ' Mungkin maksud Anda: "' . $citaMapping['suggestion'] . '".'
+                : '';
+
+            return back()
+                ->withErrors([
+                    'cita_cita' => 'Cita-cita tidak dikenali. Gunakan kata yang lebih spesifik sesuai bidang karir.' . $suggestion,
+                ])
+                ->withInput();
         }
         
-        $citaRaw = strtolower($citaInput);
-        $citaMapped = $this->mapCitaCita($citaRaw);
+        $citaMapped = $citaMapping['category'];
         
         // Log untuk audit trail
         \Log::debug('Cita-cita Analysis', [
@@ -317,7 +368,27 @@ class RekomendasiController extends Controller
 
             // 4. Likelihood untuk Cita-cita
             $citaCitaKeywords = $c['cita_cita_keywords'] ?? [];
-            $p_cita_cita = $this->scoreKeywordLikelihood($citaMapped, $citaCitaKeywords, $matchProb['cita_cita'] ?? 0.85);
+            
+            // Check if the mapped career category matches the department
+            $categoryToMajors = [
+                'IT & Software' => ['Teknologi Informasi'],
+                'Agriculture' => ['Produksi Pertanian', 'Teknologi Pertanian', 'Peternakan', 'Manajemen Agribisnis'],
+                'Healthcare' => ['Kesehatan'],
+                'Business' => ['Manajemen Agribisnis', 'Bisnis'],
+                'Engineering' => ['Teknik', 'Teknologi Pertanian'],
+                'Communication' => ['Bahasa, Komunikasi, dan Pariwisata'],
+            ];
+            
+            $categoryMatches = in_array($jurusan, $categoryToMajors[$citaMapped] ?? []);
+            
+            // Score based on raw text keyword coverage
+            $rawCoverage = $this->keywordCoverage($citaRaw, $citaCitaKeywords);
+            
+            // Combine both: if category matches OR raw keywords match
+            $citaMatchScore = max($categoryMatches ? 1.0 : 0.0, $rawCoverage);
+            
+            $p_cita_cita = 0.20 + ($citaMatchScore * (($matchProb['cita_cita'] ?? 0.85) - 0.20));
+            $p_cita_cita = max(0.05, min(0.98, $p_cita_cita));
 
             // 5. Likelihood untuk Prestasi (bertingkat: tinggi/menengah/dasar/minimal)
             $p_prestasi = $this->scorePrestasiLikelihood(
@@ -474,19 +545,48 @@ class RekomendasiController extends Controller
         return $text;
     }
 
-    private function mapMinat(string $minatRaw): string
+    private function getMinatMappingTree(): array
+    {
+        return [
+            'Logika & Komputer' => [
+                'coding', 'pemrograman', 'programming', 'komputer', 'informatika', 'software', 'aplikasi', 'web', 'website', 'data', 'ai', 'it', 'database', 'jaringan', 'cybersecurity',
+                'teknologi', 'internet', 'gadget', 'game', 'gaming', 'robot', 'cyber', 'sistem', 'desain grafis', 'grafika', 'digital', 'animasi', 'editing', 'video', 'multimedia', 'ui/ux', 'komputerisasi'
+            ],
+            'Alam & Tanaman' => [
+                'pertanian', 'tanaman', 'kebun', 'sawah', 'hortikultura', 'agribisnis', 'petani', 'panen', 'tanah', 'lingkungan', 'kehutanan', 'budidaya',
+                'hewan', 'peternakan', 'ternak', 'veteriner', 'botani', 'zoologi', 'biologi', 'pangan', 'perikanan', 'kelautan', 'ikan', 'pupuk', 'hidroponik', 'agronomi', 'alam'
+            ],
+            'Pelayanan & Kesehatan' => [
+                'kesehatan', 'medis', 'dokter', 'perawat', 'farmasi', 'gizi', 'klinik', 'rumah sakit', 'terapi', 'keperawatan', 'laboratorium',
+                'makanan', 'obat', 'apoteker', 'kebidanan', 'bidan', 'biomedis', 'psikologi', 'psikiater', 'konseling', 'sosial', 'pelayanan', 'bantuan'
+            ],
+            'Manajemen & Bisnis' => [
+                'bisnis', 'manajemen', 'usaha', 'wirausaha', 'entrepreneur', 'marketing', 'keuangan', 'akuntansi', 'ekonomi', 'penjualan', 'perbankan',
+                'investasi', 'saham', 'bank', 'sales', 'pemasaran', 'administrasi', 'toko', 'dagang', 'perdagangan', 'kantor'
+            ],
+            'Mesin & Listrik' => [
+                'mesin', 'listrik', 'teknik', 'otomasi', 'elektronik', 'mekanik', 'industri', 'bengkel', 'las', 'motor', 'robotik',
+                'otomotif', 'mobil', 'alat berat', 'pabrik', 'panel', 'instalasi', 'solder', 'logam', 'konstruksi', 'sipil', 'arsitektur'
+            ],
+        ];
+    }
+
+    private function getPreferensiStudiMappingTree(): array
+    {
+        return [
+            'Sains & Teknologi' => ['sains & teknologi', 'sains dan teknologi', 'saintek', 'science and technology'],
+            'Pertanian & Lingkungan' => ['pertanian & lingkungan', 'pertanian dan lingkungan', 'agriculture and environment', 'agro lingkungan'],
+            'Kesehatan & Ilmu Hayat' => ['kesehatan & ilmu hayat', 'kesehatan dan ilmu hayat', 'health and life science', 'ilmu hayat'],
+            'Bisnis & Manajemen' => ['bisnis & manajemen', 'bisnis dan manajemen', 'business and management'],
+            'Sosial & Humaniora' => ['sosial & humaniora', 'sosial dan humaniora', 'social and humanities', 'soshum'],
+        ];
+    }
+
+    private function mapMinat(string $minatRaw): array
     {
         // Normalize text untuk better matching
         $minatNormalized = $this->normalizeText($minatRaw);
-        
-        // Use coverage-based scoring untuk handle ambiguous inputs
-        $categoryKeywords = [
-            'Logika & Komputer' => ['coding', 'komputer', 'laptop', 'web', 'aplikasi', 'logika', 'programming', 'software', 'development', 'developer', 'it', 'data', 'ai', 'teknologi', 'sistem', 'cloud', 'database', 'network', 'cybersecurity', 'analyst', 'scientist', 'algorithm', 'machine learning', 'app', 'digital'],
-            'Alam & Tanaman' => ['tanam', 'kebun', 'sawah', 'hewan', 'ternak', 'alam', 'pertanian', 'agri', 'panen', 'tani', 'hortikultura', 'lingkungan', 'berkelanjutan', 'farm', 'farming', 'plantation', 'crops', 'conservation', 'breeding', 'agribusiness', 'agroforestry', 'horticulture', 'cultivate', 'harvest', 'livestock management', 'animal husbandry', 'sustainable agriculture', 'crop science', 'soil', 'botanical'],
-            'Pelayanan & Kesehatan' => ['obat', 'sakit', 'rawat', 'medis', 'gizi', 'sehat', 'kesehatan', 'perawat', 'dokter', 'rumah sakit', 'klinik', 'farmasi', 'keperawatan', 'terapis', 'nursing', 'therapy', 'wellness', 'nutrition', 'healing', 'caring', 'clinical', 'patient care', 'rehabilitation', 'surgery', 'diagnostic', 'laboratory', 'medical technician', 'health educator', 'public health', 'epidemiology', 'preventive care'],
-            'Manajemen & Bisnis' => ['bisnis', 'uang', 'jual', 'kantor', 'hitung', 'ekonomi', 'dagang', 'usaha', 'entrepreneur', 'manager', 'marketing', 'akuntan', 'finance', 'keuangan', 'sales', 'trading', 'commerce', 'leadership', 'startup', 'corporate', 'organization', 'administration', 'strategic planning', 'operations', 'budget', 'investment', 'capital', 'supply chain', 'logistics', 'human resources'],
-            'Mesin & Listrik' => ['mesin', 'bengkel', 'listrik', 'las', 'robot', 'motor', 'teknik', 'otomasi', 'elektronik', 'maintenance', 'industri', 'manufaktur', 'mechanical', 'electrical', 'automation', 'construction', 'repair', 'welding', 'hydraulic', 'pneumatic', 'power generation', 'circuit', 'transformer', 'machinery operation', 'fabrication', 'installation', 'troubleshooting'],
-        ];
+        $categoryKeywords = $this->getMinatMappingTree();
         
         // Score setiap kategori berdasarkan keyword coverage
         $scores = [];
@@ -495,7 +595,7 @@ class RekomendasiController extends Controller
         }
         
         // Return kategori dengan coverage tertinggi
-        $bestCategory = 'Umum';
+        $bestCategory = null;
         $maxScore = 0;
         foreach ($scores as $category => $score) {
             if ($score > $maxScore) {
@@ -503,28 +603,125 @@ class RekomendasiController extends Controller
                 $bestCategory = $category;
             }
         }
-        
-        // Jika tidak ada keyword match, return Umum
-        return $maxScore > 0 ? $bestCategory : 'Umum';
+
+        // Ketatkan validasi: jika skor terlalu rendah maka dianggap typo/terlalu umum.
+        if ($maxScore < 0.12 || $bestCategory === null) {
+            return [
+                'is_valid' => false,
+                'category' => null,
+                'score' => $maxScore,
+                'suggestion' => $this->closestKeywordSuggestion($minatNormalized, $categoryKeywords),
+            ];
+        }
+
+        return [
+            'is_valid' => true,
+            'category' => $bestCategory,
+            'score' => $maxScore,
+            'suggestion' => null,
+        ];
+    }
+
+    private function mapPreferensiStudi(string $prefRaw): array
+    {
+        $input = strtolower(trim($prefRaw));
+        $tree = $this->getPreferensiStudiMappingTree();
+
+        foreach ($tree as $canonical => $aliases) {
+            $normalizedAliases = array_map(static fn($value) => strtolower(trim($value)), $aliases);
+            if (in_array($input, $normalizedAliases, true)) {
+                return [
+                    'is_valid' => true,
+                    'canonical' => $canonical,
+                    'suggestion' => null,
+                ];
+            }
+        }
+
+        // Cari saran opsi terdekat berdasarkan canonical name.
+        $closest = null;
+        $closestDistance = PHP_INT_MAX;
+        foreach (array_keys($tree) as $candidate) {
+            $distance = levenshtein($input, strtolower($candidate));
+            if ($distance < $closestDistance) {
+                $closestDistance = $distance;
+                $closest = $candidate;
+            }
+        }
+
+        return [
+            'is_valid' => false,
+            'canonical' => null,
+            'suggestion' => $closestDistance <= 10 ? $closest : null,
+        ];
+    }
+
+    private function closestKeywordSuggestion(string $text, array $categoryKeywords): ?string
+    {
+        $tokens = preg_split('/[^a-z0-9]+/i', strtolower($text)) ?: [];
+        $tokens = array_values(array_filter($tokens, static fn($token) => strlen($token) >= 3));
+        if (empty($tokens)) {
+            return null;
+        }
+
+        $allKeywords = [];
+        foreach ($categoryKeywords as $keywords) {
+            foreach ($keywords as $keyword) {
+                $allKeywords[strtolower($keyword)] = true;
+            }
+        }
+
+        $bestKeyword = null;
+        $bestDistance = PHP_INT_MAX;
+
+        foreach ($tokens as $token) {
+            foreach (array_keys($allKeywords) as $keyword) {
+                $distance = levenshtein($token, $keyword);
+                if ($distance < $bestDistance) {
+                    $bestDistance = $distance;
+                    $bestKeyword = $keyword;
+                }
+            }
+        }
+
+        return $bestDistance <= 2 ? $bestKeyword : null;
     }
 
     /**
      * Pemetaan cita-cita ke kategori jurusan yang relevan
      * Mengevaluasi input cita-cita dengan lebih detail
      */
-    private function mapCitaCita(string $citaRaw): string
+    private function mapCitaCita(string $citaRaw): array
     {
         // Normalize text untuk better matching
         $citaNormalized = $this->normalizeText($citaRaw);
         
         // Map cita-cita ke category berdasarkan keywords
         $careerCategories = [
-            'IT & Software' => ['programmer', 'developer', 'software', 'coding', 'web', 'database', 'it', 'scientist', 'analyst', 'data', 'cloud', 'architect', 'cybersecurity', 'security', 'devops', 'backend', 'frontend', 'fullstack', 'sysadmin', 'network admin', 'cto', 'tech lead', 'ai', 'machine learning'],
-            'Agriculture' => ['petani', 'pertanian', 'agribisnis', 'kebun', 'ternak', 'peternak', 'agronomi', 'farming', 'livestock', 'agronomist', 'farmer', 'farm manager', 'plantation', 'crops specialist', 'agritech', 'horticultural', 'agricultural scientist', 'soil scientist', 'breeding specialist', 'extension officer', 'crop consultant', 'forestry', 'fishery manager'],
-            'Healthcare' => ['dokter', 'perawat', 'medis', 'gizi', 'terapis', 'farmasi', 'kesehatan', 'nursing', 'therapist', 'pharmacist', 'nutritionist', 'clinician', 'public health', 'midwife', 'radiologist', 'dentist', 'nurse', 'surgeon', 'diagnostician', 'laboratory technician', 'paramedic', 'health educator', 'epidemiologist', 'wellness coach'],
-            'Business' => ['entrepreneur', 'manager', 'marketing', 'sales', 'akuntan', 'keuangan', 'bisnis', 'accountant', 'consultant', 'finance', 'cfo', 'ceo', 'director', 'treasurer', 'auditor', 'trader', 'investor', 'controller', 'operations manager', 'strategic planner', 'business analyst', 'supply chain manager', 'hr manager', 'corporate executive'],
-            'Engineering' => ['teknik', 'engineer', 'mesin', 'listrik', 'bengkel', 'maintenance', 'industri', 'technician', 'constructor', 'mechanical engineer', 'electrical engineer', 'automation', 'supervisor', 'foreman', 'technologist', 'specialist', 'civil engineer', 'welding specialist', 'hydraulics engineer', 'power engineer', 'manufacturing engineer', 'maintenance supervisor'],
-            'Communication' => ['jurnalis', 'komunikator', 'presenter', 'content', 'pariwisata', 'hospitality', 'tour', 'guide', 'public relations', 'ambassador', 'interpreter', 'diplomat', 'broadcaster', 'event organizer', 'marketing specialist', 'pr specialist', 'copywriter', 'social media manager', 'travel consultant', 'hospitality manager', 'cultural ambassador', 'media producer'],
+            'IT & Software' => [
+                'programmer', 'programming', 'developer', 'development', 'software', 'coding', 'web', 'database', 'it', 'scientist', 'analyst', 'data', 'cloud', 'architect', 'cybersecurity', 'security', 'devops', 'backend', 'frontend', 'fullstack', 'sysadmin', 'network admin', 'cto', 'tech lead', 'ai', 'machine learning',
+                'analis data', 'pembuat web', 'data scientist', 'administrator jaringan', 'hacker', 'keamanan siber', 'gamedev', 'game developer'
+            ],
+            'Agriculture' => [
+                'petani', 'pertanian', 'agribisnis', 'kebun', 'ternak', 'peternak', 'agronomi', 'farming', 'livestock', 'agronomist', 'farmer', 'farm manager', 'plantation', 'crops specialist', 'agritech', 'horticultural', 'agricultural scientist', 'soil scientist', 'breeding specialist', 'extension officer', 'crop consultant', 'forestry', 'fishery manager',
+                'penyuluh pertanian', 'pengusaha kebun', 'dokter hewan', 'peternak sapi', 'peternak ayam', 'petani modern'
+            ],
+            'Healthcare' => [
+                'dokter', 'perawat', 'medis', 'gizi', 'terapis', 'farmasi', 'kesehatan', 'nursing', 'therapist', 'pharmacist', 'nutritionist', 'clinician', 'public health', 'midwife', 'radiologist', 'dentist', 'nurse', 'surgeon', 'diagnostician', 'laboratory technician', 'paramedic', 'health educator', 'epidemiologist', 'wellness coach',
+                'bidan', 'apoteker', 'ahli gizi', 'analis kesehatan', 'mantri', 'dokter spesialis', 'perawat kesehatan'
+            ],
+            'Business' => [
+                'entrepreneur', 'manager', 'marketing', 'sales', 'akuntan', 'keuangan', 'bisnis', 'accountant', 'consultant', 'finance', 'cfo', 'ceo', 'director', 'treasurer', 'auditor', 'trader', 'investor', 'controller', 'operations manager', 'strategic planner', 'business analyst', 'supply chain manager', 'hr manager', 'corporate executive',
+                'pengusaha', 'wirausahawan', 'akuntan publik', 'pemasar', 'direktur', 'staf administrasi', 'manajer keuangan', 'bankir', 'sales representative'
+            ],
+            'Engineering' => [
+                'teknik', 'engineer', 'mesin', 'listrik', 'bengkel', 'maintenance', 'industri', 'technician', 'constructor', 'mechanical engineer', 'electrical engineer', 'automation', 'supervisor', 'foreman', 'technologist', 'specialist', 'civil engineer', 'welding specialist', 'hydraulics engineer', 'power engineer', 'manufacturing engineer', 'maintenance supervisor',
+                'teknisi listrik', 'mekanik mobil', 'operator mesin', 'drafter', 'mandor', 'arsitek', 'ahli las', 'tukang bubut'
+            ],
+            'Communication' => [
+                'jurnalis', 'komunikator', 'presenter', 'content', 'pariwisata', 'hospitality', 'tour', 'guide', 'public relations', 'ambassador', 'interpreter', 'diplomat', 'broadcaster', 'event organizer', 'marketing specialist', 'pr specialist', 'copywriter', 'social media manager', 'travel consultant', 'hospitality manager', 'cultural ambassador', 'media producer',
+                'pembuat konten', 'pemandu wisata', 'penerjemah', 'wartawan', 'penulis berita', 'humas', 'resepsionis'
+            ],
         ];
         
         // Score setiap kategori
@@ -534,7 +731,7 @@ class RekomendasiController extends Controller
         }
         
         // Return kategori dengan coverage tertinggi
-        $bestCategory = 'Umum';
+        $bestCategory = null;
         $maxScore = 0;
         foreach ($scores as $category => $score) {
             if ($score > $maxScore) {
@@ -543,7 +740,21 @@ class RekomendasiController extends Controller
             }
         }
         
-        return $maxScore > 0 ? $bestCategory : 'Umum';
+        if ($maxScore < 0.12 || $bestCategory === null) {
+            return [
+                'is_valid' => false,
+                'category' => null,
+                'score' => $maxScore,
+                'suggestion' => $this->closestKeywordSuggestion($citaNormalized, $careerCategories),
+            ];
+        }
+        
+        return [
+            'is_valid' => true,
+            'category' => $bestCategory,
+            'score' => $maxScore,
+            'suggestion' => null,
+        ];
     }
 
     /**
@@ -685,10 +896,29 @@ class RekomendasiController extends Controller
             return 0.0;
         }
 
+        // Split text into word tokens
+        $tokens = preg_split('/[^a-z0-9]+/i', $text) ?: [];
+        $tokens = array_values(array_filter($tokens, static fn($t) => strlen($t) >= 3));
+
         $matched = 0;
         foreach (array_unique($keywords) as $keyword) {
-            if ($keyword !== '' && str_contains($text, strtolower($keyword))) {
+            $keywordLower = strtolower($keyword);
+            if ($keywordLower === '') continue;
+
+            // Direct containment with word boundaries
+            if (preg_match('/\b' . preg_quote($keywordLower, '/') . '\b/i', $text)) {
                 $matched++;
+                continue;
+            }
+
+            // Word-level prefix/substring match only for keywords of length >= 4
+            if (strlen($keywordLower) >= 4) {
+                foreach ($tokens as $token) {
+                    if (str_contains($keywordLower, $token) || str_contains($token, $keywordLower)) {
+                        $matched++;
+                        break;
+                    }
+                }
             }
         }
 

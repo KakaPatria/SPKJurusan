@@ -53,11 +53,7 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Keywords (Kata Kunci) <span class="text-gray-400 text-xs">(pisahkan dengan koma)</span></label>
-                    <textarea name="keywords" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Contoh: programmer, developer, coding, software" oninput="validateJurusanForm()">{{ old('keywords') }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Gunakan keywords untuk mencocokkan minat & cita-cita siswa dengan jurusan</p>
-                </div>
+
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Preferensi Studi <span class="text-gray-400 text-xs">(pisahkan dengan koma)</span></label>

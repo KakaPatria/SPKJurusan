@@ -17,6 +17,7 @@ class RekomendasiTest extends TestCase
             'kelompok_asal' => 'IPA',
         ]);
         $this->seed(\Database\Seeders\PolijeMajorSeeder::class);
+        $this->withoutExceptionHandling();
 
         $payload = [
             'mtk' => 95,

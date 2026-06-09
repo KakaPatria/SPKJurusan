@@ -15,31 +15,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('alumni', function (Blueprint $table) {
-            // Drop unnecessary columns
-            if (Schema::hasColumn('alumni', 'success_status')) {
-                $table->dropColumn('success_status');
+        $colsToDrop = ['success_status', 'ranking_saat_rekomendasi', 'predicted_score', 'ipk_lulus', 'karir_outcome', 'preferensi_studi'];
+        foreach ($colsToDrop as $col) {
+            if (Schema::hasColumn('alumni', $col)) {
+                Schema::table('alumni', function (Blueprint $table) use ($col) {
+                    $table->dropColumn($col);
+                });
             }
-            if (Schema::hasColumn('alumni', 'ranking_saat_rekomendasi')) {
-                $table->dropColumn('ranking_saat_rekomendasi');
-            }
-            if (Schema::hasColumn('alumni', 'predicted_score')) {
-                $table->dropColumn('predicted_score');
-            }
-            if (Schema::hasColumn('alumni', 'ipk_lulus')) {
-                $table->dropColumn('ipk_lulus');
-            }
-            if (Schema::hasColumn('alumni', 'karir_outcome')) {
-                $table->dropColumn('karir_outcome');
-            }
-        });
-
-        // Update preferensi_studi dengan raw SQL untuk menghindari Doctrine enum issue
-        Schema::table('alumni', function (Blueprint $table) {
-            if (Schema::hasColumn('alumni', 'preferensi_studi')) {
-                $table->dropColumn('preferensi_studi');
-            }
-        });
+        }
 
         Schema::table('alumni', function (Blueprint $table) {
             // Add kembali preferensi_studi dengan enum values yang tepat

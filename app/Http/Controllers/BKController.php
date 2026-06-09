@@ -103,6 +103,14 @@ class BKController extends Controller
         })->toArray();
         $topMajorsCounts = $topMajors->pluck('count')->toArray();
 
+        // Rekomendasi per kelompok
+        $rekomendasiPerKelompok = Recommendation::selectRaw(
+            'users.kelompok_asal, COUNT(*) as count'
+        )
+        ->join('users', 'rekomendasi.user_id', '=', 'users.id')
+        ->groupBy('users.kelompok_asal')
+        ->get();
+
         return view('bk.dashboard', compact(
             'totalSiswa',
             'totalRekomendasi',
@@ -117,7 +125,8 @@ class BKController extends Controller
             'chartKelompokNames',
             'chartKelompokCounts',
             'topMajorsChart',
-            'topMajorsCounts'
+            'topMajorsCounts',
+            'rekomendasiPerKelompok'
         ));
     }
 
@@ -245,7 +254,6 @@ class BKController extends Controller
         $request->validate([
             'nama_jurusan' => 'required|string|min:3|max:255|unique:jurusan_polije,nama_jurusan',
             'deskripsi' => 'nullable|string|max:1000',
-            'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
             'bobot_mtk' => 'nullable|numeric|min:0|max:1',
@@ -261,7 +269,7 @@ class BKController extends Controller
         PolijeMajor::create([
             'nama_jurusan' => $request->nama_jurusan,
             'deskripsi' => $request->deskripsi,
-            'keywords' => $this->parseTagInput($request->keywords),
+            'keywords' => [],
             'preferensi_studi' => $this->parseTagInput($request->preferensi_studi),
             'prospek_kerja' => $request->prospek_kerja,
             'bobot_mapel' => $this->parseBobotMapel($request),
@@ -283,7 +291,6 @@ class BKController extends Controller
         $request->validate([
             'nama_jurusan' => ['required', 'string', 'min:3', 'max:255', Rule::unique('jurusan_polije', 'nama_jurusan')->ignore($jurusan->id)],
             'deskripsi' => 'nullable|string|max:1000',
-            'keywords' => 'nullable|string',
             'preferensi_studi' => 'nullable|string',
             'prospek_kerja' => 'nullable|string|max:1000',
             'bobot_mtk' => 'nullable|numeric|min:0|max:1',
@@ -299,7 +306,6 @@ class BKController extends Controller
         $jurusan->update([
             'nama_jurusan' => $request->nama_jurusan,
             'deskripsi' => $request->deskripsi,
-            'keywords' => $this->parseTagInput($request->keywords),
             'preferensi_studi' => $this->parseTagInput($request->preferensi_studi),
             'prospek_kerja' => $request->prospek_kerja,
             'bobot_mapel' => $this->parseBobotMapel($request),

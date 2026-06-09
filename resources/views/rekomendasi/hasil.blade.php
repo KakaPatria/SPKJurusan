@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f766e;
-            --primary-light: #0d9488;
+            --primary: #9333ea;
+            --primary-light: #6366f1;
             --accent: #f59e0b;
             --success: #10b981;
             --error: #ef4444;
-            --bg-soft: #f0f9ff;
+            --bg-soft: #f5f3ff;
             --bg-card: #ffffff;
             --text-main: #1f2937;
             --text-secondary: #6b7280;
-            --border-light: #e5e7eb;
+            --border-light: #e9e3ff;
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
         }
@@ -121,7 +121,7 @@
 <body>
     <!-- Header -->
     <header class="header-main py-4 md:py-6">
-        <div class="container mx-auto px-4 md:px-6">
+        <div class="w-full px-4 md:px-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold">Hasil Analisis Rekomendasi</h1>
@@ -140,7 +140,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 md:px-6 py-8 md:py-12">
+    <main class="w-full px-4 md:px-6 py-8 md:py-12">
         <!-- Data Profil Summary -->
         <div class="card p-6 md:p-8 mb-8">
             <h2 class="text-2xl font-bold text-primary mb-6">Data Profil Anda</h2>

@@ -33,7 +33,6 @@
                 <tr>
                     <th class="px-4 py-3 text-left">No</th>
                     <th class="px-4 py-3 text-left">Nama Jurusan</th>
-                    <th class="px-4 py-3 text-left hidden md:table-cell">Keywords</th>
                     <th class="px-4 py-3 text-left hidden lg:table-cell">Preferensi Studi</th>
                     <th class="px-4 py-3 text-center">Aksi</th>
                 </tr>
@@ -48,16 +47,7 @@
                                 <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ Str::limit($jurusan->deskripsi, 80) }}</p>
                             @endif
                         </td>
-                        <td class="px-4 py-3 hidden md:table-cell">
-                            <div class="flex flex-wrap gap-1">
-                                @foreach(array_slice($jurusan->keywords ?? [], 0, 5) as $kw)
-                                    <span class="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs">{{ $kw }}</span>
-                                @endforeach
-                                @if(count($jurusan->keywords ?? []) > 5)
-                                    <span class="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-500 text-xs">+{{ count($jurusan->keywords) - 5 }}</span>
-                                @endif
-                            </div>
-                        </td>
+
                         <td class="px-4 py-3 hidden lg:table-cell">
                             <div class="flex flex-wrap gap-1">
                                 @foreach($jurusan->preferensi_studi ?? [] as $ps)
@@ -82,7 +72,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">
+                        <td colspan="4" class="px-4 py-6 text-center text-gray-500">
                             Belum ada data jurusan. <a href="{{ route('bk.jurusan.create') }}" class="text-bk font-semibold hover:underline">Tambah jurusan pertama</a>.
                         </td>
                     </tr>

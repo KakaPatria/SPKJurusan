@@ -21,6 +21,7 @@ class UserFlowTest extends TestCase
 
     public function test_siswa_complete_flow()
     {
+        $this->withoutExceptionHandling();
         $siswa = User::factory()->create([
             'role' => 'siswa',
             'kelompok_asal' => 'IPA',
@@ -63,6 +64,7 @@ class UserFlowTest extends TestCase
 
     public function test_bk_complete_flow()
     {
+        $this->withoutExceptionHandling();
         $bk = User::factory()->create([
             'role' => 'bk',
             'email' => 'bk@test.com',

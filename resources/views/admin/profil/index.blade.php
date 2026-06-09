@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-maroon">⚙️ Profil Admin</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-maroon leading-tight">⚙️ Profil Admin</h2>
         <p class="text-sm text-gray-500 mt-1">Kelola informasi akun administrator</p>
     </div>
 
@@ -31,9 +31,9 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <!-- Update Profile -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
             <h3 class="text-lg font-bold text-maroon mb-4">👤 Informasi Akun</h3>
             <form action="{{ route('admin.profil.update') }}" method="POST" class="space-y-4" id="profileForm">
                 @csrf
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Change Password -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
             <h3 class="text-lg font-bold text-maroon mb-4">🔒 Ubah Password</h3>
             <form action="{{ route('admin.profil.password') }}" method="POST" class="space-y-4" id="passwordForm">
                 @csrf

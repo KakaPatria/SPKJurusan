@@ -54,18 +54,7 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Keywords (Kata Kunci) <span class="text-gray-400 text-xs">(pisahkan dengan koma)</span></label>
-                    <textarea name="keywords" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition" placeholder="Contoh: programmer, developer, coding, software" oninput="validateJurusanForm()">{{ old('keywords', implode(', ', $jurusan->keywords ?? [])) }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Gunakan keywords untuk mencocokkan minat & cita-cita siswa dengan jurusan</p>
-                    @if(!empty($jurusan->keywords))
-                        <div class="flex flex-wrap gap-1 mt-2">
-                            @foreach($jurusan->keywords as $kw)
-                                <span class="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs">{{ $kw }}</span>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
+
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Preferensi Studi <span class="text-gray-400 text-xs">(pisahkan dengan koma)</span></label>

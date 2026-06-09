@@ -9,18 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         // Drop kolom nilai mapel individual, keep nilai_rata_rata
-        Schema::table('alumni', function (Blueprint $table) {
-            $table->dropColumn([
-                'mtk',
-                'fisika',
-                'kimia',
-                'biologi',
-                'ekonomi',
-                'geografi',
-                'sosiologi',
-                'sejarah'
-            ]);
-        });
+        $columns = ['mtk', 'fisika', 'kimia', 'biologi', 'ekonomi', 'geografi', 'sosiologi', 'sejarah'];
+        foreach ($columns as $column) {
+            Schema::table('alumni', function (Blueprint $table) use ($column) {
+                $table->dropColumn($column);
+            });
+        }
     }
 
     public function down(): void

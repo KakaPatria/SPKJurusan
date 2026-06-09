@@ -8,18 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('alumni', function (Blueprint $table) {
-            // Drop old columns if exist
-            if (Schema::hasColumn('alumni', 'tahun_masuk')) {
-                $table->dropColumn('tahun_masuk');
+        $colsToDrop = ['tahun_masuk', 'preferensi_studi', 'tahun_lulus'];
+        foreach ($colsToDrop as $col) {
+            if (Schema::hasColumn('alumni', $col)) {
+                Schema::table('alumni', function (Blueprint $table) use ($col) {
+                    $table->dropColumn($col);
+                });
             }
-            if (Schema::hasColumn('alumni', 'preferensi_studi')) {
-                $table->dropColumn('preferensi_studi');
-            }
-            if (Schema::hasColumn('alumni', 'tahun_lulus')) {
-                $table->dropColumn('tahun_lulus');
-            }
-        });
+        }
 
         Schema::table('alumni', function (Blueprint $table) {
             // === INPUT VARIABLES (dari SMA) ===
